@@ -1,0 +1,31 @@
+<ivy-module version="1.0" xmlns:e="http://ant.apache.org/ivy/extra">
+  <!-- CONFIG: net.lag.example is the example project we're going to setup" -->
+  <!-- CONFIG: testclass is your test runner -->
+  <!-- CONFIG: jarclassname is the name of your main class to run via java -jar -->
+  <!-- CONFIG: thriftpackage is where generated thrift classes go. 
+               Only matters if you're using thrift. -->
+  <info organisation="com.nodeta"
+    module="scalandra"
+    revision="0.1.0"
+    e:buildpackage="com.nodeta.scalandra"
+    e:testclass="com.nodeta.scalandra.tests.TestRunner"
+  />
+
+  <configurations>
+    <conf name="bootstrap" visibility="private" description="load scala compiler and libraries" />
+    <conf name="default" description="normal build" />
+    <conf name="test" visibility="private" description="build and run tests" />
+  </configurations>
+  <dependencies>
+    <dependency org="org.scala-lang" name="scala-compiler" rev="2.7.5" />
+    <dependency org="org.scala-lang" name="scala-library" rev="2.7.5" />
+    <dependency org="org.scala-tools.testing" name="specs" rev="1.5.0" conf="test->*" />
+    <dependency org="junit" name="junit" rev="4.5" conf="test->*" />
+    <dependency org="org.scala-tools" name="vscaladoc" rev="1.1-md-3" conf="bootstrap->*" />
+
+    <dependency org="org.apache.thrift" name="thrift" rev="cassandra-0.4.0-beta1" conf="*" />
+    <dependency org="org.apache.cassandra" name="cassandra" rev="0.4.0-beta1" conf="*" />
+    <dependency org="log4j" name="log4j" rev="1.2.15" conf="*" />
+    <dependency org="commons-pool" name="commons-pool" rev="1.5.2" conf="*" />
+  </dependencies>
+</ivy-module>
