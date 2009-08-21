@@ -13,4 +13,13 @@ trait Pool[T] extends java.io.Closeable {
   def idle() : Int
   def active() : Int
   def clear() : Unit
+  
+  def apply[R](f : T => R) = {
+    val item = this.borrow()
+    try {
+      f(item)
+    } finally {
+      this.restore(item)
+    }
+  }
 }
