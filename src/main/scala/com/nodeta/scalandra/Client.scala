@@ -1,5 +1,7 @@
 package com.nodeta.scalandra
 
+import serializer.{Serializer, StringSerializer}
+
 import org.apache.cassandra.{service => cassandra}
 import java.lang.IllegalArgumentException
 

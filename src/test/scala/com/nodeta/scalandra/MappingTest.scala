@@ -1,7 +1,8 @@
 package com.nodeta.scalandra.tests
 
 import org.specs._
-import com.nodeta.scalandra.mapping._
+import com.nodeta.scalandra.map._
+import com.nodeta.scalandra.serializer._
 
 object MappingTest extends Specification {  
   "Keyspace" should {

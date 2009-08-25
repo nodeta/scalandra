@@ -3,6 +3,7 @@ package com.nodeta.scalandra.client
 import org.apache.cassandra.{service => cassandra}
 import org.apache.cassandra.service.Cassandra
 import java.lang.IllegalArgumentException
+import serializer.Serializer
 
 /**
  * Base interface for all client actions.

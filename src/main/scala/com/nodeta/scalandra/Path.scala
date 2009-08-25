@@ -18,9 +18,6 @@ trait Path {
  * @param superColumn Super column key (optional)
  */
 case class ColumnParent[A](columnFamily : String, key : String, superColumn : Option[A]) extends Path {
-  def serialize(s : Serializer[A]) : ColumnParent[Array[Byte]] = {
-    new ColumnParent(columnFamily, key, superColumn.map(s.serialize(_)))
-  }
   def +[B](column : B) : ColumnPath[A, B] = {
     new ColumnPath(columnFamily, key, superColumn, column)
   }

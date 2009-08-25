@@ -1,7 +1,10 @@
 package com.nodeta.scalandra.client
 
+import com.nodeta.scalandra.serializer.Serializer
+
 import org.apache.cassandra.{service => cassandra}
 import org.apache.cassandra.service.NotFoundException
+
 import java.util.{List => JavaList}
 import scala.collection.jcl.{ArrayList, Conversions}
 import scala.collection.immutable.ListMap

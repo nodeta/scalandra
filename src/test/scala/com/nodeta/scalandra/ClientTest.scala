@@ -1,6 +1,7 @@
 package com.nodeta.scalandra.tests
 
 import org.specs._
+import com.nodeta.scalandra.serializer.StringSerializer
 
 object ClientTest extends Specification {
   val cassandra = new Client(Connection(), "Keyspace1", StringSerializer, StringSerializer, StringSerializer)
