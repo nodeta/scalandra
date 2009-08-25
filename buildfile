@@ -12,13 +12,13 @@ repositories.remote << "http://www.ibiblio.org/maven2"
 repositories.remote << 'http://maven.kutomotie.nodeta.fi'
 
 
-desc "The Scalandra project"
+desc "Scalandra"
 define "scalandra" do
   project.version = VERSION_NUMBER
   project.group = GROUP
   manifest["Implementation-Vendor"] = COPYRIGHT
   
-  doc.using :scaladoc
+  doc.using :vscaladoc
   test.using :specs
   
   compile.with(
