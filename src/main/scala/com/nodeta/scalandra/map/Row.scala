@@ -1,8 +1,9 @@
 package com.nodeta.scalandra.map
 
 import scala.collection.immutable.ListMap
+import scala.collection.mutable.{Map => MMap}
 
-trait Row[A, B] extends scala.collection.Map[A, B] {
+trait Row[A, B] extends MMap[A, B] {
   protected val data : Map[A, B]
   protected val path : ColumnParent[_]
 
@@ -31,10 +32,36 @@ trait StandardRow[A, B] extends Row[A, B] with StandardBase[A, B] {
   }
   def slice(start : Option[A], finish : Option[A]) = {
     client.slice(path--, start, finish, Ascending)
-  }
-
+  } 
+  
   protected def build(key : A) = {
     client.get(path--() + key)
+  }
+  
+  def -=(key : A) {
+    client.remove(path + key)
+  }
+  
+  override def ++=(kvs : Iterable[(A, B)]) {
+    client.insertNormal(path--, kvs.toList)
+  }
+  
+  override def ++(kvs : Iterable[(A, B)]) = {
+    this ++= kvs
+    this
+  }
+  
+  override def ++=(kvs : Iterator[(A, B)]) {
+    this ++ kvs.toList
+  }
+  
+  override def ++(kvs : Iterator[(A, B)]) = {
+    this ++= kvs
+    this
+  }
+  
+  def update(key : A, value : B) {
+    this ++ Map(key -> value)
   }
 }
 
@@ -54,6 +81,23 @@ trait SuperRow[A, B, C] extends Row[A, SuperColumnRow[A, B, C]] with SuperBase[A
     client.sliceSuper(path, start, finish, Ascending).transform(buildCached(_, _))
   }
   
+  def -=(key : A) {
+    client.remove(path ++ key)
+  }
+  
+  override def ++(kvs : Iterable[(A, SuperColumnRow[A, B, C])]) = {
+    client.insertSuper(path--, kvs.toList)
+    this
+  }
+  
+  override def ++(kvs : Iterator[(A, SuperColumnRow[A, B, C])]) = {
+    this ++ kvs.toList
+  }
+
+  def update(key : A, value : SuperColumnRow[A, B, C]) {
+    client.insertSuper(path--, Map(key -> value))
+  }
+
   private def buildCached(column : A, _data : Map[B, C]) : SuperColumnRow[A, B, C] = {
     val parent = this
     new CachedSuperColumnRow[A, B, C] {
@@ -96,6 +140,31 @@ trait SuperColumnRow[A, B, C] extends Row[B, C] with SuperBase[A, B, C] {
   }
   def slice(start : Option[B], finish : Option[B]) : Map[B, C] = {
     client.slice(path, start, finish, Ascending)
+  }
+  
+  def update(key : B, value : C) {
+    this ++ Map(key -> value)
+  }
+  
+  override def ++=(kvs : Iterable[(B, C)]) {
+    client.insertSuper(path--, Map(path.superColumn.get -> kvs.toList))
+  }
+  
+  override def ++(kvs : Iterable[(B, C)]) = {
+    this ++= kvs
+    this
+  }
+  
+  override def ++=(kvs : Iterator[(B, C)]) {
+    this ++ kvs.toList
+  }
+  
+  override def ++(kvs : Iterator[(B, C)]) = {
+    this ++= kvs
+    this
+  }
+  def -=(key : B) {
+    client.remove(path + key)
   }
 
   protected def build(column : B) = {

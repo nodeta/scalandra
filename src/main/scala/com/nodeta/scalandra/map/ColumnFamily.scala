@@ -5,7 +5,7 @@ import java.lang.Exception
 
 class UnsupportedActionException(s : String) extends Exception(s) {}
 
-trait ColumnFamily[A] extends scala.collection.Map[String, A] {
+trait ColumnFamily[A] extends scala.collection.mutable.Map[String, A] {
   protected def columnFamily : String
 }
 
@@ -35,7 +35,7 @@ trait BaseColumnFamily[A] extends ColumnFamily[A] { this : Base[_, _] =>
       case none => throw new UnsupportedActionException("Key queries can only be performed an order-preserving partitioner")
     }
   }
-
+  
   def size = keySet.size
 
   protected def build(key : String) : A
@@ -54,6 +54,15 @@ trait StandardColumnFamily[A, B] extends BaseColumnFamily[StandardRow[A, B]] wit
       protected val path = ColumnParent[Any](parent.columnFamily, key)
     }
   }
+
+  def -=(key : String) {
+    client.remove(ColumnParent[Any](columnFamily, key))
+  }
+
+
+  def update(key : String, value : StandardRow[A, B]) {
+    client.insertNormal(ColumnParent[Any](columnFamily, key), value)
+  }
 }
 
 trait SuperColumnFamily[A, B, C] extends BaseColumnFamily[SuperRow[A, B, C]] with SuperBase[A, B, C] {
@@ -69,5 +78,13 @@ trait SuperColumnFamily[A, B, C] extends BaseColumnFamily[SuperRow[A, B, C]] wit
 
       protected val path = ColumnParent[A](parent.columnFamily, key)
     }
+  }
+
+  def -=(key : String) {
+    client.remove(ColumnParent[A](columnFamily, key))
+  }
+
+  def update(key : String, value : SuperRow[A, B, C]) {
+    client.insertSuper(ColumnParent[A](columnFamily, key), value)
   }
 }
