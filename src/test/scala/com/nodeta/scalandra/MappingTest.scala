@@ -63,12 +63,12 @@ object MappingTest extends Specification {
     }
   }
 
-  "StandardRow" should {
+  "StandardRecord" should {
     val _connection = Connection()
     val client = new Client(_connection, "Keyspace1", StringSerializer, StringSerializer, StringSerializer)
 
-    def createRow() : StandardRow[String, String] = {
-      new StandardRow[String, String] {
+    def createRecord() : StandardRecord[String, String] = {
+      new StandardRecord[String, String] {
         protected val keyspace = "Keyspace1"
         protected val columnFamily = "Standard1"
         protected val connection = _connection
@@ -86,7 +86,7 @@ object MappingTest extends Specification {
     } : _*)
 
     client.insertNormal(ColumnParent[String]("Standard1", "row-test"), rowData)
-    val row = createRow()
+    val row = createRecord()
 
     "provide slicing functionality by names" in {
       val q = List("a", "b", "f")
@@ -117,7 +117,7 @@ object MappingTest extends Specification {
     "not request anything when created" in {
       _connection.close()
       try {
-        createRow()
+        createRecord()
       } catch {
         case _ => fail("Request is made")
       }
@@ -125,12 +125,12 @@ object MappingTest extends Specification {
     }
    }
 
-  "SuperRow" should {
+  "SuperRecord" should {
     val _connection = Connection()
     val client = new Client(_connection, "Keyspace1", StringSerializer, StringSerializer, StringSerializer)
 
-    def createRow() : SuperRow[String, String, String] = {
-      new SuperRow[String, String, String] {
+    def createRecord() : SuperRecord[String, String, String] = {
+      new SuperRecord[String, String, String] {
         protected val keyspace = "Keyspace1"
         protected val columnFamily = "Standard1"
         protected val connection = _connection
@@ -157,7 +157,7 @@ object MappingTest extends Specification {
 
     client.insertSuper(ColumnParent[String]("Super1", "superrow-test"), rowData)
 
-    val row = createRow()
+    val row = createRecord()
 
     "provide slicing functionality by names" in {
       val q = List("f", "g", "l")
@@ -187,8 +187,8 @@ object MappingTest extends Specification {
     val columnPath = ColumnParent[String]("Super1", "superrow-test", "b")
 
 
-    def createSuperColumn() : SuperColumnRow[String, String, String] = {
-      new SuperColumnRow[String, String, String] {
+    def createSuperColumn() : SuperColumn[String, String, String] = {
+      new SuperColumn[String, String, String] {
         protected val keyspace = "Keyspace1"
         protected val columnFamily = "Standard1"
         protected val connection = _connection

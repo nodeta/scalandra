@@ -41,10 +41,10 @@ trait BaseColumnFamily[A] extends ColumnFamily[A] { this : Base[_, _] =>
   protected def build(key : String) : A
 }
 
-trait StandardColumnFamily[A, B] extends BaseColumnFamily[StandardRow[A, B]] with StandardBase[A, B] {
+trait StandardColumnFamily[A, B] extends BaseColumnFamily[StandardRecord[A, B]] with StandardBase[A, B] {
   protected def build(key : String) = {
     val parent = this
-    new StandardRow[A, B] {
+    new StandardRecord[A, B] {
       protected val columnSerializer = parent.columnSerializer
       protected val valueSerializer = parent.valueSerializer
 
@@ -60,15 +60,15 @@ trait StandardColumnFamily[A, B] extends BaseColumnFamily[StandardRow[A, B]] wit
   }
 
 
-  def update(key : String, value : StandardRow[A, B]) {
+  def update(key : String, value : StandardRecord[A, B]) {
     client.insertNormal(ColumnParent[Any](columnFamily, key), value)
   }
 }
 
-trait SuperColumnFamily[A, B, C] extends BaseColumnFamily[SuperRow[A, B, C]] with SuperBase[A, B, C] {
+trait SuperColumnFamily[A, B, C] extends BaseColumnFamily[SuperRecord[A, B, C]] with SuperBase[A, B, C] {
   protected def build(key : String) = {
     val parent = this
-    new SuperRow[A, B, C] {
+    new SuperRecord[A, B, C] {
       protected val columnSerializer = parent.columnSerializer
       protected val superColumnSerializer = parent.superColumnSerializer
       protected val valueSerializer = parent.valueSerializer
@@ -84,7 +84,7 @@ trait SuperColumnFamily[A, B, C] extends BaseColumnFamily[SuperRow[A, B, C]] wit
     client.remove(ColumnParent[A](columnFamily, key))
   }
 
-  def update(key : String, value : SuperRow[A, B, C]) {
+  def update(key : String, value : SuperRecord[A, B, C]) {
     client.insertSuper(ColumnParent[A](columnFamily, key), value)
   }
 }

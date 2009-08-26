@@ -3,7 +3,7 @@ package com.nodeta.scalandra.map
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.{Map => MMap}
 
-trait Row[A, B] extends MMap[A, B] {
+trait Record[A, B] extends MMap[A, B] {
   protected val data : Map[A, B]
   protected val path : ColumnParent[_]
 
@@ -20,7 +20,7 @@ trait Row[A, B] extends MMap[A, B] {
 }
 
 
-trait StandardRow[A, B] extends Row[A, B] with StandardBase[A, B] {
+trait StandardRecord[A, B] extends Record[A, B] with StandardBase[A, B] {
   protected val path : ColumnParent[Any]
 
   lazy protected val data : Map[A, B] = {
@@ -66,18 +66,18 @@ trait StandardRow[A, B] extends Row[A, B] with StandardBase[A, B] {
 }
 
 
-trait SuperRow[A, B, C] extends Row[A, SuperColumnRow[A, B, C]] with SuperBase[A, B, C] {
+trait SuperRecord[A, B, C] extends Record[A, SuperColumn[A, B, C]] with SuperBase[A, B, C] {
   protected val path : ColumnParent[A]
-  lazy protected val data : Map[A, SuperColumnRow[A, B, C]] = {
+  lazy protected val data : Map[A, SuperColumn[A, B, C]] = {
     client.sliceSuper(path, None, None, Ascending).transform(buildCached(_, _))
   }
 
   override def apply(key : A) = build(key).get
 
-  def slice(columns : Collection[A]) : Map[A, SuperColumnRow[A, B, C]] = {
+  def slice(columns : Collection[A]) : Map[A, SuperColumn[A, B, C]] = {
     client.sliceSuper(path, columns).transform(buildCached(_, _))
   }
-  def slice(start : Option[A], finish : Option[A]) : Map[A, SuperColumnRow[A, B, C]] = {
+  def slice(start : Option[A], finish : Option[A]) : Map[A, SuperColumn[A, B, C]] = {
     client.sliceSuper(path, start, finish, Ascending).transform(buildCached(_, _))
   }
   
@@ -85,22 +85,22 @@ trait SuperRow[A, B, C] extends Row[A, SuperColumnRow[A, B, C]] with SuperBase[A
     client.remove(path ++ key)
   }
   
-  override def ++(kvs : Iterable[(A, SuperColumnRow[A, B, C])]) = {
+  override def ++(kvs : Iterable[(A, SuperColumn[A, B, C])]) = {
     client.insertSuper(path--, kvs.toList)
     this
   }
   
-  override def ++(kvs : Iterator[(A, SuperColumnRow[A, B, C])]) = {
+  override def ++(kvs : Iterator[(A, SuperColumn[A, B, C])]) = {
     this ++ kvs.toList
   }
 
-  def update(key : A, value : SuperColumnRow[A, B, C]) {
+  def update(key : A, value : SuperColumn[A, B, C]) {
     client.insertSuper(path--, Map(key -> value))
   }
 
-  private def buildCached(column : A, _data : Map[B, C]) : SuperColumnRow[A, B, C] = {
+  private def buildCached(column : A, _data : Map[B, C]) : SuperColumn[A, B, C] = {
     val parent = this
-    new CachedSuperColumnRow[A, B, C] {
+    new CachedSuperColumn[A, B, C] {
       override lazy protected val data = _data
       protected val columnSerializer = parent.columnSerializer
       protected val superColumnSerializer = parent.superColumnSerializer
@@ -115,7 +115,7 @@ trait SuperRow[A, B, C] extends Row[A, SuperColumnRow[A, B, C]] with SuperBase[A
 
   protected def build(column : A) = {
     val parent = this
-    Some(new SuperColumnRow[A, B, C] {
+    Some(new SuperColumn[A, B, C] {
       protected val columnSerializer = parent.columnSerializer
       protected val superColumnSerializer = parent.superColumnSerializer
       protected val valueSerializer = parent.valueSerializer
@@ -129,7 +129,7 @@ trait SuperRow[A, B, C] extends Row[A, SuperColumnRow[A, B, C]] with SuperBase[A
 }
 
 
-trait SuperColumnRow[A, B, C] extends Row[B, C] with SuperBase[A, B, C] {
+trait SuperColumn[A, B, C] extends Record[B, C] with SuperBase[A, B, C] {
   protected val path : ColumnParent[A]
   lazy protected val data : Map[B, C] = {
     client.get(path).get
@@ -172,7 +172,7 @@ trait SuperColumnRow[A, B, C] extends Row[B, C] with SuperBase[A, B, C] {
   }
 }
 
-trait CachedSuperColumnRow[A, B, C] extends SuperColumnRow[A, B, C] {
+trait CachedSuperColumn[A, B, C] extends SuperColumn[A, B, C] {
   override protected def build(column : B) = {
     data.get(column)
   }
