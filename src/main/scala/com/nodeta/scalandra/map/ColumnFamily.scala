@@ -63,6 +63,10 @@ trait StandardColumnFamily[A, B] extends BaseColumnFamily[StandardRecord[A, B]] 
   def update(key : String, value : StandardRecord[A, B]) {
     client.insertNormal(ColumnParent[Any](columnFamily, key), value)
   }
+  
+  def update(key : String, value : Map[A, B]) {
+    client.insertNormal(ColumnParent[Any](columnFamily, key), value)
+  }
 }
 
 trait SuperColumnFamily[A, B, C] extends BaseColumnFamily[SuperRecord[A, B, C]] with SuperBase[A, B, C] {
@@ -86,5 +90,9 @@ trait SuperColumnFamily[A, B, C] extends BaseColumnFamily[SuperRecord[A, B, C]] 
 
   def update(key : String, value : SuperRecord[A, B, C]) {
     client.insertSuper(ColumnParent[A](columnFamily, key), value)
+  }
+  
+  def update(key : String, value : Map[A, Map[B, C]]) {
+    client.insertSuper(ColumnParent[Any](columnFamily, key), value)
   }
 }

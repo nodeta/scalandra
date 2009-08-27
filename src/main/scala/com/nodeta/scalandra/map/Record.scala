@@ -97,6 +97,10 @@ trait SuperRecord[A, B, C] extends Record[A, SuperColumn[A, B, C]] with SuperBas
   def update(key : A, value : SuperColumn[A, B, C]) {
     client.insertSuper(path--, Map(key -> value))
   }
+  
+  def update(key : A, value : Map[B, C]) {
+    client.insertSuper(path--, Map(key -> value))
+  }
 
   private def buildCached(column : A, _data : Map[B, C]) : SuperColumn[A, B, C] = {
     val parent = this
