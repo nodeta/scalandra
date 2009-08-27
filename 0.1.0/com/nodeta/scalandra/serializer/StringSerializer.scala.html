@@ -1,0 +1,29 @@
+
+  <html>
+  <head>
+    <link href='./../../../../_highlighter/SyntaxHighlighter.css' rel='stylesheet' type='text/css'/>
+    <script language='javascript' src='./../../../../_highlighter/shAll.js'></script>
+  </head>
+  <body>
+    <pre name="code" class="scala" style="width:100%">
+package com.nodeta.scalandra.serializer
+
+/**
+ * This serializer handles UTF-8 encoded strings
+ */
+object StringSerializer extends Serializer[String] {
+  def serialize(s : String) = {
+    s match {
+      case null => "".getBytes
+      case s =>s.getBytes("UTF-8")
+    }
+  }
+  def deserialize(a : Array[Byte]) = new String(a, "UTF-8")
+}
+</pre>
+    <script language='javascript'>
+      dp.SyntaxHighlighter.ClipboardSwf = './../../../../_highlighter/clipboard.swf';
+      dp.SyntaxHighlighter.HighlightAll('code');
+    </script>
+  </body>
+  </html>

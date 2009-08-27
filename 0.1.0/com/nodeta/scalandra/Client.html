@@ -1,0 +1,972 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+      <head>
+      
+      <title>Scalandra : com.nodeta.scalandra.Client</title>
+      <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
+      <meta content="scaladoc (0.1-SNAPSHOT)" name="generator"></meta>
+      <script type="text/javascript" src="./../../../jquery-1.2.3.js"></script>
+    
+      
+      <link href="./../../../content.css" type="text/css" rel="stylesheet"></link>
+      <script src="./../../../content.js" language="javascript" id="content.js"></script>
+      <link href="./../../../_highlighter/SyntaxHighlighter.css" type="text/css" rel="stylesheet"></link>
+      <script src="./../../../_highlighter/shAll.js" language="javascript" id="shAll.js"></script>
+      
+    
+      </head>
+      
+      <div class="header"></div>
+      <!-- ========= START OF TOP NAVBAR ======= -->
+      <a name="navbar_top"><!-- --></a>
+      <table cellpadding="1" width="100%" class="NavBar" cellspacing="0" border="0">
+      <tr>
+        <td class="NavBarCell1">
+      <a href="./../../../overview.html">OVERVIEW</a>&nbsp;|&nbsp;
+      <a href="./../../../overview.html" title="com.nodeta.scalandra" >PACKAGE</a> | 
+      <a href="#Constructors">CONSTR</a>&nbsp;|&nbsp;
+      <a href="#Fields">FIELDS</a>&nbsp;|&nbsp;
+      <a href="#Methods">METHODS</a>
+    </td>
+        <td class="NavBarCell2">
+      <a href="./../../../index.html" target="_top">FRAMES</a>
+      &nbsp;&nbsp;
+      <a href="Client.html" target="_top">NO FRAMES</a>
+    </td>
+        <td class="NavBarCell3"><a href="#" title="show/hide inherited" class="btnInherited" onclick="toggleInherited()">INHERITED<input type="checkbox" class="filter_inherited_cb" checked="true"></input></a></td>
+      </tr>
+    </table>
+      <!-- ========= END OF TOP NAVBAR ========= -->
+      
+      <!-- ======== START OF CLASS DATA ======== -->
+      <h2>
+      <span style="font-size:80%">com.nodeta.scalandra.Client</span>
+      <br></br>
+      class Client
+      </h2>
+      <div id="intro">
+      <code class="signature">class Client[A, B, C](val connection : <a href="./Connection.html" title="com.nodeta.scalandra.Connection" >Connection</a>, protected val keyspace : <a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>, protected val superColumn : <a href="./serializer/Serializer.html" title="com.nodeta.scalandra.serializer.Serializer" >Serializer</a>[<a href="./Client.A.html" title="com.nodeta.scalandra.Client.A" >A</a>], protected val column : <a href="./serializer/Serializer.html" title="com.nodeta.scalandra.serializer.Serializer" >Serializer</a>[<a href="./Client.B.html" title="com.nodeta.scalandra.Client.B" >B</a>], protected val value : <a href="./serializer/Serializer.html" title="com.nodeta.scalandra.serializer.Serializer" >Serializer</a>[<a href="./Client.C.html" title="com.nodeta.scalandra.Client.C" >C</a>])</code>
+      <code class="signature">
+        <br></br>&nbsp;extends
+        <a href="./client/Base.html" title="com.nodeta.scalandra.client.Base" >Base</a>[<a href="./Client.A.html" title="com.nodeta.scalandra.Client.A" >A</a>, <a href="./Client.B.html" title="com.nodeta.scalandra.Client.B" >B</a>, <a href="./Client.C.html" title="com.nodeta.scalandra.Client.C" >C</a>] with <a href="./client/ReadWrite.html" title="com.nodeta.scalandra.client.ReadWrite" >ReadWrite</a>[<a href="./Client.A.html" title="com.nodeta.scalandra.Client.A" >A</a>, <a href="./Client.B.html" title="com.nodeta.scalandra.Client.B" >B</a>, <a href="./Client.C.html" title="com.nodeta.scalandra.Client.C" >C</a>]
+      </code>
+      <br></br>
+      <div class="apiComments">
+         This class is a lightweight wrapper for thrift. It supports three levels of
+ serialization.
+
+
+        <dl>
+         <dt>author</dt>
+          <dd><code></code> - Ville Lautanala</dd>
+          
+         <dt>param</dt>
+          <dd><code>superColumn</code> - Serializer for super column keys</dd>
+          
+         
+          <dd><code>value</code> - Serializer for values in cassandra storage model 
+</dd>
+          
+         
+          <dd><code>connection</code> - An open connection to cassandra</dd>
+          
+         
+          <dd><code>keyspace</code> - Keyspace in which all actions are performed</dd>
+          
+         
+          <dd><code>column</code> - Serializer for column keys</dd>
+          
+         <dt>see</dt>
+          <dd><code></code> - com.nodeta.scalandra.client.Write</dd>
+          
+         
+          <dd><code></code> - com.nodeta.scalandra.client.Read</dd>
+          </dl>
+      </div>
+      <br></br>
+      Companion: <a href="./Client$object.html" title="com.nodeta.scalandra.Client" >Client</a><br></br>
+      Source: <a href="./Client.scala.html#Some(22)">Client.scala(22)</a>
+      </div>
+      
+      
+      
+        <!-- =========== {subtitle} =========== -->
+        <h3><a name="Constructors">&nbsp;</a>Constructors</h3>
+        <table summary="" cellpadding="3" width="100%" cellspacing="0" border="1">
+        <tbody class="TableRowColor">
+        <tr class="">
+      <td class="signature">
+        <code class="signature">def this(connection : <a href="./Connection.html" title="com.nodeta.scalandra.Connection" >Connection</a>, keyspace : <a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>, superColumn : <a href="./serializer/Serializer.html" title="com.nodeta.scalandra.serializer.Serializer" >Serializer</a>[<a href="./Client.A.html" title="com.nodeta.scalandra.Client.A" >A</a>], column : <a href="./serializer/Serializer.html" title="com.nodeta.scalandra.serializer.Serializer" >Serializer</a>[<a href="./Client.B.html" title="com.nodeta.scalandra.Client.B" >B</a>], value : <a href="./serializer/Serializer.html" title="com.nodeta.scalandra.serializer.Serializer" >Serializer</a>[<a href="./Client.C.html" title="com.nodeta.scalandra.Client.C" >C</a>])</code>
+        
+      </td>
+    </tr>
+        </tbody>
+        </table>
+      
+      
+        <!-- =========== {subtitle} =========== -->
+        <h3><a name="Fields">&nbsp;</a>Fields</h3>
+        <table summary="" cellpadding="3" width="100%" cellspacing="0" border="1">
+        <tbody class="TableRowColor">
+        <tr class="">
+      <td class="name">
+        <b>client</b>
+      </td>
+      <td class="signature">
+        <code class="signature">val client</code>
+        
+        
+      </td>
+      <td class="type"><a href="javascript:void" title="org.apache.cassandra.service.Cassandra.Client" class="noref">Client</a></td>
+      <td class="remarks">
+        
+        
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>consistency</b>
+      </td>
+      <td class="signature">
+        <code class="signature">protected val consistency</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" title="scala.Int" >Int</a></td>
+      <td class="remarks">
+        
+        <a href="./client/Base.html" title="com.nodeta.scalandra.client.Base" >Base</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>maximumCount</b>
+      </td>
+      <td class="signature">
+        <code class="signature">protected val maximumCount</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" title="scala.Int" >Int</a></td>
+      <td class="remarks">
+        
+        <a href="./client/Base.html" title="com.nodeta.scalandra.client.Base" >Base</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>writeConsistency</b>
+      </td>
+      <td class="signature">
+        <code class="signature">protected val writeConsistency</code>
+        
+        <div class="apiComments">
+         Consistency level used for writes
+
+        
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" title="scala.Int" >Int</a></td>
+      <td class="remarks">
+        
+        <a href="./client/Write.html" title="com.nodeta.scalandra.client.Write" >Write</a>
+      </td>
+    </tr>
+        </tbody>
+        </table>
+      
+      
+        <!-- =========== {subtitle} =========== -->
+        <h3><a name="Methods">&nbsp;</a>Methods</h3>
+        <table summary="" cellpadding="3" width="100%" cellspacing="0" border="1">
+        <tbody class="TableRowColor">
+        <tr class="isInherited">
+      <td class="name">
+        <b>!=</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def !=(arg0 : <a href="http://java.sun.com/javase/6/docs/api/java/lang/Object.html" title="java.lang.Object" >Object</a>)</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Boolean.html" title="scala.Boolean" >Boolean</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>!=</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def !=(arg0 : <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" title="scala.Any" >Any</a>)</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Boolean.html" title="scala.Boolean" >Boolean</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" title="scala.Any" >Any</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>==</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def ==(arg0 : <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" title="scala.Any" >Any</a>)</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Boolean.html" title="scala.Boolean" >Boolean</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" title="scala.Any" >Any</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>==</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def ==(arg0 : <a href="http://java.sun.com/javase/6/docs/api/java/lang/Object.html" title="java.lang.Object" >Object</a>)</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Boolean.html" title="scala.Boolean" >Boolean</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>asInstanceOf</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def asInstanceOf[T0]</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Any.T0.html" title="scala.Any.T0" >T0</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" title="scala.Any" >Any</a>
+      </td>
+    </tr><tr class="">
+      <td class="name">
+        <b>build</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def build[K, V](k : <a href="./serializer/Serializer.html" title="com.nodeta.scalandra.serializer.Serializer" >Serializer</a>[<a href="./Client.K.html" title="com.nodeta.scalandra.Client.K" >K</a>], v : <a href="./serializer/Serializer.html" title="com.nodeta.scalandra.serializer.Serializer" >Serializer</a>[<a href="./Client.V.html" title="com.nodeta.scalandra.Client.V" >V</a>])</code>
+        
+        
+      </td>
+      <td class="type"><a href="." title="com.nodeta.scalandra.Client" >Client</a>[<a href="./Client.K.html" title="com.nodeta.scalandra.Client.K" >K</a>, <a href="./Client.K.html" title="com.nodeta.scalandra.Client.K" >K</a>, <a href="./Client.V.html" title="com.nodeta.scalandra.Client.V" >V</a>]</td>
+      <td class="remarks">
+        
+        
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>clone</b>
+      </td>
+      <td class="signature">
+        <code class="signature">protected def clone</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://java.sun.com/javase/6/docs/api/java/lang/Object.html" title="java.lang.Object" >Object</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>count</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def count(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>])</code>
+        
+        <div class="apiComments">
+         Number of columns with specified column path
+
+        
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" title="scala.Int" >Int</a></td>
+      <td class="remarks">
+        
+        <a href="./client/Read.html" title="com.nodeta.scalandra.client.Read" >Read</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>describe</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def describe</code>
+        
+        <div class="apiComments">
+         Get description of keyspace columnfamilies
+
+        
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/collection/immutable/Map.html" title="scala.collection.immutable.Map" >Map</a>[<a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/collection/immutable/Map.html" title="scala.collection.immutable.Map" >Map</a>[<a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>, <a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>]]</td>
+      <td class="remarks">
+        
+        <a href="./client/Read.html" title="com.nodeta.scalandra.client.Read" >Read</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>eq</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def eq(arg0 : <a href="http://java.sun.com/javase/6/docs/api/java/lang/Object.html" title="java.lang.Object" >Object</a>)</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Boolean.html" title="scala.Boolean" >Boolean</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>equals</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def equals(arg0 : <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" title="scala.Any" >Any</a>)</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Boolean.html" title="scala.Boolean" >Boolean</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>finalize</b>
+      </td>
+      <td class="signature">
+        <code class="signature">protected def finalize</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" title="scala.Unit" >Unit</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>get</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def get(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>])</code>
+        
+        <div class="apiComments">
+         Get supercolumn
+
+        
+              <a href="javascript://" class="detailsBtn" onclick="jQuery(this).next().toggle()">[details]</a>
+              <div class="apiCommentsDetails">
+                
+                <dl>
+         <dt>param</dt>
+          <dd><code>path</code> - Path to super column</dd>
+          </dl>
+              </div>
+            
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/collection/immutable/Map.html" title="scala.collection.immutable.Map" >Map</a>[<a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>, <a href="./client/Read.C.html" title="com.nodeta.scalandra.client.Read.C" >C</a>]]</td>
+      <td class="remarks">
+        
+        <a href="./client/Read.html" title="com.nodeta.scalandra.client.Read" >Read</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>get</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def get(path : <a href="./ColumnPath.html" title="com.nodeta.scalandra.ColumnPath" >ColumnPath</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>, <a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>])</code>
+        
+        <div class="apiComments">
+         Get single column
+
+        
+              <a href="javascript://" class="detailsBtn" onclick="jQuery(this).next().toggle()">[details]</a>
+              <div class="apiCommentsDetails">
+                
+                <dl>
+         <dt>param</dt>
+          <dd><code>path</code> - Path to column</dd>
+          </dl>
+              </div>
+            
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="./client/Read.C.html" title="com.nodeta.scalandra.client.Read.C" >C</a>]</td>
+      <td class="remarks">
+        
+        <a href="./client/Read.html" title="com.nodeta.scalandra.client.Read" >Read</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>getClass</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def getClass</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://java.sun.com/javase/6/docs/api/java/lang/Class.html" title="java.lang.Class" >Class</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" title="scala.Any" >Any</a>]</td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>getColumnParent</b>
+      </td>
+      <td class="signature">
+        <code class="signature">protected def getColumnParent(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="./client/Base.A.html" title="com.nodeta.scalandra.client.Base.A" >A</a>])</code>
+        
+        
+      </td>
+      <td class="type"><a href="javascript:void" title="org.apache.cassandra.service.ColumnParent" class="noref">ColumnParent</a></td>
+      <td class="remarks">
+        
+        <a href="./client/Base.html" title="com.nodeta.scalandra.client.Base" >Base</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>getColumnPath</b>
+      </td>
+      <td class="signature">
+        <code class="signature">protected def getColumnPath(path : <a href="./ColumnPath.html" title="com.nodeta.scalandra.ColumnPath" >ColumnPath</a>[<a href="./client/Base.A.html" title="com.nodeta.scalandra.client.Base.A" >A</a>, <a href="./client/Base.B.html" title="com.nodeta.scalandra.client.Base.B" >B</a>])</code>
+        
+        
+      </td>
+      <td class="type"><a href="javascript:void" title="org.apache.cassandra.service.ColumnPath" class="noref">ColumnPath</a></td>
+      <td class="remarks">
+        
+        <a href="./client/Base.html" title="com.nodeta.scalandra.client.Base" >Base</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>getColumnPath</b>
+      </td>
+      <td class="signature">
+        <code class="signature">protected def getColumnPath(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="./client/Base.A.html" title="com.nodeta.scalandra.client.Base.A" >A</a>])</code>
+        
+        
+      </td>
+      <td class="type"><a href="javascript:void" title="org.apache.cassandra.service.ColumnPath" class="noref">ColumnPath</a></td>
+      <td class="remarks">
+        
+        <a href="./client/Base.html" title="com.nodeta.scalandra.client.Base" >Base</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>hashCode</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def hashCode</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" title="scala.Int" >Int</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>insertNormal</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def insertNormal(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" title="scala.Any" >Any</a>], data : <a href="http://www.scala-lang.org/docu/files/api/scala/Collection.html" title="scala.Collection" >Collection</a>[(<a href="./client/Write.B.html" title="com.nodeta.scalandra.client.Write.B" >B</a>, <a href="./client/Write.C.html" title="com.nodeta.scalandra.client.Write.C" >C</a>)])</code>
+        
+        <div class="apiComments">
+         Insert collection of values in a standard column family/key pair
+
+        
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" title="scala.Unit" >Unit</a></td>
+      <td class="remarks">
+        
+        <a href="./client/Write.html" title="com.nodeta.scalandra.client.Write" >Write</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>insertSuper</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def insertSuper(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" title="scala.Any" >Any</a>], data : <a href="http://www.scala-lang.org/docu/files/api/scala/Collection.html" title="scala.Collection" >Collection</a>[(<a href="./client/Write.A.html" title="com.nodeta.scalandra.client.Write.A" >A</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Collection.html" title="scala.Collection" >Collection</a>[(<a href="./client/Write.B.html" title="com.nodeta.scalandra.client.Write.B" >B</a>, <a href="./client/Write.C.html" title="com.nodeta.scalandra.client.Write.C" >C</a>)])])</code>
+        
+        <div class="apiComments">
+         Insert collection of values in a super column family/key pair
+
+        
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" title="scala.Unit" >Unit</a></td>
+      <td class="remarks">
+        
+        <a href="./client/Write.html" title="com.nodeta.scalandra.client.Write" >Write</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>isInstanceOf</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def isInstanceOf[T0]</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Boolean.html" title="scala.Boolean" >Boolean</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" title="scala.Any" >Any</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>keys</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def keys(columnFamily : <a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>, start : <a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>], finish : <a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>], count : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" title="scala.Int" >Int</a>)</code>
+        
+        <div class="apiComments">
+         List keys in single keyspace/columnfamily pair
+
+        
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/List.html" title="scala.List" >List</a>[<a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>]</td>
+      <td class="remarks">
+        
+        <a href="./client/Read.html" title="com.nodeta.scalandra.client.Read" >Read</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>keys</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def keys(columnFamily : <a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>, start : <a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>], finish : <a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>])</code>
+        
+        <div class="apiComments">
+         Shorthand for <code>keys</code> without count parameter
+
+        
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/List.html" title="scala.List" >List</a>[<a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>]</td>
+      <td class="remarks">
+        
+        <a href="./client/Read.html" title="com.nodeta.scalandra.client.Read" >Read</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>ne</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def ne(arg0 : <a href="http://java.sun.com/javase/6/docs/api/java/lang/Object.html" title="java.lang.Object" >Object</a>)</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Boolean.html" title="scala.Boolean" >Boolean</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>notify</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def notify</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" title="scala.Unit" >Unit</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>notifyAll</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def notifyAll</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" title="scala.Unit" >Unit</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>remove</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def remove(path : <a href="./ColumnPath.html" title="com.nodeta.scalandra.ColumnPath" >ColumnPath</a>[<a href="./client/Write.A.html" title="com.nodeta.scalandra.client.Write.A" >A</a>, <a href="./client/Write.B.html" title="com.nodeta.scalandra.client.Write.B" >B</a>])</code>
+        
+        <div class="apiComments">
+         Remove a single column value
+   
+
+        
+              <a href="javascript://" class="detailsBtn" onclick="jQuery(this).next().toggle()">[details]</a>
+              <div class="apiCommentsDetails">
+                
+                <dl>
+         <dt>param</dt>
+          <dd><code>path</code> - Path to column to be removed</dd>
+          </dl>
+              </div>
+            
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" title="scala.Unit" >Unit</a></td>
+      <td class="remarks">
+        
+        <a href="./client/Write.html" title="com.nodeta.scalandra.client.Write" >Write</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>remove</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def remove(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="./client/Write.A.html" title="com.nodeta.scalandra.client.Write.A" >A</a>])</code>
+        
+        <div class="apiComments">
+         Remove column parent and all its columns
+  
+
+        
+              <a href="javascript://" class="detailsBtn" onclick="jQuery(this).next().toggle()">[details]</a>
+              <div class="apiCommentsDetails">
+                
+                <dl>
+         <dt>param</dt>
+          <dd><code>path</code> - Path to be removed</dd>
+          </dl>
+              </div>
+            
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" title="scala.Unit" >Unit</a></td>
+      <td class="remarks">
+        
+        <a href="./client/Write.html" title="com.nodeta.scalandra.client.Write" >Write</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>slice</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def slice(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>], start : <a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>], finish : <a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>], order : <a href="./Order.html" title="com.nodeta.scalandra.Order" >Order</a>)</code>
+        
+        <div class="apiComments">
+         Alias for <code>slice</code>
+
+        
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/collection/immutable/Map.html" title="scala.collection.immutable.Map" >Map</a>[<a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>, <a href="./client/Read.C.html" title="com.nodeta.scalandra.client.Read.C" >C</a>]</td>
+      <td class="remarks">
+        
+        <a href="./client/Read.html" title="com.nodeta.scalandra.client.Read" >Read</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>slice</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def slice(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>], columns : <a href="http://www.scala-lang.org/docu/files/api/scala/Collection.html" title="scala.Collection" >Collection</a>[<a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>])</code>
+        
+        <div class="apiComments">
+         Slice columns by name
+  
+
+        
+              <a href="javascript://" class="detailsBtn" onclick="jQuery(this).next().toggle()">[details]</a>
+              <div class="apiCommentsDetails">
+                
+                <dl>
+         <dt>param</dt>
+          <dd><code>columns</code> - Collection of columns which are retrieved</dd>
+          
+         
+          <dd><code>path</code> - Path to super column or row</dd>
+          </dl>
+              </div>
+            
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/collection/immutable/Map.html" title="scala.collection.immutable.Map" >Map</a>[<a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>, <a href="./client/Read.C.html" title="com.nodeta.scalandra.client.Read.C" >C</a>]</td>
+      <td class="remarks">
+        
+        <a href="./client/Read.html" title="com.nodeta.scalandra.client.Read" >Read</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>slice</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def slice(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>], start : <a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>], finish : <a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>], order : <a href="./Order.html" title="com.nodeta.scalandra.Order" >Order</a>, count : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" title="scala.Int" >Int</a>)</code>
+        
+        <div class="apiComments">
+         Slice columns by start and finish
+   
+
+        
+              <a href="javascript://" class="detailsBtn" onclick="jQuery(this).next().toggle()">[details]</a>
+              <div class="apiCommentsDetails">
+                
+                <dl>
+         <dt>param</dt>
+          <dd><code>order</code> - Ordering of results</dd>
+          
+         
+          <dd><code>start</code> - First value of key range</dd>
+          
+         
+          <dd><code>finish</code> - Last value of key range</dd>
+          
+         
+          <dd><code>count</code> - Number of results to return starting from first result</dd>
+          
+         
+          <dd><code>path</code> - Path to super column or row</dd>
+          </dl>
+              </div>
+            
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/collection/immutable/Map.html" title="scala.collection.immutable.Map" >Map</a>[<a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>, <a href="./client/Read.C.html" title="com.nodeta.scalandra.client.Read.C" >C</a>]</td>
+      <td class="remarks">
+        
+        <a href="./client/Read.html" title="com.nodeta.scalandra.client.Read" >Read</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>sliceSuper</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def sliceSuper(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>], start : <a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>], finish : <a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>], order : <a href="./Order.html" title="com.nodeta.scalandra.Order" >Order</a>, count : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" title="scala.Int" >Int</a>)</code>
+        
+        <div class="apiComments">
+         Slice columns by start and finish with count parameter
+
+        
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/collection/immutable/Map.html" title="scala.collection.immutable.Map" >Map</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/collection/immutable/Map.html" title="scala.collection.immutable.Map" >Map</a>[<a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>, <a href="./client/Read.C.html" title="com.nodeta.scalandra.client.Read.C" >C</a>]]</td>
+      <td class="remarks">
+        
+        <a href="./client/Read.html" title="com.nodeta.scalandra.client.Read" >Read</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>sliceSuper</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def sliceSuper(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>], columns : <a href="http://www.scala-lang.org/docu/files/api/scala/Collection.html" title="scala.Collection" >Collection</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>])</code>
+        
+        <div class="apiComments">
+         Slice super columns by name
+    
+
+        
+              <a href="javascript://" class="detailsBtn" onclick="jQuery(this).next().toggle()">[details]</a>
+              <div class="apiCommentsDetails">
+                
+                <dl>
+         <dt>param</dt>
+          <dd><code>columns</code> - Collection of super column keys which are retrieved</dd>
+          
+         
+          <dd><code>path</code> - Path to row</dd>
+          </dl>
+              </div>
+            
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/collection/immutable/Map.html" title="scala.collection.immutable.Map" >Map</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/collection/immutable/Map.html" title="scala.collection.immutable.Map" >Map</a>[<a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>, <a href="./client/Read.C.html" title="com.nodeta.scalandra.client.Read.C" >C</a>]]</td>
+      <td class="remarks">
+        
+        <a href="./client/Read.html" title="com.nodeta.scalandra.client.Read" >Read</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>sliceSuper</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def sliceSuper(path : <a href="./ColumnParent.html" title="com.nodeta.scalandra.ColumnParent" >ColumnParent</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>], start : <a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>], finish : <a href="http://www.scala-lang.org/docu/files/api/scala/Option.html" title="scala.Option" >Option</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>], order : <a href="./Order.html" title="com.nodeta.scalandra.Order" >Order</a>)</code>
+        
+        <div class="apiComments">
+         Slice columns by start and finish
+   
+
+        
+              <a href="javascript://" class="detailsBtn" onclick="jQuery(this).next().toggle()">[details]</a>
+              <div class="apiCommentsDetails">
+                
+                <dl>
+         <dt>param</dt>
+          <dd><code>order</code> - Ordering of results</dd>
+          
+         
+          <dd><code>start</code> - First value of key range</dd>
+          
+         
+          <dd><code>finish</code> - Last value of key range</dd>
+          
+         
+          <dd><code>count</code> - Number of results to return starting from first result</dd>
+          
+         
+          <dd><code>path</code> - Path to row</dd>
+          </dl>
+              </div>
+            
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/collection/immutable/Map.html" title="scala.collection.immutable.Map" >Map</a>[<a href="./client/Read.A.html" title="com.nodeta.scalandra.client.Read.A" >A</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/collection/immutable/Map.html" title="scala.collection.immutable.Map" >Map</a>[<a href="./client/Read.B.html" title="com.nodeta.scalandra.client.Read.B" >B</a>, <a href="./client/Read.C.html" title="com.nodeta.scalandra.client.Read.C" >C</a>]]</td>
+      <td class="remarks">
+        
+        <a href="./client/Read.html" title="com.nodeta.scalandra.client.Read" >Read</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>synchronized</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def synchronized[T0](arg0 : <a href="http://java.sun.com/javase/6/docs/api/java/lang/Object.T0.html" title="java.lang.Object.T0" >T0</a>)</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://java.sun.com/javase/6/docs/api/java/lang/Object.T0.html" title="java.lang.Object.T0" >T0</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>toString</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def toString</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>truncate</b>
+      </td>
+      <td class="signature">
+        <code class="signature">def truncate(columnFamily : <a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html" title="java.lang.String" >String</a>)</code>
+        
+        <div class="apiComments">
+         Remove all entries from given column family
+   
+
+        
+              <a href="javascript://" class="detailsBtn" onclick="jQuery(this).next().toggle()">[details]</a>
+              <div class="apiCommentsDetails">
+                
+                <dl>
+         <dt>throws</dt>
+          <dd><code>UnsupportedOperationException</code> - Works only when an order preserving partitioner is used.</dd>
+          </dl>
+              </div>
+            
+      </div>
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" title="scala.Unit" >Unit</a></td>
+      <td class="remarks">
+        
+        <a href="./client/ReadWrite.html" title="com.nodeta.scalandra.client.ReadWrite" >ReadWrite</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>wait</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def wait(arg0 : <a href="http://www.scala-lang.org/docu/files/api/scala/Long.html" title="scala.Long" >Long</a>, arg1 : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" title="scala.Int" >Int</a>)</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" title="scala.Unit" >Unit</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>wait</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def wait</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" title="scala.Unit" >Unit</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr><tr class="isInherited">
+      <td class="name">
+        <b>wait</b>
+      </td>
+      <td class="signature">
+        <code class="signature">final def wait(arg0 : <a href="http://www.scala-lang.org/docu/files/api/scala/Long.html" title="scala.Long" >Long</a>)</code>
+        
+        
+      </td>
+      <td class="type"><a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" title="scala.Unit" >Unit</a></td>
+      <td class="remarks">
+        
+        <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" title="scala.AnyRef" >AnyRef</a>
+      </td>
+    </tr>
+        </tbody>
+        </table>
+      
+      <!-- ========= END OF CLASS DATA ========= -->
+    
+      <!-- ======= START OF BOTTOM NAVBAR ====== -->
+      <a name="navbar_bottom"><!-- --></a>
+      <table cellpadding="1" width="100%" class="NavBar" cellspacing="0" border="0">
+      <tr>
+        <td class="NavBarCell1">
+      <a href="./../../../overview.html">OVERVIEW</a>&nbsp;|&nbsp;
+      <a href="./../../../overview.html" title="com.nodeta.scalandra" >PACKAGE</a> | 
+      <a href="#Constructors">CONSTR</a>&nbsp;|&nbsp;
+      <a href="#Fields">FIELDS</a>&nbsp;|&nbsp;
+      <a href="#Methods">METHODS</a>
+    </td>
+        <td class="NavBarCell2">
+      <a href="./../../../index.html" target="_top">FRAMES</a>
+      &nbsp;&nbsp;
+      <a href="Client.html" target="_top">NO FRAMES</a>
+    </td>
+        <td class="NavBarCell3"><a href="#" title="show/hide inherited" class="btnInherited" onclick="toggleInherited()">INHERITED<input type="checkbox" class="filter_inherited_cb" checked="true"></input></a></td>
+      </tr>
+    </table>
+      <!-- ======== END OF BOTTOM NAVBAR ======= -->
+      
+      <script language="javascript">
+        dp.SyntaxHighlighter.ClipboardSwf = './../../../_highlighter/clipboard.swf';
+        dp.SyntaxHighlighter.HighlightAll('code');
+      </script>
+    
+    </html>

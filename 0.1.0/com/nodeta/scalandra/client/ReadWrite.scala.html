@@ -1,0 +1,27 @@
+
+  <html>
+  <head>
+    <link href='./../../../../_highlighter/SyntaxHighlighter.css' rel='stylesheet' type='text/css'/>
+    <script language='javascript' src='./../../../../_highlighter/shAll.js'></script>
+  </head>
+  <body>
+    <pre name="code" class="scala" style="width:100%">
+package com.nodeta.scalandra.client
+
+trait ReadWrite[A, B, C] extends Read[A, B, C] with Write[A, B, C] { this : Base[A, B, C] =>
+  /**
+   * Remove all entries from given column family
+   * 
+   * @throws UnsupportedOperationException Works only when an order preserving partitioner is used.
+   */
+  def truncate(columnFamily : String) {
+    keys(columnFamily, None, None).foreach(key => this.remove(ColumnParent[A](columnFamily, key)))
+  }
+}
+</pre>
+    <script language='javascript'>
+      dp.SyntaxHighlighter.ClipboardSwf = './../../../../_highlighter/clipboard.swf';
+      dp.SyntaxHighlighter.HighlightAll('code');
+    </script>
+  </body>
+  </html>
