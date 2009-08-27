@@ -1,6 +1,6 @@
 package com.nodeta.scalandra
 
-import serializer.{Serializer, StringSerializer}
+import serializer.{Serializer, NonSerializer}
 
 import org.apache.cassandra.{service => cassandra}
 import java.lang.IllegalArgumentException
@@ -34,10 +34,14 @@ class Client[A, B, C](
 }
 
 object Client {
-  def apply(keyspace : String) : Client[String, String, String] = {
-    new Client(Connection(), keyspace, StringSerializer, StringSerializer, StringSerializer)
+  def apply(keyspace : String) : Client[Array[Byte], Array[Byte], Array[Byte]] = {
+    new Client(Connection(), keyspace, NonSerializer, NonSerializer, NonSerializer)
   }
-  def apply(connection : Connection, keyspace : String) : Client[String, String, String] = {
-    new Client(connection, keyspace, StringSerializer, StringSerializer, StringSerializer)
+  def apply(connection : Connection, keyspace : String) : Client[Array[Byte], Array[Byte], Array[Byte]] = {
+    new Client(connection, keyspace, NonSerializer, NonSerializer, NonSerializer)
+  }
+  
+  def apply[T](connection : Connection, keyspace : String, serializer : Serializer[T]) : Client[T, T, T] = {
+    new Client(connection, keyspace, serializer, serializer, serializer)
   }
 }
