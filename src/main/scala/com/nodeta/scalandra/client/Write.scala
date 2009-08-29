@@ -16,6 +16,17 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
   protected val writeConsistency = cassandra.ConsistencyLevel.ZERO
 
   /**
+   * Insert or update value of single column
+   */
+  def update(path : ColumnPath[A, B], value : C) {
+    client.insert(keyspace, path.key, new cassandra.ColumnPath(
+      path.columnFamily,
+      path.superColumn.map(superColumn.serialize(_)).getOrElse(null),
+      column.serialize(path.column)
+    ), this.value.serialize(value), System.currentTimeMillis, writeConsistency)
+  }
+
+  /**
    * Insert collection of values in a standard column family/key pair
    */
   def insertNormal(path : ColumnParent[_], data : Collection[Pair[B, C]]) {

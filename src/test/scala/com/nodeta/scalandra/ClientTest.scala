@@ -32,6 +32,17 @@ object ClientTest extends Specification {
       result.keySet must containAll(List("1", "2", "3"))
       result("2")("blah") must equalTo("meh")
     }
+    
+    "should be able to insert single value" in {
+      val value = (Math.random * 10000).toInt.toString
+      val path = ColumnPath[String, String]("Standard1", "random-test", None, "Random")
+      // Given: Value is inserted to Cassandra
+      cassandra(path) = value
+      
+      // Then: It should be readable from Cassandra.
+      cassandra.get(path) must beSomething.which(_ must equalTo(value))
+    }
+    
   }
 
   "count" should {
