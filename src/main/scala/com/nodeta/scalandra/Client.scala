@@ -1,6 +1,7 @@
 package com.nodeta.scalandra
 
 import serializer.{Serializer, NonSerializer}
+import map.{ColumnFamily, SuperColumnFamily, StandardColumnFamily}
 
 import org.apache.cassandra.{service => cassandra}
 import java.lang.IllegalArgumentException
@@ -27,6 +28,44 @@ class Client[A, B, C](
   protected val value : Serializer[C]
 ) extends client.Base[A, B, C] with client.ReadWrite[A, B, C] {
   val client = connection.client
+  
+  lazy private val schema = { describe }
+  
+  def apply(columnFamily : String) : ColumnFamily[_] = {
+    schema(columnFamily)("Type") match {
+      case "Super" => superColumnFamily(columnFamily)
+      case "Standard" => this.columnFamily(columnFamily)
+    }
+  }
+  
+  def columnFamily(columnFamily : String) : StandardColumnFamily[B, C] = {
+    val _columnFamily = columnFamily
+    val parent = this
+    
+    new StandardColumnFamily[B, C] {
+      protected val columnSerializer = column
+      protected val valueSerializer = value
+
+      protected val keyspace = parent.keyspace
+      protected val columnFamily = _columnFamily
+      protected val connection = parent.connection
+    }
+  }
+  
+  def superColumnFamily(columnFamily : String) : SuperColumnFamily[A, B, C] = {
+    val _columnFamily = columnFamily
+    val parent = this
+    
+    new SuperColumnFamily[A, B, C] {
+      protected val superColumnSerializer = superColumn
+      protected val columnSerializer = column
+      protected val valueSerializer = value
+
+      protected val keyspace = parent.keyspace
+      protected val columnFamily = _columnFamily
+      protected val connection = parent.connection
+    }
+  }
 
   def build[K, V](k : Serializer[K], v : Serializer[V]) = {
     new Client(connection, keyspace, k, k, v)
