@@ -6,7 +6,7 @@
                Only matters if you're using thrift. -->
   <info organisation="com.nodeta"
     module="scalandra"
-    revision="0.1.0"
+    revision="0.2.0-dev"
     e:buildpackage="com.nodeta.scalandra"
     e:testclass="com.nodeta.scalandra.tests.TestRunner"
   />

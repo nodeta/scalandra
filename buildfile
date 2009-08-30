@@ -1,7 +1,7 @@
 require 'buildr/scala'
 
 # Version number for this release
-VERSION_NUMBER = "0.1.0"
+VERSION_NUMBER = "0.2.0-dev"
 # Group identifier for your projects
 GROUP = "com.nodeta"
 COPYRIGHT = "Nodeta Oy"
