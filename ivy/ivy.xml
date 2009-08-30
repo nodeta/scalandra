@@ -23,8 +23,8 @@
     <dependency org="junit" name="junit" rev="4.5" conf="test->*" />
     <dependency org="org.scala-tools" name="vscaladoc" rev="1.1-md-3" conf="bootstrap->*" />
 
-    <dependency org="org.apache.thrift" name="thrift" rev="cassandra-0.4.0-beta1" conf="*" />
-    <dependency org="org.apache.cassandra" name="cassandra" rev="0.4.0-beta1" conf="*" />
+    <dependency org="org.apache.thrift" name="libthrift" rev="r808609" conf="*" />
+    <dependency org="org.apache.cassandra" name="cassandra" rev="0.4.0-dev" conf="*" />
     <dependency org="commons-pool" name="commons-pool" rev="1.5.2" conf="*" />
     <dependency org="commons-logging" name="commons-logging" rev="1.1" />
   </dependencies>
