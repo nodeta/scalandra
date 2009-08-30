@@ -25,38 +25,56 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
       column.serialize(path.column)
     ), this.value.serialize(value), System.currentTimeMillis, writeConsistency)
   }
+  
+  private def insert(path : Path, data : Iterable[cassandra.ColumnOrSuperColumn]) {
+    val cfm = new LinkedHashMap[String, JavaList[cassandra.ColumnOrSuperColumn]]
+    cfm(path.columnFamily) = (new ArrayList() ++ data).underlying
+
+    val mutation = new cassandra.BatchMutation(path.key, cfm.underlying)
+    client.batch_insert(keyspace, mutation, writeConsistency)
+  }
+
+
 
   /**
    * Insert collection of values in a standard column family/key pair
    */
-  def insertNormal(path : ColumnParent[_], data : Collection[Pair[B, C]]) {
-    val cfm = new LinkedHashMap[String, JavaList[cassandra.Column]]
-    cfm(path.columnFamily) = data
-
-    val mutation = new cassandra.BatchMutation(path.key, cfm.underlying)
-
-    client.batch_insert(keyspace, mutation, writeConsistency)
+  def insertNormal(path : Path, data : Iterable[Pair[B, C]]) {
+    implicit def convert(data : Iterable[Pair[B, C]]) : List[cassandra.ColumnOrSuperColumn] = {
+      data.map { case(k, v) =>
+        new cassandra.ColumnOrSuperColumn(
+          buildColumn(k, v),
+          null
+        )
+      }.toList
+    }
+    insert(path, data)
+  }
+  
+  private def buildColumn(key : B, value : C) : cassandra.Column = {
+    new cassandra.Column(column.serialize(key), this.value(value), System.currentTimeMillis)
   }
 
   /**
    * Insert collection of values in a super column family/key pair
    */
-  def insertSuper(path : ColumnParent[_], data : Collection[Pair[A, Collection[Pair[B, C]]]]) {
-    val cfm = new LinkedHashMap[String, JavaList[cassandra.SuperColumn]]
-    val list = (new ArrayList[cassandra.SuperColumn] ++ data.map { case(key, value) =>
-      new cassandra.SuperColumn(superColumn.serialize(key), value)
-    })
+  def insertSuper(path : Path, data : Iterable[Pair[A, Iterable[Pair[B, C]]]]) {
+    implicit def convertToColumnList(data : Iterable[Pair[B, C]]) : JavaList[cassandra.Column] = {
+      (new ArrayList[cassandra.Column] ++ data.map { case(k, v) =>
+        new cassandra.Column(column.serialize(k), value(v), System.currentTimeMillis)
+      }).underlying
+    }
+    
+    val cfm = new LinkedHashMap[String, JavaList[cassandra.ColumnOrSuperColumn]]
+    
+    val list = data.map { case(key, value) =>
+      new cassandra.ColumnOrSuperColumn(
+        null,
+        new cassandra.SuperColumn(superColumn.serialize(key), value)
+      )
+    }.toList
 
-    cfm(path.columnFamily) = list.underlying
-
-    val mutation = new cassandra.BatchMutationSuper(path.key, cfm.underlying)
-    client.batch_insert_super_column(keyspace, mutation, writeConsistency)
-  }
-
-  implicit private def convertToColumnList(data : Collection[Pair[B, C]]) : JavaList[cassandra.Column] = {
-    (new ArrayList[cassandra.Column] ++ data.map { case(k, v) =>
-      new cassandra.Column(column.serialize(k), value(v), System.currentTimeMillis)
-    }).underlying
+    insert(path, list)
   }
 
   private def remove(key : String, path : cassandra.ColumnPath) {
