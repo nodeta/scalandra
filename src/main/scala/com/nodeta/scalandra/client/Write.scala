@@ -26,6 +26,17 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
     ), this.value.serialize(value), System.currentTimeMillis, writeConsistency)
   }
   
+  def update(path : ColumnParent[A], value : Iterable[Pair[B, C]]) {
+    path.superColumn match {
+      case Some(sc) => insertSuper(path--, Map(sc -> value))
+      case None => insertNormal(path, value)
+    }
+  }
+  
+  def update(path : Path, data : Iterable[Pair[A, Iterable[Pair[B, C]]]]) {
+    insertSuper(path, data)
+  }
+  
   private def insert(path : Path, data : Iterable[cassandra.ColumnOrSuperColumn]) {
     val cfm = new LinkedHashMap[String, JavaList[cassandra.ColumnOrSuperColumn]]
     cfm(path.columnFamily) = (new ArrayList() ++ data).underlying

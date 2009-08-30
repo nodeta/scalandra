@@ -3,10 +3,7 @@ package com.nodeta.scalandra
 /*
  * Common methods for all paths
  */
-trait Path {
-  def columnFamily() : String
-  def key() : String
-}
+case class Path(columnFamily : String, key : String) {}
 
 /**
  * This class represents path to a column container, i.e. a row or super column
@@ -17,13 +14,17 @@ trait Path {
  * @param key Row key
  * @param superColumn Super column key (optional)
  */
-case class ColumnParent[A](columnFamily : String, key : String, superColumn : Option[A]) extends Path {
+case class ColumnParent[A](override val columnFamily : String, override val key : String, superColumn : Option[A]) extends Path(columnFamily, key) {
   def +[B](column : B) : ColumnPath[A, B] = {
     new ColumnPath(columnFamily, key, superColumn, column)
   }
 
   def --() : ColumnParent[A] = {
     new ColumnParent[A](columnFamily, key, None)
+  }
+  
+  def -() : Path = {
+    Path(columnFamily, key)
   }
 
   def ++[T](superColumn : T) : ColumnParent[T] = {
@@ -52,7 +53,7 @@ object ColumnParent {
  * @param superColumn Super column key (optional)
  * @param column Column key
  */
-case class ColumnPath[A, B](columnFamily : String, key : String, superColumn : Option[A], column : B) extends Path {
+case class ColumnPath[A, B](override val columnFamily : String, override val key : String, superColumn : Option[A], column : B) extends Path(columnFamily, key) {
   def this(columnFamily : String, key : String, column : B) = this(columnFamily, key, None, column)
 }
 
