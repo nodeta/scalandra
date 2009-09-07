@@ -19,10 +19,10 @@ define "scalandra" do
   test.using :specs
   
   compile.with(
-    'libs/cassandra-0.4.0-dev.jar',
+    'libs/cassandra-0.4.0-rc1.jar',
     'libs/libthrift-r808609.jar',
     'commons-pool:commons-pool:jar:1.5.2',
-    transitive('org.slf4j:slf4j-log4j12:jar:1.5.8')
+    transitive('org.slf4j:slf4j-simple:jar:1.5.8')
   ).using(:deprecation => true)
   
   package :jar

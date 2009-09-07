@@ -195,7 +195,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
       }
     }
 
-    client.get_key_range(keyspace, columnFamily, optionalString(start), optionalString(finish), count)
+    client.get_key_range(keyspace, columnFamily, optionalString(start), optionalString(finish), count, consistency)
   }
 
 

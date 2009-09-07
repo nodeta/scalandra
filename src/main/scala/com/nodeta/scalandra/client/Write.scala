@@ -25,27 +25,24 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
       column.serialize(path.column)
     ), this.value.serialize(value), System.currentTimeMillis, writeConsistency)
   }
-  
+
   def update(path : ColumnParent[A], value : Iterable[Pair[B, C]]) {
     path.superColumn match {
       case Some(sc) => insertSuper(path--, Map(sc -> value))
       case None => insertNormal(path, value)
     }
   }
-  
+
   def update(path : Path, data : Iterable[Pair[A, Iterable[Pair[B, C]]]]) {
     insertSuper(path, data)
   }
-  
+
   private def insert(path : Path, data : Iterable[cassandra.ColumnOrSuperColumn]) {
-    val cfm = new LinkedHashMap[String, JavaList[cassandra.ColumnOrSuperColumn]]
-    cfm(path.columnFamily) = (new ArrayList() ++ data).underlying
+    val mutation = new LinkedHashMap[String, JavaList[cassandra.ColumnOrSuperColumn]]
+    mutation(path.columnFamily) = (new ArrayList() ++ data).underlying
 
-    val mutation = new cassandra.BatchMutation(path.key, cfm.underlying)
-    client.batch_insert(keyspace, mutation, writeConsistency)
+    client.batch_insert(keyspace, path.key, mutation.underlying, writeConsistency)
   }
-
-
 
   /**
    * Insert collection of values in a standard column family/key pair
@@ -61,7 +58,7 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
     }
     insert(path, data)
   }
-  
+
   private def buildColumn(key : B, value : C) : cassandra.Column = {
     new cassandra.Column(column.serialize(key), this.value(value), System.currentTimeMillis)
   }
@@ -75,9 +72,9 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
         new cassandra.Column(column.serialize(k), value(v), System.currentTimeMillis)
       }).underlying
     }
-    
+
     val cfm = new LinkedHashMap[String, JavaList[cassandra.ColumnOrSuperColumn]]
-    
+
     val list = data.map { case(key, value) =>
       new cassandra.ColumnOrSuperColumn(
         null,
@@ -111,7 +108,7 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
 
   /**
    * Remove a single column value
-   * 
+   *
    * @param path Path to column to be removed
    */
   def remove(path : ColumnPath[A, B]) {
