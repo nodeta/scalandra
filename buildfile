@@ -1,7 +1,7 @@
 require 'buildr/scala'
 
 # Version number for this release
-VERSION_NUMBER = "0.1.0"
+VERSION_NUMBER = "0.2.0-dev"
 # Group identifier for your projects
 GROUP = "com.nodeta"
 COPYRIGHT = "Nodeta Oy"
@@ -19,10 +19,10 @@ define "scalandra" do
   test.using :specs
   
   compile.with(
-    'libs/cassandra-0.4.0-beta1.jar',
-    'libs/thrift-cassandra-0.4.0-beta1.jar',
+    'libs/cassandra-0.4.0-rc1.jar',
+    'libs/libthrift-r808609.jar',
     'commons-pool:commons-pool:jar:1.5.2',
-    transitive('commons-logging:commons-logging:jar:1.1')
+    transitive('org.slf4j:slf4j-simple:jar:1.5.8')
   ).using(:deprecation => true)
   
   package :jar

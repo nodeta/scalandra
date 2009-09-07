@@ -14,7 +14,7 @@ object ClientTest extends Specification {
     "be able to add and get data to a normal column family" in {
       // Given: John is inserted to Cassandra
       jsmith("first") must equalTo("John")
-      cassandra.insertNormal(path, jsmith)
+      cassandra(path) = jsmith
 
       // Then: It should still have its old values.
       val result = cassandra.slice(path, None, None, Ascending)
@@ -25,7 +25,7 @@ object ClientTest extends Specification {
 
     "be able to add and get data to a super column family" in {
       // Given: Data is inserted to Cassandra
-      cassandra.insertSuper(superPath, index)
+      cassandra(superPath-) = index
 
       // Then: It should still have its old values.
       val result = cassandra.sliceSuper(superPath, None, None, Ascending)

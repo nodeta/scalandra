@@ -54,6 +54,9 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
 
     client.describe_keyspace(keyspace)
   }
+  
+  def apply(path : ColumnPath[A, B]) = get(path)
+  def apply(path : ColumnParent[A]) = get(path)
 
   /**
    * Get single column
@@ -192,7 +195,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
       }
     }
 
-    client.get_key_range(keyspace, columnFamily, optionalString(start), optionalString(finish), count)
+    client.get_key_range(keyspace, columnFamily, optionalString(start), optionalString(finish), count, consistency)
   }
 
 
