@@ -21,7 +21,7 @@
     <dependency org="org.scala-tools" name="vscaladoc" rev="1.1-md-3" conf="bootstrap->*" />
 
     <dependency org="org.apache.thrift" name="libthrift" rev="r808609" conf="*" />
-    <dependency org="org.apache.cassandra" name="cassandra" rev="0.4.0-rc1" conf="*" />
+    <dependency org="org.apache.cassandra" name="cassandra" rev="0.4.0" conf="*" />
     <dependency org="commons-pool" name="commons-pool" rev="1.5.2" conf="*" />
     <dependency org="org.slf4j" name="slf4j-simple" rev="1.5.8" />
   </dependencies>
