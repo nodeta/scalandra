@@ -19,7 +19,7 @@ define "scalandra" do
   test.using :specs
   
   compile.with(
-    'libs/cassandra-0.4.0.jar',
+    'libs/apache-cassandra-incubating-0.4.1.jar',
     'libs/libthrift-r808609.jar',
     'commons-pool:commons-pool:jar:1.5.2',
     transitive('org.slf4j:slf4j-simple:jar:1.5.8')
