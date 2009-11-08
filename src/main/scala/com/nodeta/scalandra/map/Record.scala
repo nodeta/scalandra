@@ -77,10 +77,15 @@ trait SuperRecord[A, B, C] extends Record[A, SuperColumn[A, B, C]] with SuperBas
   def slice(columns : Collection[A]) : Map[A, SuperColumn[A, B, C]] = {
     client.sliceSuper(path, columns).transform(buildCached(_, _))
   }
+
   def slice(start : Option[A], finish : Option[A]) : Map[A, SuperColumn[A, B, C]] = {
     client.sliceSuper(path, start, finish, Ascending).transform(buildCached(_, _))
   }
-  
+
+  def slice(start : Option[A], finish : Option[A], order : Order, count : Int) : Map[A, SuperColumn[A, B, C]] = {
+    client.sliceSuper(path, start, finish, order, count).transform(buildCached(_, _))
+  }
+
   def -=(key : A) {
     client.remove(path ++ key)
   }
