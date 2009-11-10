@@ -60,3 +60,11 @@ case class ColumnPath[A, B](override val columnFamily : String, override val key
 object ColumnPath {
   def apply[B](columnFamily : String, key : String, column : B) : ColumnPath[B, B] = apply(columnFamily, key, None, column)
 }
+
+case class MultiPath[A, B](columnFamily : String, keys : Iterable[String], superColumn : Option[A], column : Option[B]) {
+  def this(columnFamily : String, key : Iterable[String]) = this(columnFamily, key, None, None)
+}
+
+object MultiPath {
+  def apply[A, B](columnFamily : String, keys : Iterable[String]) : MultiPath[A, B] = this(columnFamily, keys, None, None)
+}
