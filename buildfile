@@ -15,7 +15,7 @@ define "scalandra" do
   project.group = GROUP
   manifest["Implementation-Vendor"] = COPYRIGHT
   
-  doc.using :vscaladoc
+  #doc.using :vscaladoc
   test.using :specs
   
   compile.with(
