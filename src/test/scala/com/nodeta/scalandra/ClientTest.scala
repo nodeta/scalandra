@@ -142,6 +142,32 @@ object ClientTest extends Specification {
     }
 
   }
+  
+  "multiget" should {
+    for(i <- (0 until 5)) {
+      cassandra(ColumnParent[String]("Standard1", i.toString)) = jsmith
+    }
+
+    "find all existing records" in {
+      val result = cassandra.multiget(
+        MultiPath[String, String]("Standard1", List("1", "3", "6"), None, Some("last")) 
+      )
+
+      result("1") must beSomething
+      result("3") must beSomething
+      result("6") must beNone
+      result must not have the key("2")
+    }
+
+    "find existing rows" in {
+      val result = cassandra.getAll(
+        MultiPath[String, String]("Standard1", List("1", "6")) 
+      )
+      
+      result("1") must haveSize(jsmith.size)
+      result("6") must beEmpty
+    }
+  }
 
   "order preservation" should {
 

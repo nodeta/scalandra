@@ -6,7 +6,7 @@ import org.apache.cassandra.{service => cassandra}
 import org.apache.cassandra.service.NotFoundException
 
 import java.util.{List => JavaList}
-import scala.collection.jcl.{ArrayList, Conversions}
+import scala.collection.jcl.{ArrayList, Conversions, Map => JavaMap}
 import scala.collection.immutable.ListMap
 
 /**
@@ -57,6 +57,60 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   
   def apply(path : ColumnPath[A, B]) = get(path)
   def apply(path : ColumnParent[A]) = get(path)
+  
+  /* Get multiple columns from StandardColumnFamily */
+  def multiget(path : MultiPath[A, B]) : Map[String, Option[(B, C)]] = {
+    (ListMap() ++ multigetAny(path).map { case(k, v) =>
+      (k, getColumn(v))
+    })
+  }
+  
+  /* Get multiple super columns from SuperColumnFamily */
+  def multigetSuper(path : MultiPath[A, B]) : Map[String, Option[(A , Map[B, C])]] = {
+    (ListMap() ++ multigetAny(path).map { case(k, v) =>
+      (k, getSuperColumn(v))
+    })
+  }
+  
+  private def multigetAny(path : MultiPath[A, B]) : JavaMap[String, cassandra.ColumnOrSuperColumn]= {
+    val p = new cassandra.ColumnPath(
+      path.columnFamily,
+      path.superColumn.map(superColumn.serialize(_)).getOrElse(null),
+      path.column.map(column.serialize(_)).getOrElse(null)
+    )
+    JavaMap(client.multiget(keyspace, path.keys, p, consistency))
+  }
+  
+  /* Get multiple records from StandardColumnFamily */
+  def getAll(path : MultiPath[A, B]) : Map[String, Map[B, C]] = {
+    ListMap() ++ getAllAny(path).map { case(k, v) =>
+      (k, ListMap(v.map(getColumn(_).get) : _*))
+    }
+  }
+  
+  /* Get multiple records from SuperColumnFamily */
+  def getAllSuper(path : MultiPath[A, B]) : Map[String, Map[A , Map[B, C]]] = {
+    ListMap() ++ getAllAny(path).map { case(k, v) =>
+      (k, ListMap(v.map(getSuperColumn(_).get) : _*))
+    }
+  }
+  
+  private def getAllAny(path : MultiPath[A, B]) : JavaMap[String, JavaList[cassandra.ColumnOrSuperColumn]]= {
+    val p = new cassandra.ColumnParent(
+      path.columnFamily,
+      path.superColumn.map(superColumn.serialize(_)).getOrElse(null)
+    )
+    JavaMap(
+      client.multiget_slice(
+        keyspace,
+        path.keys,
+        p,
+        new SlicePredicate(serializer.NonSerializer)(
+          None, None, Ascending, maximumCount),
+        consistency
+      )
+    )
+  }
 
   /**
    * Get single column
@@ -227,7 +281,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     List[T]() ++ Conversions.convertList[T](list)
   }
 
-  implicit private def convertCollection[T](list : Collection[T]) : JavaList[T] = {
+  implicit private def convertCollection[T](list : Iterable[T]) : JavaList[T] = {
     (new ArrayList() ++ list).underlying
   }
 }
