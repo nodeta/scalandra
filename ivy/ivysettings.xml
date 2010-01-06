@@ -6,7 +6,7 @@
         <artifact pattern="${basedir}/build/[artifact]-[revision].[ext]" />
       </filesystem>
       <filesystem name="local-libs" m2compatible="true" transactional="false" local="true" checkmodified="true">
-        <artifact pattern="${basedir}/libs/[artifact]-[revision].[ext]" />
+        <artifact pattern="${basedir}/lib/[artifact]-[revision].[ext]" />
       </filesystem>
       <ibiblio name="scala-tools.org" m2compatible="true" root="http://scala-tools.org/repo-releases/" />
       <ibiblio name="download.java" m2compatible="true" root="http://download.java.net/maven/2/" />

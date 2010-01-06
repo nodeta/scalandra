@@ -19,8 +19,8 @@ define "scalandra" do
   test.using :specs
   
   compile.with(
-    'libs/apache-cassandra-incubating-0.4.2.jar',
-    'libs/libthrift-r808609.jar',
+    'lib/apache-cassandra-incubating-0.4.2.jar',
+    'lib/libthrift-r808609.jar',
     'commons-pool:commons-pool:jar:1.5.2',
     transitive('org.slf4j:slf4j-simple:jar:1.5.8')
   ).using(:deprecation => true)

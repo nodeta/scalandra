@@ -3,4 +3,6 @@ target/*
 reports/*
 dist/*
 build/*
+lib_managed/*
+project/boot
 *~
