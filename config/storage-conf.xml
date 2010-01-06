@@ -65,7 +65,7 @@
        ~ index. Consider increasing this if you have fewer, wider rows.
        ~ Set to 0 to disable entirely.
       -->
-      <KeysCachedFraction>0.01</KeysCachedFraction>
+      <KeysCachedFraction>1</KeysCachedFraction><!-- cache everything for tests -->
       <!-- 
        ~ The CompareWith attribute tells Cassandra how to sort the columns
        ~ for slicing operations.  The default is BytesType, which is a
@@ -159,12 +159,12 @@
    ~ disk.  Keep the data disks and the CommitLog disks separate for best
    ~ performance
   -->
-  <CommitLogDirectory>./cassandra/data/commitlog</CommitLogDirectory>
+  <CommitLogDirectory>./data/commitlog</CommitLogDirectory>
   <DataFileDirectories>
-      <DataFileDirectory>./cassandra/data/data</DataFileDirectory>
+      <DataFileDirectory>./data/data</DataFileDirectory>
   </DataFileDirectories>
-  <CalloutLocation>./cassandra/data/callouts</CalloutLocation>
-  <StagingFileDirectory>./cassandra/data/staging</StagingFileDirectory>
+  <CalloutLocation>./data/callouts</CalloutLocation>
+  <StagingFileDirectory>./data/staging</StagingFileDirectory>
 
 
   <!--
@@ -198,9 +198,9 @@
   -->
   <ListenAddress>localhost</ListenAddress>
   <!-- TCP port, for commands and data -->
-  <StoragePort>7000</StoragePort>
+  <StoragePort>7003</StoragePort>
   <!-- UDP port, for membership communications (gossip) -->
-  <ControlPort>7001</ControlPort>
+  <ControlPort>7004</ControlPort>
 
   <!--
    ~ The address to bind the Thrift RPC service to. Unlike ListenAddress

@@ -9,8 +9,8 @@ end
 
 
 namespace :cassandra do
-  version = "0.5.0-rc3"
-  url = "http://people.apache.org/~eevans/apache-cassandra-incubating-#{version}-bin.tar.gz"
+  version = "0.5.0"
+  url = "http://www.nic.funet.fi/pub/mirrors/apache.org/incubator/cassandra/#{version}/apache-cassandra-incubating-#{version}-bin.tar.gz"
 
   desc "Setup Cassandra"
   task :setup do
@@ -19,6 +19,12 @@ namespace :cassandra do
     sh "mv apache-cassandra-incubating-#{version} cassandra"
     sh "mv cassandra/conf cassandra/default_conf"
     sh "ln -nfs #{Dir.pwd}/config cassandra/conf"
+  end
+  
+  desc "Cleanup cassandra files"
+  task :cleanup do
+    FileUtils.rm_r(Dir.pwd + '/data') if File.exists?(Dir.pwd + "/data")
+    FileUtils.rm_r(Dir.pwd + '/log') if File.exists?(Dir.pwd + "/log")
   end
   
   desc "Start Cassandra"
@@ -48,6 +54,12 @@ end
 
 desc "Test scalandra"
 task :test do
-  Rake::Task["cassandra:start"] unless cassandra_running?
-  Rake::Task["sbt"].execute("test")
+  begin
+    Rake::Task["cassandra:stop"].execute if cassandra_running?
+    Rake::Task["cassandra:cleanup"].execute
+    Rake::Task["cassandra:start"].execute
+    Rake::Task["sbt"].execute("test")
+  ensure
+    Rake::Task["cassandra:stop"].execute
+  end
 end

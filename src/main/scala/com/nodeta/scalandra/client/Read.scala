@@ -235,7 +235,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   * Shorthand for <code>keys</code> without count parameter
   */
   def keys(columnFamily : String, start : Option[String], finish : Option[String]) : List[String] = {
-    keys(columnFamily, start, finish, maximumCount)
+    keys(columnFamily, start, finish, 1000)
   }
 
   /**
@@ -248,8 +248,16 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
         case None => ""
       }
     }
+    
+    val slice = new cassandra.SlicePredicate(
+      null,
+      new cassandra.SliceRange("".getBytes("UTF-8"), "".getBytes("UTF-8"), true, 1)
+    )
+    
+    val parent = new cassandra.ColumnParent(columnFamily, null)
 
-    client.get_key_range(keyspace, columnFamily, optionalString(start), optionalString(finish), count, consistency)
+    client.get_range_slice(keyspace, parent, slice, optionalString(start), optionalString(finish), count, consistency).map(_.key)
+    
   }
 
 
