@@ -19,7 +19,7 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
    * Insert or update value of single column
    */
   def update(path : ColumnPath[A, B], value : C) {
-    client.insert(keyspace, path.key, new cassandra.ColumnPath(
+    _client.insert(keyspace, path.key, new cassandra.ColumnPath(
       path.columnFamily,
       path.superColumn.map(serializer.superColumn.serialize(_)).getOrElse(null),
       serializer.column.serialize(path.column)
@@ -41,7 +41,7 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
     val mutation = new LinkedHashMap[String, JavaList[cassandra.ColumnOrSuperColumn]]
     mutation(path.columnFamily) = (new ArrayList() ++ data).underlying
 
-    client.batch_insert(keyspace, path.key, mutation.underlying, writeConsistency)
+    _client.batch_insert(keyspace, path.key, mutation.underlying, writeConsistency)
   }
 
   /**
@@ -86,7 +86,7 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
   }
 
   private def remove(key : String, path : cassandra.ColumnPath) {
-    client.remove(keyspace, key, path, System.currentTimeMillis, writeConsistency)
+    _client.remove(keyspace, key, path, System.currentTimeMillis, writeConsistency)
   }
 
   /**

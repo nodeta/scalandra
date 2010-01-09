@@ -111,12 +111,7 @@ trait SuperRecord[A, B, C] extends Record[A, SuperColumn[A, B, C]] with SuperBas
     val parent = this
     new CachedSuperColumn[A, B, C] {
       override lazy protected val data = _data
-      protected val columnSerializer = parent.columnSerializer
-      protected val superColumnSerializer = parent.superColumnSerializer
-      protected val valueSerializer = parent.valueSerializer
-
-      protected val keyspace = parent.keyspace
-      protected val connection = parent.connection
+      protected val client = parent.client
 
       protected val path = (parent.path ++ column)
     }
@@ -125,12 +120,7 @@ trait SuperRecord[A, B, C] extends Record[A, SuperColumn[A, B, C]] with SuperBas
   protected def build(column : A) = {
     val parent = this
     Some(new SuperColumn[A, B, C] {
-      protected val columnSerializer = parent.columnSerializer
-      protected val superColumnSerializer = parent.superColumnSerializer
-      protected val valueSerializer = parent.valueSerializer
-
-      protected val keyspace = parent.keyspace
-      protected val connection = parent.connection
+      protected val client = parent.client
 
       protected val path = (parent.path ++ column)
     })

@@ -39,7 +39,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   * Number of columns with specified column path
   */
   def count(path : ColumnParent[A]) : Int = {
-    client.get_count(keyspace, path.key, getColumnParent(path), consistency.read)
+    _client.get_count(keyspace, path.key, getColumnParent(path), consistency.read)
   }
 
   /**
@@ -52,7 +52,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
       }
     }
 
-    client.describe_keyspace(keyspace)
+    _client.describe_keyspace(keyspace)
   }
   
   def apply(path : ColumnPath[A, B]) = get(path)
@@ -78,7 +78,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
       path.superColumn.map(serializer.superColumn.serialize(_)).getOrElse(null),
       path.column.map(serializer.column.serialize(_)).getOrElse(null)
     )
-    JavaMap(client.multiget(keyspace, path.keys, p, consistency.read))
+    JavaMap(_client.multiget(keyspace, path.keys, p, consistency.read))
   }
   
   /* Get multiple records from StandardColumnFamily */
@@ -101,7 +101,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
       path.superColumn.map(serializer.superColumn.serialize(_)).getOrElse(null)
     )
     JavaMap(
-      client.multiget_slice(
+      _client.multiget_slice(
         keyspace,
         path.keys,
         p,
@@ -118,7 +118,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    */
    def get(path : ColumnPath[A, B]) : Option[C] = {
      try {
-       client.get(
+       _client.get(
          keyspace,
          path.key,
          getColumnPath(path),
@@ -148,7 +148,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    * @param columns Collection of columns which are retrieved
    */
    def slice(path : ColumnParent[A], columns : Collection[B]) : Map[B, C] = {
-     ListMap[B, C](client.get_slice(
+     ListMap[B, C](_client.get_slice(
        keyspace,
        path.key,
        getColumnParent(path),
@@ -177,7 +177,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     * @param count Number of results to return starting from first result
     */
    def slice(path : ColumnParent[A], start : Option[B], finish : Option[B], order : Order, count : Int) : Map[B, C] = {
-     ListMap(client.get_slice(
+     ListMap(_client.get_slice(
        keyspace,
        path.key,
        getColumnParent(path),
@@ -196,7 +196,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     * @param columns Collection of super column keys which are retrieved
     */
    def sliceSuper(path : ColumnParent[A], columns : Collection[A]) : Map[A, Map[B, C]] = {
-     ListMap(client.get_slice(
+     ListMap(_client.get_slice(
        keyspace,
        path.key,
        getColumnParent(path),
@@ -222,7 +222,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     * Slice columns by start and finish with count parameter
     */
    def sliceSuper(path : ColumnParent[A], start : Option[A], finish : Option[A], order : Order, count : Int) : Map[A, Map[B, C]] = {
-     ListMap(client.get_slice(
+     ListMap(_client.get_slice(
        keyspace,
        path.key,
        getColumnParent(path),
@@ -256,7 +256,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     
     val parent = new cassandra.ColumnParent(columnFamily, null)
 
-    client.get_range_slice(keyspace, parent, slice, optionalString(start), optionalString(finish), count, consistency.read).map(_.key)
+    _client.get_range_slice(keyspace, parent, slice, optionalString(start), optionalString(finish), count, consistency.read).map(_.key)
     
   }
 

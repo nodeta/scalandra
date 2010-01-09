@@ -45,11 +45,7 @@ trait StandardColumnFamily[A, B] extends BaseColumnFamily[StandardRecord[A, B]] 
   protected def build(key : String) = {
     val parent = this
     new StandardRecord[A, B] {
-      protected val columnSerializer = parent.columnSerializer
-      protected val valueSerializer = parent.valueSerializer
-
-      protected val keyspace = parent.keyspace
-      protected val connection = parent.connection
+      protected val client = parent.client
 
       protected val path = ColumnParent[Any](parent.columnFamily, key)
     }
@@ -73,13 +69,7 @@ trait SuperColumnFamily[A, B, C] extends BaseColumnFamily[SuperRecord[A, B, C]] 
   protected def build(key : String) = {
     val parent = this
     new SuperRecord[A, B, C] {
-      protected val columnSerializer = parent.columnSerializer
-      protected val superColumnSerializer = parent.superColumnSerializer
-      protected val valueSerializer = parent.valueSerializer
-
-      protected val keyspace = parent.keyspace
-      protected val connection = parent.connection
-
+      protected val client = parent.client
       protected val path = ColumnParent[A](parent.columnFamily, key)
     }
   }

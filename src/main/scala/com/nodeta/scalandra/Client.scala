@@ -1,7 +1,7 @@
 package com.nodeta.scalandra
 
 import serializer.{Serializer, NonSerializer}
-import map.{ColumnFamily, SuperColumnFamily, StandardColumnFamily}
+import map.{ColumnFamily => Fam, StandardColumnFamily => CF, SuperColumnFamily => SCF}
 
 import org.apache.cassandra.{service => cassandra}
 import java.lang.IllegalArgumentException
@@ -22,57 +22,15 @@ import java.lang.IllegalArgumentException
  */
 class Client[A, B, C](
   val connection : Connection,
-  protected val keyspace : String,
-  protected val serializer : Serialization[A, B, C],
+  val keyspace : String,
+  val serializer : Serialization[A, B, C],
   val consistency : ConsistencyLevels
-) extends client.Base[A, B, C] with client.ReadWrite[A, B, C] {
+) extends client.Base[A, B, C] with client.ReadWrite[A, B, C] with map.Keyspace[A, B, C] {
   def this(c : Connection, keyspace : String, serialization : Serialization[A, B, C]) = {
     this(c, keyspace, serialization, ConsistencyLevels())
   }
-  
-  val client = connection.client
-  
-  lazy private val schema = { describe }
-  
-  def apply(columnFamily : String) : ColumnFamily[_] = {
-    schema(columnFamily)("Type") match {
-      case "Super" => superColumnFamily(columnFamily)
-      case "Standard" => this.columnFamily(columnFamily)
-    }
-  }
-  
-  def columnFamily(columnFamily : String) : StandardColumnFamily[B, C] = {
-    val _columnFamily = columnFamily
-    val parent = this
-    
-    new StandardColumnFamily[B, C] {
-      protected val columnSerializer = serializer.column
-      protected val valueSerializer = serializer.value
-
-      protected val keyspace = parent.keyspace
-      protected val columnFamily = _columnFamily
-      protected val connection = parent.connection
-    }
-  }
-  
-  def superColumnFamily(columnFamily : String) : SuperColumnFamily[A, B, C] = {
-    val _columnFamily = columnFamily
-    val parent = this
-    
-    new SuperColumnFamily[A, B, C] {
-      protected val superColumnSerializer = serializer.superColumn
-      protected val columnSerializer = serializer.column
-      protected val valueSerializer = serializer.value
-
-      protected val keyspace = parent.keyspace
-      protected val columnFamily = _columnFamily
-      protected val connection = parent.connection
-    }
-  }
-
-  def build[K, V](k : Serializer[K], v : Serializer[V]) = {
-    new Client(connection, keyspace, Serialization(k, k, v), consistency)
-  }
+  protected val client = this
+  protected val _client = connection.client
 }
 
 object Client {

@@ -11,7 +11,7 @@ import serializer.Serializer
  * @author Ville Lautanala
  */
 trait Base[A, B, C] {
-  protected val client : Cassandra.Client
+  protected val _client : Cassandra.Client
   protected val keyspace : String
 
   protected val maximumCount = 2147483647 // 2^31 -1
