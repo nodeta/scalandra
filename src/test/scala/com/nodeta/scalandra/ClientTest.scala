@@ -4,7 +4,7 @@ import org.specs._
 import com.nodeta.scalandra.serializer.StringSerializer
 
 object ClientTest extends Specification {
-  val cassandra = new Client(Connection(), "Keyspace1", StringSerializer, StringSerializer, StringSerializer)
+  val cassandra = new Client(Connection(), "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
   val jsmith = Map("first" -> "John", "last" -> "Smith", "age" -> "53", "foo" -> "bar")
   val path = ColumnParent[String]("Standard1", "jsmith-test")
   val superPath = ColumnParent[String]("Super1", "jsmith-test")
@@ -121,7 +121,6 @@ object ClientTest extends Specification {
 
   "single column fetching" should {
     "be able to get super column using path" in {
-      Thread.sleep(50)
       val result = cassandra.get(superPath ++ "3")
       result must beSomething
       result.get.keySet must containAll(index("3").keySet)

@@ -1,6 +1,6 @@
 package com.nodeta.scalandra.client
 
-import com.nodeta.scalandra.serializer.Serializer
+import com.nodeta.scalandra.serializer.{Serializer, NonSerializer}
 
 import org.apache.cassandra.{service => cassandra}
 import org.apache.cassandra.service.NotFoundException
@@ -32,14 +32,14 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     }
   }
 
-  private object SuperSlice extends SlicePredicate[A](superColumn) {}
-  private object StandardSlice extends SlicePredicate[B](column) {}
+  private object SuperSlice extends SlicePredicate[A](serializer.superColumn) {}
+  private object StandardSlice extends SlicePredicate[B](serializer.column) {}
 
   /**
   * Number of columns with specified column path
   */
   def count(path : ColumnParent[A]) : Int = {
-    client.get_count(keyspace, path.key, getColumnParent(path), consistency)
+    client.get_count(keyspace, path.key, getColumnParent(path), consistency.read)
   }
 
   /**
@@ -75,10 +75,10 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   private def multigetAny(path : MultiPath[A, B]) : JavaMap[String, cassandra.ColumnOrSuperColumn]= {
     val p = new cassandra.ColumnPath(
       path.columnFamily,
-      path.superColumn.map(superColumn.serialize(_)).getOrElse(null),
-      path.column.map(column.serialize(_)).getOrElse(null)
+      path.superColumn.map(serializer.superColumn.serialize(_)).getOrElse(null),
+      path.column.map(serializer.column.serialize(_)).getOrElse(null)
     )
-    JavaMap(client.multiget(keyspace, path.keys, p, consistency))
+    JavaMap(client.multiget(keyspace, path.keys, p, consistency.read))
   }
   
   /* Get multiple records from StandardColumnFamily */
@@ -98,16 +98,16 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   private def getAllAny(path : MultiPath[A, B]) : JavaMap[String, JavaList[cassandra.ColumnOrSuperColumn]]= {
     val p = new cassandra.ColumnParent(
       path.columnFamily,
-      path.superColumn.map(superColumn.serialize(_)).getOrElse(null)
+      path.superColumn.map(serializer.superColumn.serialize(_)).getOrElse(null)
     )
     JavaMap(
       client.multiget_slice(
         keyspace,
         path.keys,
         p,
-        new SlicePredicate(serializer.NonSerializer)(
+        new SlicePredicate(NonSerializer)(
           None, None, Ascending, maximumCount),
-        consistency
+        consistency.read
       )
     )
   }
@@ -122,10 +122,10 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
          keyspace,
          path.key,
          getColumnPath(path),
-         consistency
+         consistency.read
        ).column match {
          case null => None
-         case x : cassandra.Column => Some(value.deserialize(x.value))
+         case x : cassandra.Column => Some(serializer.value.deserialize(x.value))
        }
      } catch {
        case e : NotFoundException => None
@@ -153,7 +153,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
        path.key,
        getColumnParent(path),
        StandardSlice(columns),
-       consistency
+       consistency.read
      ).map(getColumn(_).getOrElse({
        throw new NotFoundException()
      })) : _*)
@@ -182,7 +182,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
        path.key,
        getColumnParent(path),
        StandardSlice(start, finish, order, count),
-       consistency
+       consistency.read
      ).map(getColumn(_).getOrElse({
        throw new NotFoundException()
      })) : _*)
@@ -201,7 +201,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
        path.key,
        getColumnParent(path),
        SuperSlice(columns),
-       consistency
+       consistency.read
      ).map(getSuperColumn(_).get) : _*)
    }
 
@@ -227,7 +227,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
        path.key,
        getColumnParent(path),
        SuperSlice(start, finish, order, count),
-       consistency
+       consistency.read
      ).map(getSuperColumn(_).get) : _*)
    }
 
@@ -256,32 +256,32 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     
     val parent = new cassandra.ColumnParent(columnFamily, null)
 
-    client.get_range_slice(keyspace, parent, slice, optionalString(start), optionalString(finish), count, consistency).map(_.key)
+    client.get_range_slice(keyspace, parent, slice, optionalString(start), optionalString(finish), count, consistency.read).map(_.key)
     
   }
 
 
   implicit private def resultMap(results : JavaList[cassandra.Column]) : Map[B, C] = {
     val r : List[cassandra.Column] = results // Implicit conversion
-    ListMap(r.map(c => (column.deserialize(c.name) -> value.deserialize(c.value))).toSeq : _*)
+    ListMap(r.map(c => (serializer.column.deserialize(c.name) -> serializer.value.deserialize(c.value))).toSeq : _*)
   }
 
   implicit private def superResultMap(results : JavaList[cassandra.SuperColumn]) : Map[A, Map[B, C]] = {
     val r : List[cassandra.SuperColumn] = results // Implicit conversion
-    ListMap(r.map(c => (superColumn.deserialize(c.name) -> resultMap(c.columns))).toSeq : _*)
+    ListMap(r.map(c => (serializer.superColumn.deserialize(c.name) -> resultMap(c.columns))).toSeq : _*)
   }
 
   implicit private def getSuperColumn(c : cassandra.ColumnOrSuperColumn) : Option[Pair[A, Map[B, C]]] = {
     c.super_column match {
       case null => None
-      case x : cassandra.SuperColumn => Some(superColumn.deserialize(x.name) -> resultMap(x.columns))
+      case x : cassandra.SuperColumn => Some(serializer.superColumn.deserialize(x.name) -> resultMap(x.columns))
     }
   }
 
   implicit private def getColumn(c : cassandra.ColumnOrSuperColumn) : Option[Pair[B, C]] = {
     c.column match {
       case null => None
-      case x : cassandra.Column => Some(column.deserialize(x.name) -> value.deserialize(x.value))
+      case x : cassandra.Column => Some(serializer.column.deserialize(x.name) -> serializer.value.deserialize(x.value))
     }
   }
 

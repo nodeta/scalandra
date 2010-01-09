@@ -19,7 +19,7 @@ trait StandardBase[A, B] extends Base[A, B] {
   }
   
   lazy protected val client : Client[Any, A, B] = {
-    new Client(connection, keyspace, dummySerializer, columnSerializer, valueSerializer)
+    new Client(connection, keyspace, Serialization(dummySerializer, columnSerializer, valueSerializer))
   }
 }
 
@@ -27,6 +27,6 @@ trait SuperBase[A, B, C] extends Base[B, C] {
   protected val superColumnSerializer : Serializer[A]
 
   lazy override protected val client : Client[A, B, C] = {
-    new Client(connection, keyspace, superColumnSerializer, columnSerializer, valueSerializer)
+    new Client(connection, keyspace, Serialization(superColumnSerializer, columnSerializer, valueSerializer))
   }
 }

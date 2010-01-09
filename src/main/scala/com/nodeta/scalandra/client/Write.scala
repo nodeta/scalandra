@@ -13,7 +13,7 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
   /**
    * Consistency level used for writes
    */
-  protected val writeConsistency = cassandra.ConsistencyLevel.ZERO
+  val writeConsistency = cassandra.ConsistencyLevel.ZERO
 
   /**
    * Insert or update value of single column
@@ -21,9 +21,9 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
   def update(path : ColumnPath[A, B], value : C) {
     client.insert(keyspace, path.key, new cassandra.ColumnPath(
       path.columnFamily,
-      path.superColumn.map(superColumn.serialize(_)).getOrElse(null),
-      column.serialize(path.column)
-    ), this.value.serialize(value), System.currentTimeMillis, writeConsistency)
+      path.superColumn.map(serializer.superColumn.serialize(_)).getOrElse(null),
+      serializer.column.serialize(path.column)
+    ), this.serializer.value.serialize(value), System.currentTimeMillis, writeConsistency)
   }
 
   def update(path : ColumnParent[A], value : Iterable[Pair[B, C]]) {
@@ -60,7 +60,7 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
   }
 
   private def buildColumn(key : B, value : C) : cassandra.Column = {
-    new cassandra.Column(column.serialize(key), this.value(value), System.currentTimeMillis)
+    new cassandra.Column(serializer.column.serialize(key), this.serializer.value(value), System.currentTimeMillis)
   }
 
   /**
@@ -69,7 +69,7 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
   def insertSuper(path : Path, data : Iterable[Pair[A, Iterable[Pair[B, C]]]]) {
     implicit def convertToColumnList(data : Iterable[Pair[B, C]]) : JavaList[cassandra.Column] = {
       (new ArrayList[cassandra.Column] ++ data.map { case(k, v) =>
-        new cassandra.Column(column.serialize(k), value(v), System.currentTimeMillis)
+        new cassandra.Column(serializer.column.serialize(k), serializer.value(v), System.currentTimeMillis)
       }).underlying
     }
 
@@ -78,7 +78,7 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
     val list = data.map { case(key, value) =>
       new cassandra.ColumnOrSuperColumn(
         null,
-        new cassandra.SuperColumn(superColumn.serialize(key), value)
+        new cassandra.SuperColumn(serializer.superColumn.serialize(key), value)
       )
     }.toList
 
@@ -98,7 +98,7 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
     def convertPath(c : ColumnParent[A]) : cassandra.ColumnPath = {
       new cassandra.ColumnPath(
         c.columnFamily,
-        c.superColumn.map(superColumn.serialize(_)).getOrElse(null),
+        c.superColumn.map(serializer.superColumn.serialize(_)).getOrElse(null),
         null
       )
     }
@@ -115,8 +115,8 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
     def convertPath(c : ColumnPath[A, B]) : cassandra.ColumnPath = {
       new cassandra.ColumnPath(
         c.columnFamily,
-        c.superColumn.map(superColumn.serialize(_)).getOrElse(null),
-        column.serialize(c.column)
+        c.superColumn.map(serializer.superColumn.serialize(_)).getOrElse(null),
+        serializer.column.serialize(c.column)
       )
     }
 

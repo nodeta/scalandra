@@ -26,7 +26,7 @@ object MappingTest extends Specification {
 
   "StandardColumnFamily" should {
     val _connection = Connection()
-    val client = new Client(_connection, "Keyspace1", StringSerializer, StringSerializer, StringSerializer)
+    val client = new Client(_connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
 
     val cf = new StandardColumnFamily[String, String] {
       val keyspace = "Keyspace1"
@@ -65,7 +65,7 @@ object MappingTest extends Specification {
 
   "StandardRecord" should {
     val _connection = Connection()
-    val client = new Client(_connection, "Keyspace1", StringSerializer, StringSerializer, StringSerializer)
+    val client = new Client(_connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
 
     def createRecord() : StandardRecord[String, String] = {
       new StandardRecord[String, String] {
@@ -127,7 +127,7 @@ object MappingTest extends Specification {
 
   "SuperRecord" should {
     val _connection = Connection()
-    val client = new Client(_connection, "Keyspace1", StringSerializer, StringSerializer, StringSerializer)
+    val client = new Client(_connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer))
 
     def createRecord() : SuperRecord[String, String, String] = {
       new SuperRecord[String, String, String] {
@@ -183,7 +183,7 @@ object MappingTest extends Specification {
 
   "SuperColumn" should {
     val _connection = Connection()
-    val client = new Client(_connection, "Keyspace1", StringSerializer, StringSerializer, StringSerializer)
+    val client = new Client(_connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer))
     val columnPath = ColumnParent[String]("Super1", "superrow-test", "b")
 
 
