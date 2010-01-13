@@ -4,16 +4,29 @@ import org.specs._
 import com.nodeta.scalandra.serializer.StringSerializer
 
 object ClientTest extends Specification {
-  val cassandra = new Client(Connection(), "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
+  var connection : Connection = Connection()
+  val cassandra = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
+  import cassandra.{StandardSlice, SuperSlice}
+  
+  /* Data to be inserted */
   val jsmith = Map("first" -> "John", "last" -> "Smith", "age" -> "53", "foo" -> "bar")
+  
+  // Location for data in standard CF
   val path = cassandra.ColumnParent("Standard1", None)
+  // Location for data in super CF
   val superPath = cassandra.ColumnParent("Super1", None)
-  val key = "jsmith-test"
+  
+  // Row key
+  val key = "test/jsmith"
+  
+  // Index data, for SCF
   val index = Map("1" -> Map("foo" -> null, "bar" -> null), "2" -> Map("blah" -> "meh"), "3" -> Map("nothing" -> "here"))
 
+  // Clean up when we are dome
   doLast {
     cassandra.remove(key, path)
     cassandra.remove(key, superPath)
+    connection.close
   }
 
   "insert" should {
@@ -23,10 +36,10 @@ object ClientTest extends Specification {
       cassandra(key, path) = jsmith
 
       // Then: It should still have its old values.
-      val result = cassandra.slice(key, path, None, None, Ascending)
-      result("first") must equalTo("John")
-      result("last") must equalTo("Smith")
-      result("age") must equalTo("53")
+      val result = cassandra.get(key, path, StandardSlice(Range[String](None, None, Ascending, 1000)))
+      result("first") must equalTo(jsmith("first"))
+      result("last") must equalTo(jsmith("last"))
+      result("age") must equalTo(jsmith("age"))
     }
 
     "be able to add and get data to a super column family" in {
@@ -34,7 +47,7 @@ object ClientTest extends Specification {
       cassandra(key, superPath) = index
 
       // Then: It should still have its old values.
-      val result = cassandra.sliceSuper(key, superPath, None, None, Ascending)
+      val result = cassandra.get(key, superPath, SuperSlice(Range[String](None, None, Ascending, 1000)))
       result.keySet must containAll(List("1", "2", "3"))
       result("2")("blah") must equalTo("meh")
     }
@@ -66,60 +79,60 @@ object ClientTest extends Specification {
 
   "column slicing" should {
     "return columns using column list as filter" in {
-      val result = cassandra.slice(key, path, List("first", "age"))
+      val result = cassandra.get(key, path, StandardSlice(List("first", "age")))
       result.size must be(2)
       result must not have the key("last")
     }
 
     "be able to filter columns using start and finish parameter" in {
-      val result = cassandra.slice(key, path, Some("first"), Some("last"), Ascending)
+      val result = cassandra.get(key, path, StandardSlice(Range(Some("first"), Some("last"), Ascending, 1000)))
       result.size must be(3)
       result.keySet must containAll(List("first", "foo", "last"))
     }
 
     "be able to filter columns using only start parameter" in {
-      val result = cassandra.slice(key, path, Some("first"), None, Ascending)
+      val result = cassandra.get(key, path, StandardSlice(Range(Some("first"), None, Ascending, 1000)))
       result.size must be(3)
       result.keySet must containAll(List("first", "foo", "last"))
     }
 
     "be able to filter columns using only finish parameter" in {
-      val result = cassandra.slice(key, path, None, Some("first"), Ascending)
+      val result = cassandra.get(key, path, StandardSlice(Range(None, Some("last"), Ascending, 2)))
       result.size must be(2)
       result.keySet must containAll(List("age", "first"))
     }
 
     "use sort parameter to sort columns" in {
-      val result = cassandra.slice(key, path, None, None, Descending, 1)
+      val result = cassandra.get(key, path, StandardSlice(Range[String](None, None, Descending, 1)))
       result must haveKey("last")
     }
 
     "be able to limit results" in {
-      val result = cassandra.slice(key, path, None, None, Descending, 2)
+      val result = cassandra.get(key, path, StandardSlice(Range[String](None, None, Descending, 2)))
       result.size must be(2)
     }
 
     "work on super scolumns" in {
-      val result = cassandra.slice(key, superPath / Some("1"), None, None, Descending, 1)
+      val result = cassandra.get(key, superPath / Some("1"), StandardSlice(Range[String](None, None, Descending, 1)))
       result must haveKey("foo")
     }
   }
 
   "super column slicing" should {
     "work using collection of super columns" in {
-      val result = cassandra.sliceSuper(key, superPath, List("2", "3"))
+      val result = cassandra.get(key, superPath, SuperSlice(List("2", "3")))
       result.size must be(2)
       result must not have the key("1")
     }
 
     "contain standard column data" in {
-      val result = cassandra.sliceSuper(key, superPath, List("1", "3"))
+      val result = cassandra.get(key, superPath, SuperSlice(List("1", "3")))
       result.size must be(2)
       result("3")("nothing") must equalTo("here")
     }
 
     "be able to filter columns using start and finish parameter" in {
-      val result = cassandra.sliceSuper(key, superPath, Some("1"), Some("2"), Ascending)
+      val result = cassandra.get(key, superPath, SuperSlice(Range(Some("1"), Some("2"), Ascending, 1000)))
       result.size must be(2)
       result must haveKey("1")
       result must haveKey("2")
@@ -203,7 +216,7 @@ object ClientTest extends Specification {
       }.toList
 
       cassandra.insertNormal(key, path, data)
-      cassandra.slice(key, path, None, None, Descending) must containInOrder(data)
+      cassandra.get(key, path, StandardSlice(Range[String](None, None, Descending, 1000))) must containInOrder(data)
     }
   }
 
@@ -217,7 +230,7 @@ object ClientTest extends Specification {
   "remove" should {
     "be able to remove single column" in {
       // Given that age column is defined and the column is removed
-      cassandra.slice(key, path, None, None, Ascending) must haveKey("age")
+      cassandra.get(key, path, StandardSlice(Range[String](None, None, Ascending, 1000))) must haveKey("age")
       cassandra.remove(key, path / "age")
 
       // Then: age column should not have value

@@ -17,25 +17,33 @@ import scalandra.{ColumnPath, ColumnParent}
  * @author Ville Lautanala
  */
 trait Read[A, B, C] { this : Base[A, B, C] =>
-  private class SlicePredicate[T](serializer : Serializer[T]) {
-    def apply(items : Collection[T]) : cassandra.SlicePredicate = {
-      new cassandra.SlicePredicate(items.map(item => serializer(item)).toList, null)
+  private def convert[T](predicate : SlicePredicate[T], serializer : Serializer[T]) : cassandra.SlicePredicate = {
+    val items = predicate.columns match {
+      case Nil => null
+      case columns => columns.map(serializer.serialize(_))
     }
-
-    def apply(start : Option[T], finish : Option[T], order : Order, count : Int) : cassandra.SlicePredicate = {
-      implicit def serialize(o : Option[T]) : Array[Byte] = {
-        o.map(serializer(_)).getOrElse(serializer.empty)
-      }
-
-      new cassandra.SlicePredicate(
-        null,
-        new cassandra.SliceRange(start, finish, order.toBoolean, count)
-      )
+    
+    val range = predicate.range match {
+      case None => null
+      case Some(r) =>
+        new cassandra.SliceRange(
+          r.start.map(serializer.serialize(_)).getOrElse(new Array[Byte](0)),
+          r.finish.map(serializer.serialize(_)).getOrElse(new Array[Byte](0)),
+          r.order.toBoolean,
+          r.count
+        )
     }
+    
+    new cassandra.SlicePredicate(items, range)
+  }
+  
+  implicit private def convert(s : StandardSlice) : cassandra.SlicePredicate = {
+    convert(s, serializer.column)
   }
 
-  private object SuperSlice extends SlicePredicate[A](serializer.superColumn) {}
-  private object StandardSlice extends SlicePredicate[B](serializer.column) {}
+  implicit private def convert(s : SuperSlice) : cassandra.SlicePredicate = {
+    convert(s, serializer.superColumn)
+  }
 
   /**
   * Number of columns with specified column path
@@ -98,8 +106,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
         keyspace,
         keys,
         path,
-        new SlicePredicate(NonSerializer)(
-          None, None, Ascending, maximumCount),
+        new cassandra.SlicePredicate(null, new cassandra.SliceRange(new Array[Byte](0), new Array[Byte](0), false, maximumCount)),
         consistency.read
       )
     )
@@ -131,95 +138,37 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    */
    def get(key : String, path : ColumnParent[A, B]) : Option[Map[B, C]] = {
      val s = path.superColumn.get
-     sliceSuper(key, path / None, List(s)).get(s)
+     get(key, path / None, SuperSlice(List(s))).get(s)
    }
-
-  /**
-   * Slice columns by name
-   *
-   * @param path Path to super column or row
-   * @param columns Collection of columns which are retrieved
-   */
-   def slice(key : String, path : ColumnParent[A, B], columns : Collection[B]) : Map[B, C] = {
+   
+   /**
+    * Slice columns
+    * @param path Path to record or super column
+    * @param predicate Search conditions and limits
+    */
+   def get(key : String, path : Path[A, B], predicate : StandardSlice) : Map[B, C] = {
      ListMap[B, C](_client.get_slice(
        keyspace,
        key,
        path,
-       StandardSlice(columns),
+       predicate,
        consistency.read
      ).map(getColumn(_).getOrElse({
        throw new NotFoundException()
      })) : _*)
    }
-
-
-  /**
-   * Alias for <code>slice</code>
-   */
-   def slice(key : String, path : ColumnParent[A, B], start : Option[B], finish : Option[B], order : Order) : Map[B, C] = {
-     slice(key, path, start, finish, order, maximumCount)
-   }
-
+   
    /**
-    * Slice columns by start and finish
-    *
-    * @param path Path to super column or row
-    * @param start First value of key range
-    * @param finish Last value of key range
-    * @param order Ordering of results
-    * @param count Number of results to return starting from first result
-    */
-   def slice(key : String, path : ColumnParent[A, B], start : Option[B], finish : Option[B], order : Order, count : Int) : Map[B, C] = {
+    * Slice super columns
+    * @param path Path to record
+    * @param predicate Search conditions and limits
+    **/
+   def get(key : String, path : Path[A, B], predicate : SuperSlice) : Map[A, Map[B, C]] = {
      ListMap(_client.get_slice(
        keyspace,
        key,
        path,
-       StandardSlice(start, finish, order, count),
-       consistency.read
-     ).map(getColumn(_).getOrElse({
-       throw new NotFoundException()
-     })) : _*)
-   }
-
-
-   /**
-    * Slice super columns by name
-    * 
-    * @param path Path to row
-    * @param columns Collection of super column keys which are retrieved
-    */
-   def sliceSuper(key : String, path : ColumnParent[A, B], columns : Collection[A]) : Map[A, Map[B, C]] = {
-     ListMap(_client.get_slice(
-       keyspace,
-       key,
-       getColumnParent(path),
-       SuperSlice(columns),
-       consistency.read
-     ).map(getSuperColumn(_).get) : _*)
-   }
-
-   /**
-    * Slice columns by start and finish
-    *
-    * @param path Path to row
-    * @param start First value of key range
-    * @param finish Last value of key range
-    * @param order Ordering of results
-    * @param count Number of results to return starting from first result
-    */
-   def sliceSuper(key : String, path : ColumnParent[A, B], start : Option[A], finish : Option[A], order : Order) : Map[A, Map[B, C]] = {
-     sliceSuper(key, path, start, finish, order, maximumCount)
-   }
-
-   /**
-    * Slice columns by start and finish with count parameter
-    */
-   def sliceSuper(key : String, path : ColumnParent[A, B], start : Option[A], finish : Option[A], order : Order, count : Int) : Map[A, Map[B, C]] = {
-     ListMap(_client.get_slice(
-       keyspace,
-       key,
-       path,
-       SuperSlice(start, finish, order, count),
+       predicate,
        consistency.read
      ).map(getSuperColumn(_).get) : _*)
    }
@@ -283,6 +232,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   }
 
   implicit private def convertCollection[T](list : Iterable[T]) : JavaList[T] = {
+    if (list eq null) null else
     (new ArrayList() ++ list).underlying
   }
 }

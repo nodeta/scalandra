@@ -25,15 +25,21 @@ trait StandardRecord[A, B, C] extends Record[B, C] with Base[A, B, C] {
   lazy private val path = { 
     client.ColumnParent(columnFamily, None)
   }
+  
+  lazy private val defaultRange = {
+    Range[B](None, None, Ascending, 2147483647)
+  }
+  
   lazy protected val data : Map[B, C] = {
-    client.slice(key, path, None, None, Ascending)
+    client.get(key, path, client.StandardSlice(defaultRange))
   }
 
   def slice(columns : Collection[B]) = {
-    client.slice(key, path, columns)
+    client.get(key, path, client.StandardSlice(columns))
   }
   def slice(start : Option[B], finish : Option[B]) = {
-    client.slice(key, path, start, finish, Ascending)
+    val range = Range(start, finish, Ascending, 2147483647)
+    client.get(key, path, client.StandardSlice(range))
   } 
   
   protected def build(column : B) = {
@@ -70,22 +76,29 @@ trait StandardRecord[A, B, C] extends Record[B, C] with Base[A, B, C] {
 
 trait SuperRecord[A, B, C] extends Record[A, SuperColumn[A, B, C]] with Base[A, B, C] {
   lazy private val path = client.ColumnParent(columnFamily, None)
+  
+  lazy private val defaultRange = {
+    Range[A](None, None, Ascending, 2147483647)
+  }
+  
   lazy protected val data : Map[A, SuperColumn[A, B, C]] = {
-    client.sliceSuper(key, path, None, None, Ascending).transform(buildCached(_, _))
+    client.get(key, path, client.SuperSlice(defaultRange)).transform(buildCached(_, _))
   }
 
   override def apply(key : A) = build(key).get
 
   def slice(columns : Collection[A]) : Map[A, SuperColumn[A, B, C]] = {
-    client.sliceSuper(key, path, columns).transform(buildCached(_, _))
+    client.get(key, path, client.SuperSlice(columns)).transform(buildCached(_, _))
   }
 
   def slice(start : Option[A], finish : Option[A]) : Map[A, SuperColumn[A, B, C]] = {
-    client.sliceSuper(key, path, start, finish, Ascending).transform(buildCached(_, _))
+    val range = Range(start, finish, Ascending, 2147483647)
+    client.get(key, path, client.SuperSlice(range)).transform(buildCached(_, _))
   }
 
   def slice(start : Option[A], finish : Option[A], order : Order, count : Int) : Map[A, SuperColumn[A, B, C]] = {
-    client.sliceSuper(key, path, start, finish, order, count).transform(buildCached(_, _))
+    val range = Range(start, finish, order, count)
+    client.get(key, path, client.SuperSlice(range)).transform(buildCached(_, _))
   }
 
   def -=(superColumn : A) {
@@ -142,10 +155,11 @@ trait SuperColumn[A, B, C] extends Record[B, C] with Base[A, B, C] {
   }
 
   def slice(columns : Collection[B]) : Map[B, C] = {
-    client.slice(key, path, columns)
+    client.get(key, path, client.StandardSlice(columns))
   }
   def slice(start : Option[B], finish : Option[B]) : Map[B, C] = {
-    client.slice(key, path, start, finish, Ascending)
+    val range = Range(start, finish, Ascending, 2147483647)
+    client.get(key, path, client.StandardSlice(range))
   }
   
   def update(key : B, value : C) {
