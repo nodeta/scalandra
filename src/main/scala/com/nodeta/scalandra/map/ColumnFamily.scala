@@ -6,10 +6,10 @@ import java.lang.Exception
 class UnsupportedActionException(s : String) extends Exception(s) {}
 
 trait ColumnFamily[A] extends scala.collection.mutable.Map[String, A] {
-  protected def columnFamily : String
+  protected val columnFamily : String
 }
 
-trait BaseColumnFamily[A] extends ColumnFamily[A] { this : Base[_, _] =>
+trait BaseColumnFamily[A] extends ColumnFamily[A] { this : Base[_, _, _] =>
   lazy private val keyCache : Option[List[String]] = {
     try {
       Some(client.keys(columnFamily, None, None))
@@ -41,48 +41,50 @@ trait BaseColumnFamily[A] extends ColumnFamily[A] { this : Base[_, _] =>
   protected def build(key : String) : A
 }
 
-trait StandardColumnFamily[A, B] extends BaseColumnFamily[StandardRecord[A, B]] with StandardBase[A, B] {
-  protected def build(key : String) = {
+trait StandardColumnFamily[A, B, C] extends BaseColumnFamily[StandardRecord[A, B, C]] with Base[A, B, C] {
+  protected def build(_key : String) = {
     val parent = this
-    new StandardRecord[A, B] {
+    new StandardRecord[A, B, C] {
       protected val client = parent.client
 
-      protected val path = ColumnParent[Any](parent.columnFamily, key)
+      protected val columnFamily = parent.columnFamily
+      protected val key = _key
     }
   }
 
   def -=(key : String) {
-    client.remove(ColumnParent[Any](columnFamily, key))
+    client.remove(key, client.Path(columnFamily))
   }
 
 
-  def update(key : String, value : StandardRecord[A, B]) {
-    client.insertNormal(ColumnParent[Any](columnFamily, key), value)
+  def update(key : String, value : StandardRecord[A, B, C]) {
+    client.insertNormal(key, client.Path(columnFamily), value)
   }
   
-  def update(key : String, value : Map[A, B]) {
-    client.insertNormal(ColumnParent[Any](columnFamily, key), value)
+  def update(key : String, value : Map[B, C]) {
+    //client.insertNormal(key, client.ColumnParent(columnFamily, None), value)
   }
 }
 
-trait SuperColumnFamily[A, B, C] extends BaseColumnFamily[SuperRecord[A, B, C]] with SuperBase[A, B, C] {
-  protected def build(key : String) = {
+trait SuperColumnFamily[A, B, C] extends BaseColumnFamily[SuperRecord[A, B, C]] with Base[A, B, C] {
+  protected def build(_key : String) = {
     val parent = this
     new SuperRecord[A, B, C] {
       protected val client = parent.client
-      protected val path = ColumnParent[A](parent.columnFamily, key)
+      protected val key = _key
+      protected val columnFamily = parent.columnFamily
     }
   }
 
   def -=(key : String) {
-    client.remove(ColumnParent[A](columnFamily, key))
+    client.remove(key, client.Path(columnFamily))
   }
 
   def update(key : String, value : SuperRecord[A, B, C]) {
-    client.insertSuper(ColumnParent[A](columnFamily, key), value)
+    client.insertSuper(key, client.ColumnParent(columnFamily, None), value)
   }
   
   def update(key : String, value : Map[A, Map[B, C]]) {
-    client.insertSuper(ColumnParent[Any](columnFamily, key), value)
+    client.insertSuper(key, client.ColumnParent(columnFamily, None), value)
   }
 }

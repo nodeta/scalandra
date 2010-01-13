@@ -4,13 +4,13 @@ import map.{ColumnFamily => CF, SuperColumnFamily => SCF}
 
 import scala.collection.jcl.Conversions
 
-trait Keyspace[A, B, C] extends scala.collection.Map[String, ColumnFamily[_]] with SuperBase[A, B, C] {
+trait Keyspace[A, B, C] extends scala.collection.Map[String, ColumnFamily[_]] with Base[A, B, C] {
   val self = this
   /**
    * ColumnFamily map instantiated using client instance
    */
-  case class ColumnFamily(columnFamily : String) extends StandardColumnFamily[B, C] {
-    val client = self.client.asInstanceOf[Client[Any, B, C]]
+  case class ColumnFamily(columnFamily : String) extends StandardColumnFamily[A, B, C] {
+    val client = self.client
   }
 
   /**

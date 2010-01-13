@@ -11,6 +11,7 @@ import serializer.Serializer
  * @author Ville Lautanala
  */
 trait Base[A, B, C] {
+  private val self = this
   protected val _client : Cassandra.Client
   protected val keyspace : String
 
@@ -21,19 +22,11 @@ trait Base[A, B, C] {
 
   class InvalidPathException(reason : String) extends IllegalArgumentException(reason) {}
 
-  protected def getColumnParent(path : ColumnParent[A]) : cassandra.ColumnParent = {
-    new cassandra.ColumnParent(path.columnFamily, path.superColumn.map(serializer.superColumn.serialize(_)).getOrElse(null))
+  implicit protected def getColumnParent(path : Path[A, B]) : cassandra.ColumnParent = {
+    path.toColumnParent
   }
 
-  protected def getColumnPath(path : ColumnPath[A, B]) : cassandra.ColumnPath = {
-    new cassandra.ColumnPath(path.columnFamily, path.superColumn.map(serializer.superColumn.serialize(_)).getOrElse(null), serializer.column.serialize(path.column))
-  }
-
-  protected def getColumnPath(path : ColumnParent[A]) : cassandra.ColumnPath = {
-    // SuperColumn must be found
-    val s = path.superColumn.map(serializer.superColumn.serialize(_)).getOrElse({
-      throw new InvalidPathException("Super Column is not defined")
-    })
-    new cassandra.ColumnPath(path.columnFamily, s, null)
+  implicit protected def getColumnPath(path : Path[A, B]) : cassandra.ColumnPath = {
+    path.toColumnPath
   }
 }

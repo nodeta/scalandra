@@ -31,6 +31,18 @@ class Client[A, B, C](
   }
   protected val client = this
   protected val _client = connection.client
+
+  case class Path(columnFamily : String) extends scalandra.Path[A, B] {
+    protected val serializer = client.serializer
+  }
+  
+  case class ColumnParent(columnFamily : String, superColumn : Option[A]) extends scalandra.ColumnParent[A, B] {
+    protected val serializer = client.serializer
+  }
+
+  case class ColumnPath(columnFamily : String, superColumn : Option[A], column : B) extends scalandra.ColumnPath[A, B] {
+    protected val serializer = client.serializer
+  }
 }
 
 object Client {

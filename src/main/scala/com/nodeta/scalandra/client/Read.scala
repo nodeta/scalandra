@@ -9,6 +9,8 @@ import java.util.{List => JavaList}
 import scala.collection.jcl.{ArrayList, Conversions, Map => JavaMap}
 import scala.collection.immutable.ListMap
 
+import scalandra.{ColumnPath, ColumnParent}
+
 /**
  * This mixin contains all read-only actions
  *
@@ -38,8 +40,8 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   /**
   * Number of columns with specified column path
   */
-  def count(path : ColumnParent[A]) : Int = {
-    _client.get_count(keyspace, path.key, getColumnParent(path), consistency.read)
+  def count(key : String, path : ColumnParent[A, B]) : Int = {
+    _client.get_count(keyspace, key, path, consistency.read)
   }
 
   /**
@@ -55,56 +57,47 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     _client.describe_keyspace(keyspace)
   }
   
-  def apply(path : ColumnPath[A, B]) = get(path)
-  def apply(path : ColumnParent[A]) = get(path)
+  def apply(key : String, path : ColumnPath[A, B]) = get(key, path)
+  def apply(key : String, path : ColumnParent[A, B]) = get(key, path)
   
   /* Get multiple columns from StandardColumnFamily */
-  def multiget(path : MultiPath[A, B]) : Map[String, Option[(B, C)]] = {
-    (ListMap() ++ multigetAny(path).map { case(k, v) =>
+  def multiget(keys : Iterable[String], path : Path[A, B]) : Map[String, Option[(B, C)]] = {
+    (ListMap() ++ multigetAny(keys, path).map { case(k, v) =>
       (k, getColumn(v))
     })
   }
   
   /* Get multiple super columns from SuperColumnFamily */
-  def multigetSuper(path : MultiPath[A, B]) : Map[String, Option[(A , Map[B, C])]] = {
-    (ListMap() ++ multigetAny(path).map { case(k, v) =>
+  def multigetSuper(keys : Iterable[String], path : Path[A, B]) : Map[String, Option[(A , Map[B, C])]] = {
+    (ListMap() ++ multigetAny(keys, path).map { case(k, v) =>
       (k, getSuperColumn(v))
     })
   }
   
-  private def multigetAny(path : MultiPath[A, B]) : JavaMap[String, cassandra.ColumnOrSuperColumn]= {
-    val p = new cassandra.ColumnPath(
-      path.columnFamily,
-      path.superColumn.map(serializer.superColumn.serialize(_)).getOrElse(null),
-      path.column.map(serializer.column.serialize(_)).getOrElse(null)
-    )
-    JavaMap(_client.multiget(keyspace, path.keys, p, consistency.read))
+  private def multigetAny(keys : Iterable[String], path : Path[A, B]) : JavaMap[String, cassandra.ColumnOrSuperColumn]= {
+    JavaMap(_client.multiget(keyspace, keys, path, consistency.read))
   }
   
   /* Get multiple records from StandardColumnFamily */
-  def getAll(path : MultiPath[A, B]) : Map[String, Map[B, C]] = {
-    ListMap() ++ getAllAny(path).map { case(k, v) =>
+  def getAll(keys : Iterable[String], path : ColumnParent[A, B]) : Map[String, Map[B, C]] = {
+    ListMap() ++ getAllAny(keys, path).map { case(k, v) =>
       (k, ListMap(v.map(getColumn(_).get) : _*))
     }
   }
   
   /* Get multiple records from SuperColumnFamily */
-  def getAllSuper(path : MultiPath[A, B]) : Map[String, Map[A , Map[B, C]]] = {
-    ListMap() ++ getAllAny(path).map { case(k, v) =>
+  def getAllSuper(keys : Iterable[String], path : ColumnParent[A, B]) : Map[String, Map[A , Map[B, C]]] = {
+    ListMap() ++ getAllAny(keys, path).map { case(k, v) =>
       (k, ListMap(v.map(getSuperColumn(_).get) : _*))
     }
   }
   
-  private def getAllAny(path : MultiPath[A, B]) : JavaMap[String, JavaList[cassandra.ColumnOrSuperColumn]]= {
-    val p = new cassandra.ColumnParent(
-      path.columnFamily,
-      path.superColumn.map(serializer.superColumn.serialize(_)).getOrElse(null)
-    )
+  private def getAllAny(keys : Iterable[String], path : ColumnParent[A, B]) : JavaMap[String, JavaList[cassandra.ColumnOrSuperColumn]]= {
     JavaMap(
       _client.multiget_slice(
         keyspace,
-        path.keys,
-        p,
+        keys,
+        path,
         new SlicePredicate(NonSerializer)(
           None, None, Ascending, maximumCount),
         consistency.read
@@ -116,12 +109,12 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    * Get single column
    * @param path Path to column
    */
-   def get(path : ColumnPath[A, B]) : Option[C] = {
+   def get(key : String, path : ColumnPath[A, B]) : Option[C] = {
      try {
        _client.get(
          keyspace,
-         path.key,
-         getColumnPath(path),
+         key,
+         path,
          consistency.read
        ).column match {
          case null => None
@@ -136,9 +129,9 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    * Get supercolumn
    * @param path Path to super column
    */
-   def get(path : ColumnParent[A]) : Option[Map[B, C]] = {
+   def get(key : String, path : ColumnParent[A, B]) : Option[Map[B, C]] = {
      val s = path.superColumn.get
-     sliceSuper(path--, List(s)).get(s)
+     sliceSuper(key, path / None, List(s)).get(s)
    }
 
   /**
@@ -147,11 +140,11 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    * @param path Path to super column or row
    * @param columns Collection of columns which are retrieved
    */
-   def slice(path : ColumnParent[A], columns : Collection[B]) : Map[B, C] = {
+   def slice(key : String, path : ColumnParent[A, B], columns : Collection[B]) : Map[B, C] = {
      ListMap[B, C](_client.get_slice(
        keyspace,
-       path.key,
-       getColumnParent(path),
+       key,
+       path,
        StandardSlice(columns),
        consistency.read
      ).map(getColumn(_).getOrElse({
@@ -163,8 +156,8 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   /**
    * Alias for <code>slice</code>
    */
-   def slice(path : ColumnParent[A], start : Option[B], finish : Option[B], order : Order) : Map[B, C] = {
-     slice(path, start, finish, order, maximumCount)
+   def slice(key : String, path : ColumnParent[A, B], start : Option[B], finish : Option[B], order : Order) : Map[B, C] = {
+     slice(key, path, start, finish, order, maximumCount)
    }
 
    /**
@@ -176,11 +169,11 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     * @param order Ordering of results
     * @param count Number of results to return starting from first result
     */
-   def slice(path : ColumnParent[A], start : Option[B], finish : Option[B], order : Order, count : Int) : Map[B, C] = {
+   def slice(key : String, path : ColumnParent[A, B], start : Option[B], finish : Option[B], order : Order, count : Int) : Map[B, C] = {
      ListMap(_client.get_slice(
        keyspace,
-       path.key,
-       getColumnParent(path),
+       key,
+       path,
        StandardSlice(start, finish, order, count),
        consistency.read
      ).map(getColumn(_).getOrElse({
@@ -195,10 +188,10 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     * @param path Path to row
     * @param columns Collection of super column keys which are retrieved
     */
-   def sliceSuper(path : ColumnParent[A], columns : Collection[A]) : Map[A, Map[B, C]] = {
+   def sliceSuper(key : String, path : ColumnParent[A, B], columns : Collection[A]) : Map[A, Map[B, C]] = {
      ListMap(_client.get_slice(
        keyspace,
-       path.key,
+       key,
        getColumnParent(path),
        SuperSlice(columns),
        consistency.read
@@ -214,18 +207,18 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     * @param order Ordering of results
     * @param count Number of results to return starting from first result
     */
-   def sliceSuper(path : ColumnParent[A], start : Option[A], finish : Option[A], order : Order) : Map[A, Map[B, C]] = {
-     sliceSuper(path, start, finish, order, maximumCount)
+   def sliceSuper(key : String, path : ColumnParent[A, B], start : Option[A], finish : Option[A], order : Order) : Map[A, Map[B, C]] = {
+     sliceSuper(key, path, start, finish, order, maximumCount)
    }
 
    /**
     * Slice columns by start and finish with count parameter
     */
-   def sliceSuper(path : ColumnParent[A], start : Option[A], finish : Option[A], order : Order, count : Int) : Map[A, Map[B, C]] = {
+   def sliceSuper(key : String, path : ColumnParent[A, B], start : Option[A], finish : Option[A], order : Order, count : Int) : Map[A, Map[B, C]] = {
      ListMap(_client.get_slice(
        keyspace,
-       path.key,
-       getColumnParent(path),
+       key,
+       path,
        SuperSlice(start, finish, order, count),
        consistency.read
      ).map(getSuperColumn(_).get) : _*)

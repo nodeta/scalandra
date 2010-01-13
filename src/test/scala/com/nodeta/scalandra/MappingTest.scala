@@ -6,16 +6,12 @@ import com.nodeta.scalandra.serializer._
 
 object MappingTest extends Specification {
   "Keyspace" should {
-    val _connection = Connection()
-    doLast { _connection.close() }
+    val connection = Connection()
+    doLast { connection.close() }
 
     val keyspace = new Keyspace[String, String, String] {
-      protected val connection = Connection()
+      protected val client = Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
       val keyspace = "Keyspace1"
-
-      protected val columnSerializer = StringSerializer
-      protected val superColumnSerializer = StringSerializer
-      protected val valueSerializer = StringSerializer
     }
     "be able to list its ColumnFamilies" in {
       keyspace.keySet must containAll(List("Standard1", "Standard2"))
@@ -25,33 +21,26 @@ object MappingTest extends Specification {
 
 
   "StandardColumnFamily" should {
-    val _connection = Connection()
-    val client = new Client(_connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
+    val connection = Connection()
+    val _client = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
 
-    val cf = new StandardColumnFamily[String, String] {
+    val cf = new StandardColumnFamily[String, String, String] {
       val keyspace = "Keyspace1"
       val columnFamily = "Standard1"
-      val connection = _connection
-
-      val columnSerializer = StringSerializer
-      val valueSerializer = StringSerializer
+      val client = _client
     }
 
     "be able to list all rows" in {
-      client.insertNormal(ColumnParent[String]("Standard1", "test-row"), Map("foo" -> "bar"))
+      _client.insertNormal("test-row", _client.ColumnParent("Standard1", None), Map("foo" -> "bar"))
       cf.keySet must contain("test-row")
     }
 
     "be able to create rows without any requests" in {
-      _connection.close() // Connection should not be needed
+      connection.close() // Connection should not be needed
       try {
-        val cf = new StandardColumnFamily[String, String] {
-          val keyspace = "Keyspace1"
+        val cf = new StandardColumnFamily[String, String, String] {
           val columnFamily = "Standard1"
-          val connection = _connection
-
-          val columnSerializer = StringSerializer
-          val valueSerializer = StringSerializer
+          val client =_client
         }
 
         val r = cf("Row")
@@ -59,24 +48,19 @@ object MappingTest extends Specification {
       } catch {
         case _ => fail("Thrift was called")
       }
-      _connection.isOpen must be(false)
+      connection.isOpen must be(false)
     }
   }
 
   "StandardRecord" should {
-    val _connection = Connection()
-    val client = new Client(_connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
+    val connection = Connection()
+    val _client = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
 
-    def createRecord() : StandardRecord[String, String] = {
-      new StandardRecord[String, String] {
-        protected val keyspace = "Keyspace1"
+    def createRecord() : StandardRecord[String, String, String] = {
+      new StandardRecord[String, String, String] {
         protected val columnFamily = "Standard1"
-        protected val connection = _connection
-
-        protected val columnSerializer = StringSerializer
-        protected val valueSerializer = StringSerializer
-
-        protected val path = ColumnParent[Any]("Standard1", "row-test")
+        protected val client = _client
+        protected val key : String = "row-test"
       }
     }
 
@@ -85,7 +69,7 @@ object MappingTest extends Specification {
       (s -> s)
     } : _*)
 
-    client.insertNormal(ColumnParent[String]("Standard1", "row-test"), rowData)
+    _client.insertNormal("row-test", _client.ColumnParent("Standard1", None), rowData)
     val row = createRecord()
 
     "provide slicing functionality by names" in {
@@ -115,31 +99,26 @@ object MappingTest extends Specification {
     }
 
     "not request anything when created" in {
-      _connection.close()
+      connection.close()
       try {
         createRecord()
       } catch {
         case _ => fail("Request is made")
       }
-      _connection.isOpen must equalTo(false)
+      connection.isOpen must equalTo(false)
     }
    }
 
   "SuperRecord" should {
-    val _connection = Connection()
-    val client = new Client(_connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer))
+    val connection = Connection()
+    val _client = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
 
     def createRecord() : SuperRecord[String, String, String] = {
       new SuperRecord[String, String, String] {
-        protected val keyspace = "Keyspace1"
-        protected val columnFamily = "Standard1"
-        protected val connection = _connection
+        protected val columnFamily = "Super1"
+        protected val client = _client
 
-        protected val columnSerializer = StringSerializer
-        protected val superColumnSerializer = StringSerializer
-        protected val valueSerializer = StringSerializer
-
-        protected val path = ColumnParent[String]("Super1", "superrow-test")
+        protected val key = "superrow-test"
       }
     }
 
@@ -155,7 +134,7 @@ object MappingTest extends Specification {
       (s -> buildMap(i+1))
     } : _*)
 
-    client.insertSuper(ColumnParent[String]("Super1", "superrow-test"), rowData)
+    _client.insertSuper("superrow-test", _client.ColumnParent("Super1", None), rowData)
 
     val row = createRecord()
 
@@ -182,22 +161,17 @@ object MappingTest extends Specification {
   }
 
   "SuperColumn" should {
-    val _connection = Connection()
-    val client = new Client(_connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer))
-    val columnPath = ColumnParent[String]("Super1", "superrow-test", "b")
+    val connection = Connection()
+    val _client = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
+    val columnPath = _client.ColumnParent("Super1", Some("b"))
 
 
     def createSuperColumn() : SuperColumn[String, String, String] = {
       new SuperColumn[String, String, String] {
-        protected val keyspace = "Keyspace1"
         protected val columnFamily = "Standard1"
-        protected val connection = _connection
-
-        protected val columnSerializer = StringSerializer
-        protected val superColumnSerializer = StringSerializer
-        protected val valueSerializer = StringSerializer
-
+        protected val client = _client
         protected val path = columnPath
+        protected val key = "superrow-test"
       }
     }
 
@@ -208,7 +182,7 @@ object MappingTest extends Specification {
       } : _*)
     }
 
-    client.insertSuper(columnPath--, Map("b" -> buildMap(20)))
+    _client.insertSuper("superrow-test", columnPath, Map("b" -> buildMap(20)))
 
     val row = createSuperColumn()
 
