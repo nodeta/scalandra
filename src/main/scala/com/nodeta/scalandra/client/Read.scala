@@ -132,14 +132,17 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
      }
    }
 
-  /**
-   * Get supercolumn
-   * @param path Path to super column
-   */
-   def get(key : String, path : ColumnParent[A, B]) : Option[Map[B, C]] = {
-     val s = path.superColumn.get
-     get(key, path / None, SuperSlice(List(s))).get(s)
-   }
+   /**
+    * Get supercolumn
+    * @param path Path to super column
+    */
+    def get(key : String, path : ColumnParent[A, B]) : Option[Map[B, C]] = {
+      try {
+        getSuperColumn(_client.get(keyspace, key, path, consistency.read)).map(_._2)
+      } catch {
+        case e : NotFoundException => None
+      }
+    }
    
    /**
     * Slice columns
