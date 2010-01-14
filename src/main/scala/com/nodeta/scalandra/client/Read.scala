@@ -116,69 +116,70 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    * Get single column
    * @param path Path to column
    */
-   def get(key : String, path : ColumnPath[A, B]) : Option[C] = {
-     try {
-       _client.get(
-         keyspace,
-         key,
-         path,
-         consistency.read
-       ).column match {
-         case null => None
-         case x : cassandra.Column => Some(serializer.value.deserialize(x.value))
-       }
-     } catch {
-       case e : NotFoundException => None
-     }
-   }
-
-   /**
-    * Get supercolumn
-    * @param path Path to super column
-    */
-    def get(key : String, path : ColumnParent[A, B]) : Option[Map[B, C]] = {
-      try {
-        getSuperColumn(_client.get(keyspace, key, path, consistency.read)).map(_._2)
-      } catch {
-        case e : NotFoundException => None
+  def get(key : String, path : ColumnPath[A, B]) : Option[C] = {
+    try {
+      _client.get(
+        keyspace,
+        key,
+        path,
+        consistency.read
+      ).column match {
+        case null => None
+        case x : cassandra.Column => Some(serializer.value.deserialize(x.value))
       }
+    } catch {
+      case e : NotFoundException => None
     }
-   
-   /**
-    * Slice columns
-    * @param path Path to record or super column
-    * @param predicate Search conditions and limits
-    */
-   def get(key : String, path : Path[A, B], predicate : StandardSlice) : Map[B, C] = {
-     ListMap[B, C](_client.get_slice(
-       keyspace,
-       key,
-       path,
-       predicate,
-       consistency.read
-     ).map(getColumn(_).getOrElse({
-       throw new NotFoundException()
-     })) : _*)
-   }
-   
-   /**
-    * Slice super columns
-    * @param path Path to record
-    * @param predicate Search conditions and limits
-    **/
-   def get(key : String, path : Path[A, B], predicate : SuperSlice) : Map[A, Map[B, C]] = {
-     ListMap(_client.get_slice(
-       keyspace,
-       key,
-       path,
-       predicate,
-       consistency.read
-     ).map(getSuperColumn(_).get) : _*)
-   }
+  }
 
   /**
-  * Shorthand for <code>keys</code> without count parameter
+   * Get supercolumn
+   * @param path Path to super column
+   */
+  def get(key : String, path : ColumnParent[A, B]) : Option[Map[B, C]] = {
+    try {
+      getSuperColumn(_client.get(keyspace, key, path, consistency.read)).map(_._2)
+    } catch {
+      case e : NotFoundException => None
+    }
+  }
+   
+  /**
+   * Slice columns
+   * @param path Path to record or super column
+   * @param predicate Search conditions and limits
   */
+  def get(key : String, path : Path[A, B], predicate : StandardSlice) : Map[B, C] = {
+    ListMap[B, C](_client.get_slice(
+      keyspace,
+      key,
+      path,
+      predicate,
+      consistency.read
+    ).map(getColumn(_).getOrElse({
+      throw new NotFoundException()
+    })) : _*)
+  }
+   
+  /**
+   * Slice super columns
+   * @param path Path to record
+   * @param predicate Search conditions and limits
+   */
+  def get(key : String, path : Path[A, B], predicate : SuperSlice) : Map[A, Map[B, C]] = {
+    ListMap(_client.get_slice(
+      keyspace,
+      key,
+      path,
+      predicate,
+      consistency.read
+    ).map(getSuperColumn(_).get) : _*)
+  }
+  
+  
+  /**
+   * Shorthand for <code>keys</code> without count parameter
+   */
   def keys(columnFamily : String, start : Option[String], finish : Option[String]) : List[String] = {
     keys(columnFamily, start, finish, 1000)
   }
@@ -202,9 +203,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     val parent = new cassandra.ColumnParent(columnFamily, null)
 
     _client.get_range_slice(keyspace, parent, slice, optionalString(start), optionalString(finish), count, consistency.read).map(_.key)
-    
   }
-
 
   implicit private def resultMap(results : JavaList[cassandra.Column]) : Map[B, C] = {
     val r : List[cassandra.Column] = results // Implicit conversion
