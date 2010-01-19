@@ -25,7 +25,7 @@ class Client[A, B, C](
   val keyspace : String,
   val serializer : Serialization[A, B, C],
   val consistency : ConsistencyLevels
-) extends client.Base[A, B, C] with client.ReadWrite[A, B, C] with map.Keyspace[A, B, C] {
+) extends client.Base[A, B, C] with client.Read[A, B, C] with client.Write[A, B, C] with map.Keyspace[A, B, C] {
   def this(c : Connection, keyspace : String, serialization : Serialization[A, B, C]) = {
     this(c, keyspace, serialization, ConsistencyLevels())
   }

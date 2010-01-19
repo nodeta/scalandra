@@ -12,7 +12,7 @@ trait ColumnFamily[A] extends scala.collection.mutable.Map[String, A] {
 trait BaseColumnFamily[A] extends ColumnFamily[A] { this : Base[_, _, _] =>
   lazy private val keyCache : Option[List[String]] = {
     try {
-      Some(client.keys(columnFamily, None, None))
+      Some(client.keys(columnFamily, None, None, 1000)) // Limited at 1000 rows, FIXME
     } catch {
       case x : InvalidRequestException => {
         println(x)

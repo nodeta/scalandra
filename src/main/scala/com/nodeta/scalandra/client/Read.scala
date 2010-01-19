@@ -70,14 +70,14 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   def apply(key : String, path : ColumnParent[A, B]) = get(key, path)
   
   /* Get multiple columns from StandardColumnFamily */
-  def multiget(keys : Iterable[String], path : Path[A, B]) : Map[String, Option[(B, C)]] = {
+  def get(keys : Iterable[String], path : ColumnPath[A, B]) : Map[String, Option[(B, C)]] = {
     (ListMap() ++ multigetAny(keys, path).map { case(k, v) =>
       (k, getColumn(v))
     })
   }
   
   /* Get multiple super columns from SuperColumnFamily */
-  def multigetSuper(keys : Iterable[String], path : Path[A, B]) : Map[String, Option[(A , Map[B, C])]] = {
+  def get(keys : Iterable[String], path : ColumnParent[A, B]) : Map[String, Option[(A , Map[B, C])]] = {
     (ListMap() ++ multigetAny(keys, path).map { case(k, v) =>
       (k, getSuperColumn(v))
     })
@@ -85,32 +85,6 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   
   private def multigetAny(keys : Iterable[String], path : Path[A, B]) : JavaMap[String, cassandra.ColumnOrSuperColumn]= {
     JavaMap(_client.multiget(keyspace, keys, path, consistency.read))
-  }
-  
-  /* Get multiple records from StandardColumnFamily */
-  def getAll(keys : Iterable[String], path : ColumnParent[A, B]) : Map[String, Map[B, C]] = {
-    ListMap() ++ getAllAny(keys, path).map { case(k, v) =>
-      (k, ListMap(v.map(getColumn(_).get) : _*))
-    }
-  }
-  
-  /* Get multiple records from SuperColumnFamily */
-  def getAllSuper(keys : Iterable[String], path : ColumnParent[A, B]) : Map[String, Map[A , Map[B, C]]] = {
-    ListMap() ++ getAllAny(keys, path).map { case(k, v) =>
-      (k, ListMap(v.map(getSuperColumn(_).get) : _*))
-    }
-  }
-  
-  private def getAllAny(keys : Iterable[String], path : ColumnParent[A, B]) : JavaMap[String, JavaList[cassandra.ColumnOrSuperColumn]]= {
-    JavaMap(
-      _client.multiget_slice(
-        keyspace,
-        keys,
-        path,
-        new cassandra.SlicePredicate(null, new cassandra.SliceRange(new Array[Byte](0), new Array[Byte](0), false, maximumCount)),
-        consistency.read
-      )
-    )
   }
 
   /**
@@ -195,13 +169,6 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     ListMap() ++ Conversions.convertMap(result).map { case(key, value) =>
       key -> (ListMap() ++ value.map(getSuperColumn(_).get))
     }
-  }
-  
-  /**
-   * Shorthand for <code>keys</code> without count parameter
-   */
-  def keys(columnFamily : String, start : Option[String], finish : Option[String]) : List[String] = {
-    keys(columnFamily, start, finish, 1000)
   }
 
   /**

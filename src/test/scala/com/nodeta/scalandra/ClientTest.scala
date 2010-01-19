@@ -234,33 +234,26 @@ object ClientTest extends Specification {
   "multiple record fetching" should {
     doFirst {
       for(i <- (0 until 5)) {
-        cassandra(i.toString, ColumnParent("Standard1", None)) = Map("test" -> "data", "foo" -> "bar")
+        cassandra("multiget:" + i.toString, ColumnParent("Standard1", None)) = Map("test" -> "data", "foo" -> "bar")
       }
     }
     
     doLast {
       for(i <- (0 until 5)) {
-        cassandra.remove(i.toString, ColumnParent("Standard1", None))
+        cassandra.remove("multiget:" + i.toString, ColumnParent("Standard1", None))
       }
     }
 
     "find all existing records" in {
-      val result = cassandra.multiget(List("1", "3", "6"), cassandra.ColumnPath("Standard1", None, "test"))
+      val result = cassandra.get(List("multiget:1", "multiget:3", "multiget:6"), ColumnPath("Standard1", None, "foo"))
 
-      result("1") must beSomething
-      result("3") must beSomething
-      result("6") must beNone
+      result("multiget:1") must beSomething
+      result("multiget:3") must beSomething
+      result("multiget:6") must beNone
       result must not have the key("2")
     }
-
-    "find existing rows" in {
-      val result = cassandra.getAll(List("1", "6"), cassandra.ColumnParent("Standard1", None))
-      
-      result("1") must haveSize(2)
-      result("6") must beEmpty
-    }
   }
-  
+
   "multiple record slicing" should {
     doFirst {
       val data = Map("a" -> "b", "c" -> "d")
