@@ -10,13 +10,13 @@ trait Order {
 /**
  * Ascending sort order
  */
-object Ascending extends Order {
+case object Ascending extends Order {
   implicit def toBoolean() : Boolean = false
 }
 
 /**
  * Descending sort order
  */
-object Descending extends Order {
+case object Descending extends Order {
   implicit def toBoolean() : Boolean = true
 }
