@@ -6,7 +6,7 @@ import com.nodeta.scalandra.serializer.StringSerializer
 object ClientTest extends Specification {
   var connection : Connection = Connection()
   val cassandra = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
-  import cassandra.{StandardSlice, SuperSlice}
+  import cassandra.{StandardSlice, SuperSlice, ColumnParent, ColumnPath}
   
   /* Data to be inserted */
   val jsmith = Map("first" -> "John", "last" -> "Smith", "age" -> "53", "foo" -> "bar")
@@ -162,9 +162,17 @@ object ClientTest extends Specification {
 
   }
   
-  "multiget" should {
-    for(i <- (0 until 5)) {
-      cassandra(i.toString, cassandra.ColumnParent("Standard1", None)) = jsmith
+  "multiple record fetching" should {
+    doFirst {
+      for(i <- (0 until 5)) {
+        cassandra(i.toString, cassandra.ColumnParent("Standard1", None)) = jsmith
+      }
+    }
+    
+    doLast {
+      for(i <- (0 until 5)) {
+        cassandra.remove(i.toString, cassandra.ColumnParent("Standard1", None))
+      }
     }
 
     "find all existing records" in {
@@ -183,6 +191,58 @@ object ClientTest extends Specification {
       result("6") must beEmpty
     }
   }
+  
+  "multiple record slicing" should {
+    doFirst {
+      val data = Map("a" -> "b", "c" -> "d")
+      val sdata = Map("a" -> Map("b" ->"c"), "d" -> Map("e" -> "f"))
+      
+      for(i <- (0 until 5)) {
+        cassandra("multi:" + i.toString, ColumnParent("Standard1", None)) = data
+        cassandra("multi:" + i.toString, ColumnParent("Super1", None)) = sdata
+      }
+    }
+    
+    "using key range" in {
+      "find values from standard column family" in {
+        val r = cassandra.get(ColumnParent("Standard1", None), StandardSlice(List("a", "c")), Some("multi:2"), None, 3)
+        r.size must be(3)
+        r must haveKey("multi:2")
+        r("multi:2") must haveKey("a")
+      }
+      "find values from super column family" in {
+        val r = cassandra.get(ColumnParent("Super1", None), SuperSlice(List("a", "d")), Some("multi:3"), Some("multi:4"), 3)
+        r.size must be(2)
+        r must haveKey("multi:3")
+        r must haveKey("multi:4")
+        r("multi:4") must haveKey("a")
+      }
+    }
+    
+    "using list of keys" in {
+      val keys = List("multi:1", "multi:3")
+      "find values from standard column family" in {
+        val r = cassandra.get(keys, ColumnParent("Standard1", None), StandardSlice(List("a", "e")))
+        r must haveKey("multi:1")
+        r("multi:1") must haveKey("a")
+        r("multi:3") must notHaveKey("b")
+      }
+      "find values from super column family" in {
+        val r = cassandra.get(keys, ColumnParent("Super1", None), SuperSlice(Range(Some("a"), Some("d"), Ascending, 100)))
+        r("multi:1") must haveKey("a")
+        r("multi:1") must notHaveKey("b")
+        r("multi:3") must haveKey("d")
+        r("multi:3")("d") must haveKey("e")
+      }
+      
+      doLast {
+        for(i <- (0 until 5)) {
+          cassandra.remove("multi:" + i.toString, ColumnParent("Standard1", None))
+          cassandra.remove("multi:" + i.toString, ColumnParent("Super1", None))
+        }
+      }
+    }
+  }
 
   "order preservation" should {
 
@@ -199,10 +259,10 @@ object ClientTest extends Specification {
       val superData = (0 until 50).map(pad(_, 3) ->(randomizer.nextInt.toString)).toList
 
       superData.map { case(key, data) =>
-        cassandra.insertSuper(key, superPath, Map("1" -> Map(key -> data)))
+        cassandra(key, superPath) = Map("1" -> Map(key -> data))
       }
 
-      cassandra.insertSuper(key, superPath / None, Map("1" -> superData))
+      cassandra(key, superPath / None) =  Map("1" -> superData)
 
       cassandra.get(key, superPath / Some("1")).get.keys.toList must containInOrder(superData.map(_._1).toList)
     }
@@ -215,17 +275,71 @@ object ClientTest extends Specification {
         (('z' - i).toChar.toString -> i.toString)
       }.toList
 
-      cassandra.insertNormal(key, path, data)
+      cassandra(key, path) = data
       cassandra.get(key, path, StandardSlice(Range[String](None, None, Descending, 1000))) must containInOrder(data)
     }
   }
-
+  
   "key ranges" should {
-    "be able to list all key ranges in a keyspace" in {
-      (cassandra.keys("Super1", None, None)) must containAll(List("jsmith-test", "ordering-test"))
+    doFirst {
+      // Insert data
+      val p1 = ColumnPath("Super1", Some("superColumn"), "column")
+      cassandra("range1", p1) = "foo"
+      cassandra("range2", p1) = "bar"
+      
+      val p2 = ColumnPath("Standard1", None, "column")
+      cassandra("range1", p2) = "foo"
+      cassandra("range2", p2) = "foo"
+    }
+    
+    doLast {
+      // Remove data
+      cassandra.remove("range1", ColumnParent("Super1", None))
+      cassandra.remove("range2", ColumnParent("Super1", None))
+      
+      cassandra.remove("range1", ColumnParent("Standard1", None))
+      cassandra.remove("range2", ColumnParent("Standard1", None))
+    }
+    
+    "be able to list key ranges" in {
+      val path = ColumnParent("Super1", None)
+      val r = cassandra.get(path, SuperSlice(List("superColumn")), Some("range"), Some("range3"), 100)
+      r must haveKey("range1")
+      r must haveKey("range2")
+    }
+    
+    "contain super column data" in {
+      val path = ColumnParent("Super1", None)
+      val r = cassandra.get(path, SuperSlice(List("superColumn")), Some("range"), Some("range3"), 100)
+      
+      r must haveKey("range1")
+      r("range1") must haveKey("superColumn")
+    }
+    
+    "contain column data in super column" in {
+      val path = ColumnParent("Super1", Some("superColumn"))
+      val r = cassandra.get(path, StandardSlice(List("column")), Some("range"), Some("range3"), 100)
+      
+      r must haveKey("range1")
+      r("range1") must haveKey("column")
+    }
+    
+    "contain column data from standard column family" in {
+      val path = ColumnParent("Standard1", None)
+      val r = cassandra.get(path, StandardSlice(List("column")), Some("range"), Some("range3"), 100)
+      
+      r must haveKey("range1")
+      r("range1") must haveKey("column")
+    }
+    
+    "not contain any data if empty slice is given" in {
+      val path = ColumnParent("Standard1", None)
+      val r = cassandra.get(path, StandardSlice(Nil), Some("range"), Some("range3"), 100)
+      
+      r must haveKey("range1")
+      r("range1") must notHaveKey("column")
     }
   }
-
 
   "remove" should {
     "be able to remove single column" in {
