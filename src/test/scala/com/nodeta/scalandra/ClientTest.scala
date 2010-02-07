@@ -4,7 +4,8 @@ import org.specs._
 import com.nodeta.scalandra.serializer.StringSerializer
 
 object ClientTest extends Specification {
-  var connection : Connection = Connection()
+  shareVariables()
+  val connection = Connection()
   val cassandra = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
   import cassandra.{StandardSlice, SuperSlice, ColumnParent, ColumnPath}
   
@@ -126,13 +127,13 @@ object ClientTest extends Specification {
     
     "return columns using column list as filter" in {
       val result = cassandra.get(key, path, StandardSlice(List("first", "age")))
-      result.size must be(2)
+      result must haveSize(2)
       result must not have the key("last")
     }
 
     "be able to filter columns using start and finish parameter" in {
       val result = cassandra.get(key, path, StandardSlice(Range(Some("first"), Some("last"), Ascending, 1000)))
-      result.size must be(2)
+      result must haveSize(2)
       result.keySet must containAll(List("first", "last"))
     }
 

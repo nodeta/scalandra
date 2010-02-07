@@ -14,6 +14,16 @@ trait Path[A, B] {
     }
   }
   
+  def /(c : B) : ColumnPath[A, B] = {
+    val parent = this
+    new ColumnPath[A, B] {
+      protected def serializer = parent.serializer
+      def columnFamily = parent.columnFamily
+      def superColumn = None
+      val column = c
+    }
+  }
+  
   def toColumnParent : cassandra.ColumnParent = {
     new cassandra.ColumnParent(columnFamily, null)
   }
@@ -21,12 +31,15 @@ trait Path[A, B] {
   def toColumnPath : cassandra.ColumnPath = {
     new cassandra.ColumnPath(columnFamily, null, null)
   }
+  override def toString = {
+    "Path(" + columnFamily + ")"
+  }
 }
 
 trait ColumnParent[A, B] extends Path[A, B] {
   def superColumn : Option[A]
   
-  def /(c : B) : ColumnPath[A, B] = {
+  override def /(c : B) : ColumnPath[A, B] = {
     val parent = this
     new ColumnPath[A, B] {
       protected def serializer = parent.serializer
@@ -47,6 +60,10 @@ trait ColumnParent[A, B] extends Path[A, B] {
   override def toColumnPath : cassandra.ColumnPath = {
     new cassandra.ColumnPath(columnFamily, _superColumn, null)
   }
+  
+  override def toString = {
+    "ColumnParent(" + columnFamily + "," + superColumn + ")"
+  }
 }
 
 trait ColumnPath[A, B] extends ColumnParent[A, B] {
@@ -58,5 +75,9 @@ trait ColumnPath[A, B] extends ColumnParent[A, B] {
   
   override def toColumnPath : cassandra.ColumnPath = {
     new cassandra.ColumnPath(columnFamily, _superColumn, _column)
-  }  
+  }
+  
+  override def toString = {
+    "ColumnPath(" + columnFamily + "," + superColumn + "," + column + ")"
+  }
 }

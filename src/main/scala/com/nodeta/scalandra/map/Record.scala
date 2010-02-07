@@ -3,197 +3,120 @@ package com.nodeta.scalandra.map
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.{Map => MMap}
 
-trait Record[A, B] extends MMap[A, B] {
-  protected val data : Map[A, B]
-  protected val columnFamily : String
-  protected val key : String
-
-  protected def build(key : A) : Option[B]
-  def elements = data.elements
-  def get(key : A) = data.get(key)
-  def size = data.size
+trait Record[A, B] extends CassandraMap[A, B] {
+  val key : String
+  val path : Path[_, _]
   
-  def slice(columns : Collection[A]) : Map[A, B]
-  def slice(start : Option[A], finish : Option[A]) : Map[A, B]
-  def slice(start : A, finish : A) : Map[A, B] = {
-    slice(Some(start), Some(finish))
+  def size = {
+    elements.toList.size
   }
 }
 
-
-trait StandardRecord[A, B, C] extends Record[B, C] with Base[A, B, C] {
-  lazy private val path = { 
-    client.ColumnParent(columnFamily, None)
-  }
-  
+class StandardRecord[A, B, C](val key : String, val path : ColumnParent[A, B], protected val client : Client[A, B, C]) extends Record[B, C] with Base[A, B, C] {
   lazy private val defaultRange = {
     Range[B](None, None, Ascending, 2147483647)
   }
   
-  lazy protected val data : Map[B, C] = {
-    client.get(key, path, client.StandardSlice(defaultRange))
+  sealed protected trait ListPredicate extends StandardRecord[A, B, C] {
+    def constraint : Iterable[B]
+    override def elements = {
+      this.client.get(this.key, this.path, this.client.StandardSlice(constraint)).elements
+    }
   }
-
-  def slice(columns : Collection[B]) = {
-    client.get(key, path, client.StandardSlice(columns))
-  }
-  def slice(start : Option[B], finish : Option[B]) = {
-    val range = Range(start, finish, Ascending, 2147483647)
-    client.get(key, path, client.StandardSlice(range))
-  } 
   
-  protected def build(column : B) = {
+  sealed protected trait RangePredicate extends StandardRecord[A, B, C] {
+    def constraint : Range[B]
+    override def elements = {
+      this.client.get(this.key, this.path, this.client.StandardSlice(this.constraint)).elements
+    }
+  }
+  
+  def elements = {
+    client.get(key, path, client.StandardSlice(defaultRange)).elements
+  }
+  
+  def get(column : B) : Option[C] = {
     client.get(key, path / column)
   }
   
-  def -=(column : B) {
+  def slice(r : Range[B]) = {
+    new StandardRecord(key, path, client) with RangePredicate {
+      val constraint = r
+    }
+  }
+  
+  def slice(r : Iterable[B]) = {
+    new StandardRecord(key, path, client) with ListPredicate {
+      val constraint = r
+    }
+  }
+  
+  def remove(column : B) = {
     client.remove(key, path / column)
-  }
-  
-  override def ++=(kvs : Iterable[(B, C)]) {
-    client.insertNormal(key, path, kvs.toList)
-  }
-  
-  override def ++(kvs : Iterable[(B, C)]) = {
-    this ++= kvs
     this
   }
   
-  override def ++=(kvs : Iterator[(B, C)]) {
-    this ++ kvs.toList
-  }
-  
-  override def ++(kvs : Iterator[(B, C)]) = {
-    this ++= kvs
+  def update(column : B, value : C) = {
+    client(key, path / column) = value
     this
-  }
-  
-  def update(key : B, value : C) {
-    this ++ Map(key -> value)
   }
 }
 
-
-trait SuperRecord[A, B, C] extends Record[A, SuperColumn[A, B, C]] with Base[A, B, C] {
-  lazy private val path = client.ColumnParent(columnFamily, None)
-  
+class SuperRecord[A, B, C](val key : String, val path : Path[A, B], protected val client : Client[A, B, C]) extends Record[A, scala.collection.Map[B, C]] with Base[A, B, C] {
   lazy private val defaultRange = {
     Range[A](None, None, Ascending, 2147483647)
   }
   
-  lazy protected val data : Map[A, SuperColumn[A, B, C]] = {
-    client.get(key, path, client.SuperSlice(defaultRange)).transform(buildCached(_, _))
-  }
-
-  override def apply(key : A) = build(key).get
-
-  def slice(columns : Collection[A]) : Map[A, SuperColumn[A, B, C]] = {
-    client.get(key, path, client.SuperSlice(columns)).transform(buildCached(_, _))
-  }
-
-  def slice(start : Option[A], finish : Option[A]) : Map[A, SuperColumn[A, B, C]] = {
-    val range = Range(start, finish, Ascending, 2147483647)
-    client.get(key, path, client.SuperSlice(range)).transform(buildCached(_, _))
-  }
-
-  def slice(start : Option[A], finish : Option[A], order : Order, count : Int) : Map[A, SuperColumn[A, B, C]] = {
-    val range = Range(start, finish, order, count)
-    client.get(key, path, client.SuperSlice(range)).transform(buildCached(_, _))
-  }
-
-  def -=(superColumn : A) {
-    client.remove(key, path / Some(superColumn))
-  }
-  
-  override def ++(kvs : Iterable[(A, SuperColumn[A, B, C])]) = {
-    client.insertSuper(key, path, kvs.toList)
-    this
-  }
-  
-  override def ++(kvs : Iterator[(A, SuperColumn[A, B, C])]) = {
-    this ++ kvs.toList
-  }
-
-  def update(column : A, value : SuperColumn[A, B, C]) {
-    client.insertSuper(key, path, Map(column -> value))
-  }
-  
-  def update(column : A, value : Map[B, C]) {
-    client.insertSuper(key, path, Map(column -> value))
-  }
-
-  private def buildCached(column : A, _data : Map[B, C]) : SuperColumn[A, B, C] = {
-    val parent = this
-    new CachedSuperColumn[A, B, C] {
-      override lazy protected val data = _data
-      protected val client = parent.client
-      protected val columnFamily = parent.columnFamily
-      protected val key = parent.key
-
-      protected val path = (parent.path / Some(column))
+  sealed protected trait ListPredicate extends SuperRecord[A, B, C] {
+    def constraint : Iterable[A]
+    override def elements = {
+      this.client.get(this.key, this.path, this.client.SuperSlice(constraint)).elements
     }
   }
-
-  protected def build(column : A) = {
-    val parent = this
-    Some(new SuperColumn[A, B, C] {
-      protected val client = parent.client
-      protected val columnFamily = parent.columnFamily
-      protected val path = (parent.path / Some(column))
-      protected val key = parent.key
-    })
-  }
-}
-
-
-trait SuperColumn[A, B, C] extends Record[B, C] with Base[A, B, C] {
   
-  
-  protected val path : ColumnParent[A, B]
-  lazy protected val data : Map[B, C] = {
-    client.get(key, path).get
-  }
-
-  def slice(columns : Collection[B]) : Map[B, C] = {
-    client.get(key, path, client.StandardSlice(columns))
-  }
-  def slice(start : Option[B], finish : Option[B]) : Map[B, C] = {
-    val range = Range(start, finish, Ascending, 2147483647)
-    client.get(key, path, client.StandardSlice(range))
+  sealed protected trait RangePredicate extends SuperRecord[A, B, C] {
+    def constraint : Range[A]
+    override def elements = {
+      this.client.get(this.key, this.path, this.client.SuperSlice(this.constraint)).elements
+    }
   }
   
-  def update(key : B, value : C) {
-    this ++ Map(key -> value)
+  def elements = {
+    client.get(key, path, client.SuperSlice(defaultRange)).elements
   }
   
-  override def ++=(kvs : Iterable[(B, C)]) {
-    client.insertSuper(key, path, Map(path.superColumn.get -> kvs.toList))
+  def get(column : A) : Option[scala.collection.Map[B, C]] = {
+    Some(new StandardRecord(key, path / Some(column), client))
   }
   
-  override def ++(kvs : Iterable[(B, C)]) = {
-    this ++= kvs
+  def slice(r : Range[A]) = {
+    new SuperRecord(key, path, client) with RangePredicate {
+      val constraint = r
+    }
+  }
+  
+  def slice(r : Iterable[A]) = {
+    new SuperRecord(key, path, client) with ListPredicate {
+      val constraint = r
+    }
+  }
+  
+  def remove(column : A) = {
+    client.remove(key, path / Some(column))
     this
   }
   
-  override def ++=(kvs : Iterator[(B, C)]) {
-    this ++ kvs.toList
-  }
-  
-  override def ++(kvs : Iterator[(B, C)]) = {
-    this ++= kvs
+  def update(column : A, value : scala.collection.Map[B, C]) = {
+    updated(column, value)
     this
   }
-  def -=(column : B) {
-    client.remove(key, path / column)
+  
+  def update(column : A, value : Iterable[(B, C)]) = {
+    updated(column, value)
+    this
   }
-
-  protected def build(column : B) = {
-    client.get(key, path / column)
-  }
-}
-
-trait CachedSuperColumn[A, B, C] extends SuperColumn[A, B, C] {
-  override protected def build(column : B) = {
-    data.get(column)
+  
+  private def updated(column : A, value : Iterable[(B, C)]) {
+    client(key, path / Some(column)) = value
   }
 }

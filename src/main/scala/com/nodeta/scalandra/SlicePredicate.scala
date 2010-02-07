@@ -6,6 +6,6 @@ package com.nodeta.scalandra
  * @author Ville Lautanala
  */
 trait SlicePredicate[T] {
-  val columns : Collection[T]
+  val columns : Iterable[T]
   val range : Option[Range[T]]
 }

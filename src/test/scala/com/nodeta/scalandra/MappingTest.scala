@@ -5,7 +5,7 @@ import com.nodeta.scalandra.map._
 import com.nodeta.scalandra.serializer._
 
 object MappingTest extends Specification {
-  "Keyspace" should {
+/*  "Keyspace" should {
     val connection = Connection()
     doLast { connection.close() }
 
@@ -18,30 +18,67 @@ object MappingTest extends Specification {
     }
 
   }
+*/
+  "ColumnFamily" should {
+    val connection = Connection()
+    val cassandra = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
+    import cassandra.{ColumnPath, ColumnParent}
 
+    doFirst {
+      val path = ColumnPath("Standard1", None, "test")
+      for(i <- (0 until 200)) {
+        cassandra("keys:" + i, path) = i.toString
+      }
+    }
+    
+    doLast {
+      val path = ColumnPath("Standard1", None, "test")
+      for(i <- (0 until 200)) {
+        cassandra.remove("keys:" + i, path)
+      }
+    }
+    
+    "list its rows" in {
+      cassandra.ColumnFamily("Standard1").size must beGreaterThanOrEqualTo(200)
+    }
+  }
 
   "StandardColumnFamily" should {
     val connection = Connection()
-    val _client = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
+    val client = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
 
-    val cf = new StandardColumnFamily[String, String, String] {
-      val keyspace = "Keyspace1"
-      val columnFamily = "Standard1"
-      val client = _client
-    }
+    val cf = new StandardColumnFamily("Standard1", client)
 
     "be able to list all rows" in {
-      _client.insertNormal("test-row", _client.ColumnParent("Standard1", None), Map("foo" -> "bar"))
-      cf.keySet must contain("test-row")
+      val key = Math.random.toString.substring(2)
+      client(key, client.ColumnPath("Standard1", None, "test")) = "value"
+      cf.keySet must contain(key)
+    }
+    
+    "multiget values" in {
+      cf.map("test") must notBeEmpty
+    }
+    
+    "row modification" in {
+      val key = Math.random.toString.substring(2)
+      
+      "insert new data" in {
+        cf(key) = Map("test" -> "value")
+        client.get(key, client.ColumnPath("Standard1", None, "test")) must beSomething
+        client.remove(key, client.Path("Standard1"))
+      }
+      
+      "remove data" in {
+        client(key, client.ColumnPath("Standard1", None, "test2")) = "lolz"
+        cf.remove(key)
+        client.get(key, client.ColumnPath("Standard1", None, "test2")) must beNone
+      }
     }
 
-    "be able to create rows without any requests" in {
+    "be able to create row instances without any requests" in {
       connection.close() // Connection should not be needed
       try {
-        val cf = new StandardColumnFamily[String, String, String] {
-          val columnFamily = "Standard1"
-          val client =_client
-        }
+        val cf = new StandardColumnFamily("Standard1", client)
 
         val r = cf("Row")
         cf.get("RowFooasoafso")
@@ -50,7 +87,47 @@ object MappingTest extends Specification {
       }
       connection.isOpen must be(false)
     }
+    
+    
+    "be able to slice using lists" in {
+      cf.slice(List("foo", "bar")).keySet must haveSize(2)
+    }
+    
+    
+    "be able to slice using range" in {
+      cf.slice(Range[String](None, None, Ascending, 100)).keySet must haveSize(100)
+    }
   }
+  
+  "SuperdColumnFamily" should {
+    val connection = Connection()
+    val client = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
+
+    val cf = new SuperColumnFamily("Super1", client)
+
+    "be able to list all rows" in {
+      val key = Math.random.toString.substring(2)
+      client(key, client.ColumnPath("Super1", Some("test"), "test")) = "value"
+      cf.keySet must contain(key)
+    }
+    
+    "row modification" in {
+      val key = Math.random.toString.substring(2)
+      
+      "insert new data" in {
+        cf(key) = Map("lol" -> Map("test" -> "value"))
+        client.get(key, client.ColumnPath("Super1", Some("lol"), "test")) must beSomething
+        client.remove(key, client.Path("Super1"))
+      }
+      
+      "remove data" in {
+        client(key, client.ColumnPath("Super1", Some("cat"), "test2")) = "lolz"
+        cf.remove(key)
+        client.get(key, client.ColumnPath("Super1", Some("cat"), "test2")) must beNone
+      }
+    }
+  }
+  /*
 
   "StandardRecord" should {
     val connection = Connection()
@@ -207,4 +284,5 @@ object MappingTest extends Specification {
       row.slice(List("a")) must haveSize(0)
     }
   }
+*/
 }

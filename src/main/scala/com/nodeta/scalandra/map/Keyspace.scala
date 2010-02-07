@@ -2,24 +2,17 @@ package com.nodeta.scalandra.map
 
 import map.{ColumnFamily => CF, SuperColumnFamily => SCF}
 
-import scala.collection.jcl.Conversions
 
 trait Keyspace[A, B, C] extends scala.collection.Map[String, ColumnFamily[_]] with Base[A, B, C] {
-  val self = this
   /**
    * ColumnFamily map instantiated using client instance
    */
-  case class ColumnFamily(columnFamily : String) extends StandardColumnFamily[A, B, C] {
-    val client = self.client
-  }
+  case class ColumnFamily(columnFamily : String) extends StandardColumnFamily[A, B, C](client.Path(columnFamily), client) {}
 
   /**
    * SuperColumnFamily map instantiated using client instance
    */
-  case class SuperColumnFamily(columnFamily : String) extends SCF[A, B, C] {
-    val client = self.client
-  }
-  
+  case class SuperColumnFamily(columnFamily : String) extends SCF[A, B, C](client.Path(columnFamily), client) {}
   val keyspace : String
 
   lazy private val schema = { client.describe }
@@ -36,19 +29,20 @@ trait Keyspace[A, B, C] extends scala.collection.Map[String, ColumnFamily[_]] wi
     }
   }
 
-  def elements() = {
-    columnFamilies.elements
-  }
+  def elements = columnFamilies.elements
 
-
-  def size() = {
-    schema.size
-  }
+  def size = schema.size
 
   private def buildColumnFamily(columnFamily : String) : CF[_] = {
     schema(columnFamily)("Type") match {
       case "Super" => SuperColumnFamily(columnFamily)
       case "Standard" => ColumnFamily(columnFamily)
     }
+  }
+
+  override def toString() = {
+    "Keyspace(" + columnFamilies.map { case (name, instance) =>
+      name + " -> " + instance.getClass.getSimpleName
+    }.mkString(",") + ")"
   }
 }
