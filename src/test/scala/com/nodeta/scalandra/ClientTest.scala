@@ -5,7 +5,7 @@ import com.nodeta.scalandra.serializer.StringSerializer
 
 object ClientTest extends Specification {
   shareVariables()
-  val connection = Connection()
+  val connection = Connection(9162)
   val cassandra = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
   import cassandra.{StandardSlice, SuperSlice, ColumnParent, ColumnPath}
   
@@ -35,6 +35,8 @@ object ClientTest extends Specification {
         jsmith("first") must equalTo("John")
         cassandra(key, path) = jsmith
 
+        Thread.sleep(50)
+
         // Then: It should still have its old values.
         val result = cassandra.get(key, path, StandardSlice(Range[String](None, None, Ascending, 1000)))
         result("first") must equalTo(jsmith("first"))
@@ -45,6 +47,8 @@ object ClientTest extends Specification {
       "be able to add and get data to a super column family" in {
         // Given: Data is inserted to Cassandra
         cassandra(key, superPath) = index
+
+        Thread.sleep(50)
 
         // Then: It should still have its old values.
         val result = cassandra.get(key, superPath, SuperSlice(Range[String](None, None, Ascending, 1000)))
@@ -58,6 +62,8 @@ object ClientTest extends Specification {
         val key = "random-test"
         // Given: Value is inserted to Cassandra
         cassandra(key, path) = value
+        
+        Thread.sleep(50)
 
         // Then: It should be readable from Cassandra.
         cassandra.get(key, path) must beSomething.which(_ must equalTo(value))
@@ -71,6 +77,8 @@ object ClientTest extends Specification {
         cassandra.get(key, path, StandardSlice(Range[String](None, None, Ascending, 1000))) must haveKey("age")
         cassandra.remove(key, path / "age")
 
+        Thread.sleep(50)
+
         // Then: age column should not have value
         cassandra.get(key, path / "age") must beNone
       }
@@ -79,6 +87,7 @@ object ClientTest extends Specification {
         cassandra.get(key, cassandra.ColumnPath("Standard1", None, "first")) must beSomething
         // Given: John is removed from Cassandra
         cassandra.remove(key, cassandra.ColumnParent("Standard1", None))
+        Thread.sleep(50)
         // Then: It should not return anything
         cassandra.get(key, cassandra.ColumnPath("Standard1", None, "first")) must beNone
       }
@@ -92,6 +101,8 @@ object ClientTest extends Specification {
     doFirst {
       cassandra("count", path) = data
       cassandra("count", superPath) = Map("internet" -> data)
+
+      Thread.sleep(50)
     }
 
     doLast {
@@ -119,6 +130,8 @@ object ClientTest extends Specification {
     doFirst { // Insert data
       val jsmith = Map("first" -> "John", "last" -> "Smith", "age" -> "53")      
       cassandra(key, path) = jsmith
+      
+      Thread.sleep(50)
     }
     
     doLast {
@@ -166,6 +179,7 @@ object ClientTest extends Specification {
     doFirst {
       val index = Map("1" -> Map("foo" -> null, "bar" -> null), "2" -> Map("blah" -> "meh"), "3" -> Map("nothing" -> "here"))
       cassandra(key, superPath) = index
+      Thread.sleep(25)
     }
 
     doLast {
@@ -204,6 +218,7 @@ object ClientTest extends Specification {
     doFirst {
       cassandra(key, path) = data
       cassandra(key, ColumnParent("Standard1", None)) = data("1")
+      Thread.sleep(25)
     }
     
     doLast {
@@ -237,6 +252,7 @@ object ClientTest extends Specification {
       for(i <- (0 until 5)) {
         cassandra("multiget:" + i.toString, ColumnParent("Standard1", None)) = Map("test" -> "data", "foo" -> "bar")
       }
+      Thread.sleep(25)
     }
     
     doLast {
@@ -264,6 +280,8 @@ object ClientTest extends Specification {
         cassandra("multi:" + i.toString, ColumnParent("Standard1", None)) = data
         cassandra("multi:" + i.toString, ColumnParent("Super1", None)) = sdata
       }
+      
+      Thread.sleep(25)
     }
     
     "using key range" in {
@@ -327,6 +345,8 @@ object ClientTest extends Specification {
 
       cassandra(key, superPath / None) =  Map("1" -> superData)
 
+      Thread.sleep(25)
+
       cassandra.get(key, superPath / Some("1")).get.keys.toList must containInOrder(superData.map(_._1).toList)
     }
 
@@ -339,6 +359,8 @@ object ClientTest extends Specification {
       }.toList
 
       cassandra(key, path) = data
+
+      Thread.sleep(25)
       cassandra.get(key, path, StandardSlice(Range[String](None, None, Descending, 1000))) must containInOrder(data)
     }
   }
@@ -353,6 +375,8 @@ object ClientTest extends Specification {
       val p2 = ColumnPath("Standard1", None, "column")
       cassandra("range1", p2) = "foo"
       cassandra("range2", p2) = "foo"
+
+      Thread.sleep(50)
     }
     
     doLast {

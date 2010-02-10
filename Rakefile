@@ -31,6 +31,7 @@ namespace :cassandra do
   task :start do
     raise "Cassandra already running" if cassandra_running?
     Rake::Task["cassandra:setup"].execute unless File.exists?(Dir.pwd + "/cassandra")
+    ENV["CASSANDRA_INCLUDE"] = "./config/cassandra.in.sh"
     sh "./cassandra/bin/cassandra -p #{Dir.pwd + "/cassandra/cassandra.pid"}"
   end
   
