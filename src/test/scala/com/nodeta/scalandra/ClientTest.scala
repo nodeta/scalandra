@@ -35,8 +35,6 @@ object ClientTest extends Specification {
         jsmith("first") must equalTo("John")
         cassandra(key, path) = jsmith
 
-        Thread.sleep(50)
-
         // Then: It should still have its old values.
         val result = cassandra.get(key, path, StandardSlice(Range[String](None, None, Ascending, 1000)))
         result("first") must equalTo(jsmith("first"))
@@ -47,8 +45,6 @@ object ClientTest extends Specification {
       "be able to add and get data to a super column family" in {
         // Given: Data is inserted to Cassandra
         cassandra(key, superPath) = index
-
-        Thread.sleep(50)
 
         // Then: It should still have its old values.
         val result = cassandra.get(key, superPath, SuperSlice(Range[String](None, None, Ascending, 1000)))
@@ -62,8 +58,6 @@ object ClientTest extends Specification {
         val key = "random-test"
         // Given: Value is inserted to Cassandra
         cassandra(key, path) = value
-        
-        Thread.sleep(50)
 
         // Then: It should be readable from Cassandra.
         cassandra.get(key, path) must beSomething.which(_ must equalTo(value))
@@ -77,8 +71,6 @@ object ClientTest extends Specification {
         cassandra.get(key, path, StandardSlice(Range[String](None, None, Ascending, 1000))) must haveKey("age")
         cassandra.remove(key, path / "age")
 
-        Thread.sleep(50)
-
         // Then: age column should not have value
         cassandra.get(key, path / "age") must beNone
       }
@@ -87,7 +79,6 @@ object ClientTest extends Specification {
         cassandra.get(key, cassandra.ColumnPath("Standard1", None, "first")) must beSomething
         // Given: John is removed from Cassandra
         cassandra.remove(key, cassandra.ColumnParent("Standard1", None))
-        Thread.sleep(50)
         // Then: It should not return anything
         cassandra.get(key, cassandra.ColumnPath("Standard1", None, "first")) must beNone
       }
@@ -101,23 +92,21 @@ object ClientTest extends Specification {
     doFirst {
       cassandra("count", path) = data
       cassandra("count", superPath) = Map("internet" -> data)
+    }
 
-      Thread.sleep(50)
+    "should be able to count columns in a row" in {
+      cassandra.count("count", path) must eventually(equalTo(data.size))
+    }
+    "should be able to count supercolumns" in {
+      cassandra.count("count", superPath) must eventually(equalTo(1))
+    }
+    "should be able to count columns in a supercolumn" in {
+      cassandra.count("count", superPath / Some("internet")) must eventually(equalTo(data.size))
     }
 
     doLast {
       cassandra.remove("count", path)
       cassandra.remove("count", superPath)
-    }
-
-    "should be able to count columns in a row" in {
-      cassandra.count("count", path) must equalTo(data.size)
-    }
-    "should be able to count supercolumns" in {
-      cassandra.count("count", superPath) must equalTo(1)
-    }
-    "should be able to count columns in a supercolumn" in {
-      cassandra.count("count", superPath / Some("internet")) must equalTo(data.size)
     }
   }
 
@@ -130,29 +119,23 @@ object ClientTest extends Specification {
     doFirst { // Insert data
       val jsmith = Map("first" -> "John", "last" -> "Smith", "age" -> "53")      
       cassandra(key, path) = jsmith
-      
-      Thread.sleep(50)
     }
-    
-    doLast {
-      cassandra.remove(key, path)
-    }
-    
+
     "return columns using column list as filter" in {
       val result = cassandra.get(key, path, StandardSlice(List("first", "age")))
-      result must haveSize(2)
+      result must eventually(haveSize(2))
       result must not have the key("last")
     }
 
     "be able to filter columns using start and finish parameter" in {
       val result = cassandra.get(key, path, StandardSlice(Range(Some("first"), Some("last"), Ascending, 1000)))
-      result must haveSize(2)
+      result must eventually(haveSize(2))
       result.keySet must containAll(List("first", "last"))
     }
 
     "be able to filter columns using only start parameter" in {
       val result = cassandra.get(key, path, StandardSlice(Range(Some("first"), None, Ascending, 1000)))
-      result.size must be(2)
+      result must eventually(haveSize(2))
       result.keySet must containAll(List("first", "last"))
     }
 
@@ -164,12 +147,16 @@ object ClientTest extends Specification {
 
     "use sort parameter to sort columns" in {
       val result = cassandra.get(key, path, StandardSlice(Range[String](None, None, Descending, 1)))
-      result must haveKey("last")
+      result must eventually(haveKey("last"))
     }
 
     "be able to limit results" in {
       val result = cassandra.get(key, path, StandardSlice(Range[String](None, None, Descending, 2)))
-      result.size must be(2)
+      result must eventually(haveSize(2))
+    }
+
+    doLast {
+      cassandra.remove(key, path)
     }
   }
 
@@ -179,35 +166,34 @@ object ClientTest extends Specification {
     doFirst {
       val index = Map("1" -> Map("foo" -> null, "bar" -> null), "2" -> Map("blah" -> "meh"), "3" -> Map("nothing" -> "here"))
       cassandra(key, superPath) = index
-      Thread.sleep(25)
-    }
-
-    doLast {
-      cassandra.remove(key, superPath)
     }
 
     "work using collection of super columns" in {
       val result = cassandra.get(key, superPath, SuperSlice(List("2", "3")))
-      result.size must be(2)
+      result must eventually(haveSize(2))
       result must not have the key("1")
     }
 
     "contain standard column data" in {
       val result = cassandra.get(key, superPath, SuperSlice(List("1", "3")))
-      result.size must be(2)
-      result("3")("nothing") must equalTo("here")
+      result must eventually(haveSize(2))
+      result("3")("nothing") must eventually(equalTo("here"))
     }
 
     "be able to filter columns using start and finish parameter" in {
       val result = cassandra.get(key, superPath, SuperSlice(Range(Some("1"), Some("2"), Ascending, 1000)))
-      result.size must be(2)
-      result must haveKey("1")
-      result must haveKey("2")
+      result must eventually(haveSize(2))
+      result must eventually(haveKey("1"))
+      result must eventually(haveKey("2"))
     }
     
     "work on subcolumns" in {
       val result = cassandra.get(key, superPath / Some("1"), StandardSlice(Range[String](None, None, Descending, 1)))
-      result must haveKey("foo")
+      result must eventually(haveKey("foo"))
+    }
+
+    doLast {
+      cassandra.remove(key, superPath)
     }
   }
 
@@ -218,32 +204,29 @@ object ClientTest extends Specification {
     doFirst {
       cassandra(key, path) = data
       cassandra(key, ColumnParent("Standard1", None)) = data("1")
-      Thread.sleep(25)
     }
-    
-    doLast {
-      cassandra.remove(key, path)
-      cassandra.remove(key, ColumnParent("Standard1", None))
-    }
-    
+
     "be able to get super column using path" in {
-      val result = cassandra.get(key, path / Some("1"))
-      result must beSomething
-      result.get.keySet must containAll(data("1").keySet)
+      cassandra.get(key, path / Some("1")) must eventually(beSomething)
+      cassandra.get(key, path / Some("1")).get.keySet must eventually(containAll(data("1").keySet))
     }
 
     "return None when column is not found" in {
-      cassandra.get(key, path / Some("doesntexist")) must beNone
+      cassandra.get(key, path / Some("doesntexist")) must eventually(beNone)
     }
 
     "be able to get column from super column using path" in {
-      val result = cassandra.get(key, (path / Some("1") / "2"))
-      result must equalTo(Some("3"))
+      cassandra.get(key, (path / Some("1") / "2")) must eventually(equalTo(Some("3")))
     }
 
     "be able to get column from standard column family using path" in {
       val result = cassandra.get(key,  ColumnPath("Standard1", None, "4"))
       result must equalTo(Some(data("1")("4")))
+    }
+
+    doLast {
+      cassandra.remove(key, path)
+      cassandra.remove(key, ColumnParent("Standard1", None))
     }
   }
   
@@ -251,13 +234,6 @@ object ClientTest extends Specification {
     doFirst {
       for(i <- (0 until 5)) {
         cassandra("multiget:" + i.toString, ColumnParent("Standard1", None)) = Map("test" -> "data", "foo" -> "bar")
-      }
-      Thread.sleep(25)
-    }
-    
-    doLast {
-      for(i <- (0 until 5)) {
-        cassandra.remove("multiget:" + i.toString, ColumnParent("Standard1", None))
       }
     }
 
@@ -268,6 +244,12 @@ object ClientTest extends Specification {
       result("multiget:3") must beSomething
       result("multiget:6") must beNone
       result must not have the key("2")
+    }
+
+    doLast {
+      for(i <- (0 until 5)) {
+        cassandra.remove("multiget:" + i.toString, ColumnParent("Standard1", None))
+      }
     }
   }
 
@@ -280,8 +262,6 @@ object ClientTest extends Specification {
         cassandra("multi:" + i.toString, ColumnParent("Standard1", None)) = data
         cassandra("multi:" + i.toString, ColumnParent("Super1", None)) = sdata
       }
-      
-      Thread.sleep(25)
     }
     
     "using key range" in {
@@ -345,8 +325,6 @@ object ClientTest extends Specification {
 
       cassandra(key, superPath / None) =  Map("1" -> superData)
 
-      Thread.sleep(25)
-
       cassandra.get(key, superPath / Some("1")).get.keys.toList must containInOrder(superData.map(_._1).toList)
     }
 
@@ -359,9 +337,7 @@ object ClientTest extends Specification {
       }.toList
 
       cassandra(key, path) = data
-
-      Thread.sleep(25)
-      cassandra.get(key, path, StandardSlice(Range[String](None, None, Descending, 1000))) must containInOrder(data)
+      cassandra.get(key, path, StandardSlice(Range[String](None, None, Descending, 1000))) must eventually(containInOrder(data))
     }
   }
   
@@ -375,19 +351,8 @@ object ClientTest extends Specification {
       val p2 = ColumnPath("Standard1", None, "column")
       cassandra("range1", p2) = "foo"
       cassandra("range2", p2) = "foo"
+    }
 
-      Thread.sleep(50)
-    }
-    
-    doLast {
-      // Remove data
-      cassandra.remove("range1", ColumnParent("Super1", None))
-      cassandra.remove("range2", ColumnParent("Super1", None))
-      
-      cassandra.remove("range1", ColumnParent("Standard1", None))
-      cassandra.remove("range2", ColumnParent("Standard1", None))
-    }
-    
     "be able to list key ranges" in {
       val path = ColumnParent("Super1", None)
       val r = cassandra.get(path, SuperSlice(List("superColumn")), Some("range"), Some("range3"), 100)
@@ -398,7 +363,6 @@ object ClientTest extends Specification {
     "contain super column data" in {
       val path = ColumnParent("Super1", None)
       val r = cassandra.get(path, SuperSlice(List("superColumn")), Some("range"), Some("range3"), 100)
-      
       r must haveKey("range1")
       r("range1") must haveKey("superColumn")
     }
@@ -425,6 +389,15 @@ object ClientTest extends Specification {
       
       r must haveKey("range1")
       r("range1") must notHaveKey("column")
+    }
+
+    doLast {
+      // Remove data
+      cassandra.remove("range1", ColumnParent("Super1", None))
+      cassandra.remove("range2", ColumnParent("Super1", None))
+      
+      cassandra.remove("range1", ColumnParent("Standard1", None))
+      cassandra.remove("range2", ColumnParent("Standard1", None))
     }
   }
 }
