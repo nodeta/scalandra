@@ -45,7 +45,7 @@ end
 desc "Invoke SBT"
 task :sbt, :command do |task, command|
   c = command.class <= String ? command : command["command"]
-  sh "java -Xmx512M -jar bin/sbt-launcher.jar #{c}"
+  sh "java -Xmx512M -jar bin/sbt-launch-0.7.1.jar #{c}"
 end
 
 desc "Compile Scalandra"

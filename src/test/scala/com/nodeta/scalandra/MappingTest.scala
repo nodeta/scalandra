@@ -4,7 +4,7 @@ import org.specs._
 import com.nodeta.scalandra.map._
 import com.nodeta.scalandra.serializer._
 
-object MappingTest extends Specification {
+class MappingTest extends Specification {
   def client(c : Connection) : Client[String, String, String] = {
     new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
   }

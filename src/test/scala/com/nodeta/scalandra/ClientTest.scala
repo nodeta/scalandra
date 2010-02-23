@@ -3,7 +3,7 @@ package com.nodeta.scalandra.tests
 import org.specs._
 import com.nodeta.scalandra.serializer.StringSerializer
 
-object ClientTest extends Specification {
+class ClientTest extends Specification {
   shareVariables()
   val connection = Connection(9162)
   val cassandra = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
@@ -36,10 +36,10 @@ object ClientTest extends Specification {
         cassandra(key, path) = jsmith
 
         // Then: It should still have its old values.
-        val result = cassandra.get(key, path, StandardSlice(Range[String](None, None, Ascending, 1000)))
-        result("first") must equalTo(jsmith("first"))
-        result("last") must equalTo(jsmith("last"))
-        result("age") must equalTo(jsmith("age"))
+        def result = { cassandra.get(key, path, StandardSlice(Range[String](None, None, Ascending, 1000))) }
+        result("first") must equalTo(jsmith("first")).eventually
+        result("last") must equalTo(jsmith("last")).eventually
+        result("age") must equalTo(jsmith("age")).eventually
       }
 
       "be able to add and get data to a super column family" in {
@@ -47,9 +47,9 @@ object ClientTest extends Specification {
         cassandra(key, superPath) = index
 
         // Then: It should still have its old values.
-        val result = cassandra.get(key, superPath, SuperSlice(Range[String](None, None, Ascending, 1000)))
-        result.keySet must containAll(List("1", "2", "3"))
-        result("2")("blah") must equalTo("meh")
+        def result = { cassandra.get(key, superPath, SuperSlice(Range[String](None, None, Ascending, 1000))) }
+        result.keySet must containAll(List("1", "2", "3")).eventually
+        result("2")("blah") must equalTo("meh").eventually
       }
 
       "should be able to insert single value" in {
@@ -60,7 +60,7 @@ object ClientTest extends Specification {
         cassandra(key, path) = value
 
         // Then: It should be readable from Cassandra.
-        cassandra.get(key, path) must beSomething.which(_ must equalTo(value))
+        cassandra.get(key, path) must beSomething.which(_ must equalTo(value)).eventually
       }
 
     }
@@ -72,7 +72,7 @@ object ClientTest extends Specification {
         cassandra.remove(key, path / "age")
 
         // Then: age column should not have value
-        cassandra.get(key, path / "age") must beNone
+        cassandra.get(key, path / "age") must eventually(beNone)
       }
 
       "be able to remove entire row" in {
@@ -80,7 +80,7 @@ object ClientTest extends Specification {
         // Given: John is removed from Cassandra
         cassandra.remove(key, cassandra.ColumnParent("Standard1", None))
         // Then: It should not return anything
-        cassandra.get(key, cassandra.ColumnPath("Standard1", None, "first")) must beNone
+        cassandra.get(key, cassandra.ColumnPath("Standard1", None, "first")) must eventually(beNone)
       }
     }
   }
@@ -123,7 +123,7 @@ object ClientTest extends Specification {
 
     "return columns using column list as filter" in {
       val result = cassandra.get(key, path, StandardSlice(List("first", "age")))
-      result must eventually(haveSize(2))
+      result must haveSize(2)
       result must not have the key("last")
     }
 
@@ -325,7 +325,7 @@ object ClientTest extends Specification {
 
       cassandra(key, superPath / None) =  Map("1" -> superData)
 
-      cassandra.get(key, superPath / Some("1")).get.keys.toList must containInOrder(superData.map(_._1).toList)
+      cassandra.get(key, superPath / Some("1")).get.keys.toList must eventually(containInOrder(superData.map(_._1).toList))
     }
 
     "work on standard columns" in {

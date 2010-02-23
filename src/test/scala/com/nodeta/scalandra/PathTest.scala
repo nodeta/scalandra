@@ -3,7 +3,7 @@ package com.nodeta.scalandra.tests
 import org.specs._
 import com.nodeta.scalandra.serializer._
 
-object PathTest extends Specification {  
+class PathTest extends Specification {  
   "Path" should {
     val _serializer = Serialization(StringSerializer, StringSerializer, StringSerializer)
     val path = new scalandra.Path[String, String] {
