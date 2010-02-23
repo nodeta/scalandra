@@ -22,14 +22,6 @@ trait Base[A, B, C] {
 
   class InvalidPathException(reason : String) extends IllegalArgumentException(reason) {}
 
-  implicit protected def getColumnParent(path : Path[A, B]) : cassandra.ColumnParent = {
-    path.toColumnParent
-  }
-
-  implicit protected def getColumnPath(path : Path[A, B]) : cassandra.ColumnPath = {
-    path.toColumnPath
-  }
-  
   case class StandardSlice(columns : Iterable[B], range : Option[Range[B]]) extends SlicePredicate[B] {
     def this(columns : Iterable[B]) = this(columns, None)
     def this(range : Range[B]) = this(Nil, Some(range))

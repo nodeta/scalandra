@@ -33,9 +33,9 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
     insertSuper(key, path, data)
   }
 
-  private def insert(key : String, path : Path[A, B], data : Iterable[cassandra.ColumnOrSuperColumn]) {
+  private def insert(key : String, path : Path[A, B], data : java.util.List[cassandra.ColumnOrSuperColumn]) {
     val mutation = new LinkedHashMap[String, JavaList[cassandra.ColumnOrSuperColumn]]
-    mutation(path.columnFamily) = (new ArrayList() ++ data).underlying
+    mutation(path.columnFamily) = data
 
     _client.batch_insert(keyspace, key, mutation.underlying, writeConsistency)
   }
@@ -44,39 +44,36 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
    * Insert collection of values in a standard column family/key pair
    */
   def insertNormal(key : String, path : Path[A, B], data : Iterable[Pair[B, C]]) {
-    implicit def convert(data : Iterable[Pair[B, C]]) : List[cassandra.ColumnOrSuperColumn] = {
-      data.map { case(k, v) =>
+    def convert(data : Iterable[Pair[B, C]]) : java.util.List[cassandra.ColumnOrSuperColumn] = {
+      (new ArrayList() ++ data.map { case(k, v) =>
         new cassandra.ColumnOrSuperColumn(
-          buildColumn(k, v),
+          new cassandra.Column(serializer.column.serialize(k), this.serializer.value.serialize(v), System.currentTimeMillis),
           null
         )
-      }.toList
+      }).underlying
     }
-    insert(key, path, data)
+    insert(key, path, convert(data))
   }
 
-  private def buildColumn(key : B, value : C) : cassandra.Column = {
-    new cassandra.Column(serializer.column.serialize(key), this.serializer.value(value), System.currentTimeMillis)
+  private def convertToColumnList(data : Iterable[Pair[B, C]]) : JavaList[cassandra.Column] = {
+    (new ArrayList[cassandra.Column] ++ data.map { case(k, v) =>
+      new cassandra.Column(serializer.column.serialize(k), serializer.value.serialize(v), System.currentTimeMillis)
+    }).underlying
   }
+
 
   /**
    * Insert collection of values in a super column family/key pair
    */
   def insertSuper(key : String, path : Path[A, B], data : Iterable[Pair[A, Iterable[Pair[B, C]]]]) {
-    implicit def convertToColumnList(data : Iterable[Pair[B, C]]) : JavaList[cassandra.Column] = {
-      (new ArrayList[cassandra.Column] ++ data.map { case(k, v) =>
-        new cassandra.Column(serializer.column.serialize(k), serializer.value(v), System.currentTimeMillis)
-      }).underlying
-    }
-
     val cfm = new LinkedHashMap[String, JavaList[cassandra.ColumnOrSuperColumn]]
 
-    val list = data.map { case(key, value) =>
+    val list = (new ArrayList() ++ data.map { case(key, value) =>
       new cassandra.ColumnOrSuperColumn(
         null,
-        new cassandra.SuperColumn(serializer.superColumn.serialize(key), value)
+        new cassandra.SuperColumn(serializer.superColumn.serialize(key), convertToColumnList(value))
       )
-    }.toList
+    }).underlying
 
     insert(key, path, list)
   }
@@ -87,6 +84,6 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
    * @param path Path to be removed
    */
   def remove(key : String, path : Path[A, B]) {
-    _client.remove(keyspace, key, path, System.currentTimeMillis, writeConsistency)
+    _client.remove(keyspace, key, path.toColumnPath, System.currentTimeMillis, writeConsistency)
   }
 }

@@ -5,10 +5,10 @@ package com.nodeta.scalandra.serializer
  */
 object StringSerializer extends Serializer[String] {
   def serialize(s : String) = {
-    s match {
-      case null => "".getBytes
-      case s =>s.getBytes("UTF-8")
-    }
+    if (s ne null)
+      s.getBytes("UTF-8")
+    else
+      empty
   }
   def deserialize(a : Array[Byte]) = new String(a, "UTF-8")
 }

@@ -28,8 +28,8 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
       case None => null
       case Some(r) =>
         new cassandra.SliceRange(
-          r.start.map(serializer.serialize(_)).getOrElse(new Array[Byte](0)),
-          r.finish.map(serializer.serialize(_)).getOrElse(new Array[Byte](0)),
+          r.start.map(serializer.serialize(_)).getOrElse(serializer.empty),
+          r.finish.map(serializer.serialize(_)).getOrElse(serializer.empty),
           r.order.toBoolean,
           r.count
         )
@@ -38,11 +38,11 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     new cassandra.SlicePredicate(items, range)
   }
   
-  implicit private def convert(s : StandardSlice) : cassandra.SlicePredicate = {
+  private def convert(s : StandardSlice) : cassandra.SlicePredicate = {
     convert(s, serializer.column)
   }
 
-  implicit private def convert(s : SuperSlice) : cassandra.SlicePredicate = {
+  private def convert(s : SuperSlice) : cassandra.SlicePredicate = {
     convert(s, serializer.superColumn)
   }
 
@@ -50,20 +50,20 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   * Number of columns with specified column path
   */
   def count(key : String, path : ColumnParent[A, B]) : Int = {
-    _client.get_count(keyspace, key, path, consistency.read)
+    _client.get_count(keyspace, key, path.toColumnParent, consistency.read)
   }
 
   /**
   * Get description of keyspace columnfamilies
   */
   def describe() : Map[String, Map[String, String]] = {
-    implicit def convertMap[T](m : java.util.Map[T, java.util.Map[T, T]]) : Map[T, Map[T, T]] = {
+    def convertMap[T](m : java.util.Map[T, java.util.Map[T, T]]) : Map[T, Map[T, T]] = {
       Map.empty ++ Conversions.convertMap(m).map { case(columnFamily, description) =>
         (columnFamily -> (Map.empty ++ Conversions.convertMap(description)))
       }
     }
 
-    _client.describe_keyspace(keyspace)
+    convertMap(_client.describe_keyspace(keyspace))
   }
   
   def apply(key : String, path : ColumnPath[A, B]) = get(key, path)
@@ -84,7 +84,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   }
   
   private def multigetAny(keys : Iterable[String], path : Path[A, B]) : JavaMap[String, cassandra.ColumnOrSuperColumn]= {
-    JavaMap(_client.multiget(keyspace, keys, path, consistency.read))
+    JavaMap(_client.multiget(keyspace, keys, path.toColumnPath, consistency.read))
   }
 
   /**
@@ -96,7 +96,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
       _client.get(
         keyspace,
         key,
-        path,
+        path.toColumnPath,
         consistency.read
       ).column match {
         case null => None
@@ -113,7 +113,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    */
   def get(key : String, path : ColumnParent[A, B]) : Option[Map[B, C]] = {
     try {
-      getSuperColumn(_client.get(keyspace, key, path, consistency.read)).map(_._2)
+      getSuperColumn(_client.get(keyspace, key, path.toColumnPath, consistency.read)).map(_._2)
     } catch {
       case e : NotFoundException => None
     }
@@ -128,8 +128,8 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     ListMap[B, C](_client.get_slice(
       keyspace,
       key,
-      path,
-      predicate,
+      path.toColumnParent,
+      convert(predicate),
       consistency.read
     ).map(getColumn(_).getOrElse({
       throw new NotFoundException()
@@ -145,8 +145,8 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     ListMap(_client.get_slice(
       keyspace,
       key,
-      path,
-      predicate,
+      path.toColumnParent,
+      convert(predicate),
       consistency.read
     ).map(getSuperColumn(_).get) : _*)
   }
@@ -155,7 +155,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    * Slice multiple standard column family records
    */
   def get(keys : Iterable[String], path : Path[A, B], predicate : StandardSlice) : Map[String, Map[B, C]] = {
-    val result = _client.multiget_slice(keyspace, keys, path, predicate, consistency.read)
+    val result = _client.multiget_slice(keyspace, keys, path.toColumnParent, convert(predicate), consistency.read)
     ListMap() ++ Conversions.convertMap(result).map { case(key, value) =>
       key -> (ListMap() ++ value.map(getColumn(_).get))
     }
@@ -165,7 +165,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    * Slice multiple super column family records
    */
   def get(keys : Iterable[String], path : Path[A, B], predicate : SuperSlice) : Map[String, Map[A, Map[B, C]]] = {
-    val result = _client.multiget_slice(keyspace, keys, path, predicate, consistency.read)
+    val result = _client.multiget_slice(keyspace, keys, path.toColumnParent, convert(predicate), consistency.read)
     ListMap() ++ Conversions.convertMap(result).map { case(key, value) =>
       key -> (ListMap() ++ value.map(getSuperColumn(_).get))
     }
@@ -175,16 +175,9 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   * List keys in single keyspace/columnfamily pair
   */
   def keys(columnFamily : String, start : Option[String], finish : Option[String], count : Int) : List[String] = {
-    implicit def optionalString(option : Option[String]) : String = {
-      option match {
-        case Some(s) => s
-        case None => ""
-      }
-    }
-    
     val slice = new cassandra.SlicePredicate(
       null,
-      new cassandra.SliceRange("".getBytes("UTF-8"), "".getBytes("UTF-8"), true, 1)
+      new cassandra.SliceRange(serializer.value.empty, serializer.value.empty, true, 1)
     )
     
     val parent = new cassandra.ColumnParent(columnFamily, null)
@@ -192,19 +185,19 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     _client.get_range_slice(keyspace, parent, slice, optionalString(start), optionalString(finish), count, consistency.read).map(_.key)
   }
   
+  implicit def optionalString(option : Option[String]) : String = {
+    option match {
+      case Some(s) => s
+      case None => ""
+    }
+  }
+  
   
   /**
    * Get slice range for super column family
    */
   def get(path : Path[A, B], predicate : SuperSlice, start : Option[String], finish : Option[String], count : Int) : Map[String, Map[A, Map[B, C]]] = {
-    implicit def optionalString(option : Option[String]) : String = {
-      option match {
-        case Some(s) => s
-        case None => ""
-      }
-    }
-
-    val result = _client.get_range_slice(keyspace, path, predicate, start, finish, count, consistency.read)
+    val result = _client.get_range_slice(keyspace, path.toColumnParent, convert(predicate), start, finish, count, consistency.read)
     ListMap(result.map { keySlice =>
       (keySlice.key -> ListMap(keySlice.columns.map(getSuperColumn(_).get) : _*))
     } : _*)
@@ -214,14 +207,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    * Get slice range for standard column family
    */
   def get(path : Path[A, B], predicate : StandardSlice, start : Option[String], finish : Option[String], count : Int) : Map[String, Map[B, C]] = {
-    implicit def optionalString(option : Option[String]) : String = {
-      option match {
-        case Some(s) => s
-        case None => ""
-      }
-    }
-
-    val result = _client.get_range_slice(keyspace, path, predicate, start, finish, count, consistency.read)
+    val result = _client.get_range_slice(keyspace, path.toColumnParent, convert(predicate), start, finish, count, consistency.read)
     ListMap(result.map { keySlice =>
       (keySlice.key -> ListMap(keySlice.columns.map(getColumn(_).get) : _*))
     } : _*)
