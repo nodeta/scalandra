@@ -1,6 +1,0 @@
-Scalandra is a Scala wrapper for Cassandra's Thrift API. It works with the latest Cassandra builds (0.4-beta1 and newer).
-
-Scaladoc is located at http://nodeta.github.com/scalandra/
-
-Hugs and kisses,
-Nodeta
