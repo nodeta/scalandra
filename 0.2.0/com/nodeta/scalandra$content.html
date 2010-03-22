@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+        <head><title>All classes and objects in com.nodeta.scalandra</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF8"></meta><meta content="scaladoc (version 2.7.7.final)" name="generator"></meta><link href="../../style.css" type="text/css" rel="stylesheet"></link><script type="text/javascript" src="../../script.js"></script>
+        </head>
+        <body onload="init()"><div class="page-title"><div>scalandra 0.2.0 API</div></div><p><div>This document is the API specification for scalandra 0.2.0 API</div></p><table summary="" cellpadding="3" class="member">
+        <tr><td class="title" colspan="2">Class Summary</td></tr>
+        <tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/Client.html" target="_self">Client</a></em>
+        [<em>A</em>, <em>B</em>, <em>C</em>](<code>val </code><em>connection</em> : <a href="../../com/nodeta/scalandra/Connection.html" target="_self">Connection</a>, <code>val </code><em>keyspace</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <code>val </code><em>serializer</em> : <a href="../../com/nodeta/scalandra/Serialization.html" target="_self">Serialization</a>[<a href="../../com/nodeta/scalandra/Client.html#A" target="_self">A</a>, <a href="../../com/nodeta/scalandra/Client.html#B" target="_self">B</a>, <a href="../../com/nodeta/scalandra/Client.html#C" target="_self">C</a>], <code>val </code><em>consistency</em> : <a href="../../com/nodeta/scalandra/ConsistencyLevels.html" target="_self">ConsistencyLevels</a>)<code> extends </code><a href="../../com/nodeta/scalandra/client/Base.html" target="_self">Base</a>[<a href="../../com/nodeta/scalandra/Client.html#A" target="_self">A</a>, <a href="../../com/nodeta/scalandra/Client.html#B" target="_self">B</a>, <a href="../../com/nodeta/scalandra/Client.html#C" target="_self">C</a>]<code> with </code><a href="../../com/nodeta/scalandra/client/Read.html" target="_self">Read</a>[<a href="../../com/nodeta/scalandra/Client.html#A" target="_self">A</a>, <a href="../../com/nodeta/scalandra/Client.html#B" target="_self">B</a>, <a href="../../com/nodeta/scalandra/Client.html#C" target="_self">C</a>]<code> with </code><a href="../../com/nodeta/scalandra/client/Write.html" target="_self">Write</a>[<a href="../../com/nodeta/scalandra/Client.html#A" target="_self">A</a>, <a href="../../com/nodeta/scalandra/Client.html#B" target="_self">B</a>, <a href="../../com/nodeta/scalandra/Client.html#C" target="_self">C</a>]<code> with </code><a href="../../com/nodeta/scalandra/map/Keyspace.html" target="_self">Keyspace</a>[<a href="../../com/nodeta/scalandra/Client.html#A" target="_self">A</a>, <a href="../../com/nodeta/scalandra/Client.html#B" target="_self">B</a>, <a href="../../com/nodeta/scalandra/Client.html#C" target="_self">C</a>]
+        
+        <div>This class is a lightweight wrapper for thrift. It supports three levels of
+ serialization.</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/ColumnParent.html" target="_self">ColumnParent</a></em>
+        [<em>A</em>, <em>B</em>]<code> extends </code><a href="../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../com/nodeta/scalandra/ColumnParent.html#A" target="_self">A</a>, <a href="../../com/nodeta/scalandra/ColumnParent.html#B" target="_self">B</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/ColumnPath.html" target="_self">ColumnPath</a></em>
+        [<em>A</em>, <em>B</em>]<code> extends </code><a href="../../com/nodeta/scalandra/ColumnParent.html" target="_self">ColumnParent</a>[<a href="../../com/nodeta/scalandra/ColumnPath.html#A" target="_self">A</a>, <a href="../../com/nodeta/scalandra/ColumnPath.html#B" target="_self">B</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/Connection.html" target="_self">Connection</a></em>
+        (<em>host</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>port</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>)<code> extends </code><a href="" target="contentFrame" class="java/io/Closeable">java.io.Closeable</a><code> with </code><a href="" target="contentFrame" class="java/io/Flushable">java.io.Flushable</a><code> with </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>Wrapper for cassandra socket connection. Automatically opens a connection
+ when an object is instantiated.</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/ConnectionProvider.html" target="_self">ConnectionProvider</a></em>
+        (<code>val </code><em>host</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <code>val </code><em>port</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>)<code> extends </code><a href="../../com/nodeta/scalandra/pool/Factory.html" target="_self">Factory</a>[<a href="../../com/nodeta/scalandra/Connection.html" target="_self">Connection</a>]<code> with </code><a href="" target="contentFrame" class="scala/Product">scala.Product</a>
+        
+        <div>Factory for Pooled Connection objects.</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/ConsistencyLevels.html" target="_self">ConsistencyLevels</a></em>
+        (<code>val </code><em>read</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>, <code>val </code><em>write</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>)<code> extends </code><a href="" target="contentFrame" class="scala/Product">scala.Product</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/Order.html" target="_self">Order</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>Interface to determine sort order when doind range queries.</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/Path.html" target="_self">Path</a></em>
+        [<em>A</em>, <em>B</em>]<code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/Range.html" target="_self">Range</a></em>
+        [<em>T</em>](<code>val </code><em>start</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="../../com/nodeta/scalandra/Range.html#T" target="_self">T</a>], <code>val </code><em>finish</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="../../com/nodeta/scalandra/Range.html#T" target="_self">T</a>], <code>val </code><em>order</em> : <a href="../../com/nodeta/scalandra/Order.html" target="_self">Order</a>, <code>val </code><em>count</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>)<code> extends </code><a href="" target="contentFrame" class="scala/Product">scala.Product</a>
+        
+        <div>Range class used in range based limiting</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/Serialization.html" target="_self">Serialization</a></em>
+        [<em>A</em>, <em>B</em>, <em>C</em>](<code>val </code><em>superColumn</em> : <a href="../../com/nodeta/scalandra/serializer/Serializer.html" target="_self">Serializer</a>[<a href="../../com/nodeta/scalandra/Serialization.html#A" target="_self">A</a>], <code>val </code><em>column</em> : <a href="../../com/nodeta/scalandra/serializer/Serializer.html" target="_self">Serializer</a>[<a href="../../com/nodeta/scalandra/Serialization.html#B" target="_self">B</a>], <code>val </code><em>value</em> : <a href="../../com/nodeta/scalandra/serializer/Serializer.html" target="_self">Serializer</a>[<a href="../../com/nodeta/scalandra/Serialization.html#C" target="_self">C</a>])<code> extends </code><a href="" target="contentFrame" class="scala/Product">scala.Product</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/SlicePredicate.html" target="_self">SlicePredicate</a></em>
+        [<em>T</em>]<code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>Predicate used to restrict results.</div>
+      </td>
+    </tr>        
+        </table>
+<table summary="" cellpadding="3" class="member">
+        <tr><td class="title" colspan="2">Object Summary</td></tr>
+        <tr>
+      <td class="modifiers" valign="top"> 
+        <code>case object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/Ascending$object.html" target="_self">Ascending</a></em>
+        <code> extends </code><a href="../../com/nodeta/scalandra/Order.html" target="_self">Order</a><code> with </code><a href="" target="contentFrame" class="scala/Product">scala.Product</a>
+        
+        <div>Ascending sort order</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/Client$object.html" target="_self">Client</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/Connection$object.html" target="_self">Connection</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/ConnectionProvider$object.html" target="_self">ConnectionProvider</a></em>
+        <code> extends </code>(<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>) =&gt; <a href="../../com/nodeta/scalandra/ConnectionProvider.html" target="_self">ConnectionProvider</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/ConsistencyLevels$object.html" target="_self">ConsistencyLevels</a></em>
+        <code> extends </code>() =&gt; <a href="../../com/nodeta/scalandra/ConsistencyLevels.html" target="_self">ConsistencyLevels</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/Descending$object.html" target="_self">Descending</a></em>
+        <code> extends </code><a href="../../com/nodeta/scalandra/Order.html" target="_self">Order</a><code> with </code><a href="" target="contentFrame" class="scala/Product">scala.Product</a>
+        
+        <div>Descending sort order</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/Range$object.html" target="_self">Range</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../com/nodeta/scalandra/Serialization$object.html" target="_self">Serialization</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>        
+        </table></body>
+      </html>

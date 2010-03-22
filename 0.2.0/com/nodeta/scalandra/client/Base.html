@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+        <head><title>trait Base in com.nodeta.scalandra.client</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF8"></meta><meta content="scaladoc (version 2.7.7.final)" name="generator"></meta><link href="../../../../style.css" type="text/css" rel="stylesheet"></link><script type="text/javascript" src="../../../../script.js"></script>
+        </head>
+        <body onload="init()">
+        <table summary="" class="navigation">
+        <tr>
+          <td class="navigation-links" valign="top">
+            <!-- <table><tr></tr></table> -->
+          </td>
+          <td align="right" valign="top" style="white-space:nowrap;" rowspan="2">
+            <div class="doctitle-larger">scalandra 0.2.0 API</div>
+          </td>
+        </tr>
+        <tr><td></td></tr>
+      </table>
+        
+      <div class="entity">
+        <a href="../../../../com/nodeta/scalandra/client$package.html" target="_self">com.nodeta.scalandra.client</a>
+        <br></br>
+        <span class="entity">trait  Base</span>
+      </div><hr></hr>
+      <div class="source">
+        [source: <a href="" class="com/nodeta/scalandra/client/Base"><code>com/nodeta/scalandra/client/Base.scala</code></a>]
+      </div><hr></hr>
+      <a name="Base"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>trait</code>
+        <em>Base</em>[<em>A</em>, <em>B</em>, <em>C</em>]
+      </dt>
+      <dd><code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a></dd>
+    </dl>
+      <dl><dd>Base interface for all client actions.</dd></dl>
+      <dl><dt style="margin:10px 0 0 20px;">
+        <b>Author</b></dt><dd>Ville Lautanala</dd></dl>
+    <dl>
+      <dt style="margin:10px 0 0 20px;"><b>Direct Known Subclasses:</b></dt>
+      <dd><a href="../../../../com/nodeta/scalandra/Client.html" target="_self">Client</a></dd>
+      </dl><hr></hr>
+      
+
+<table summary="" cellpadding="3" class="member">
+      <tr><td class="title" colspan="2">Value Summary</td></tr>
+      <tr>
+      <td class="modifiers" valign="top"> 
+        <code>protected abstract val</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Base.html#cassandra" target="_self">cassandra</a></em>
+         : <a href="" target="contentFrame" class="org/apache/cassandra/service/Cassandra/Client">org.apache.cassandra.service.Cassandra.Client</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>protected abstract val</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Base.html#keyspace" target="_self">keyspace</a></em>
+         : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>protected abstract val</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Base.html#serializer" target="_self">serializer</a></em>
+         : <a href="../../../../com/nodeta/scalandra/Serialization.html" target="_self">Serialization</a>[<a href="../../../../com/nodeta/scalandra/client/Base.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Base.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Base.html#C" target="_self">C</a>]
+        
+        
+      </td>
+    </tr>
+      </table>
+<table summary="" cellpadding="3" class="member">
+      <tr><td class="title" colspan="2">Method Summary</td></tr>
+      <tr>
+      <td class="modifiers" valign="top"> 
+        <code>abstract def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Base.html#consistency" target="_self">consistency</a></em>
+         : <a href="../../../../com/nodeta/scalandra/ConsistencyLevels.html" target="_self">ConsistencyLevels</a>
+        
+        
+      </td>
+    </tr>
+      </table><table summary="" cellpadding="3" class="inherited">
+        <tr><td class="title" colspan="2">
+          Methods inherited from <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        </td></tr>
+        <tr><td class="signature" colspan="2">
+          <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#getClass%28%29" target="_self">getClass</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#hashCode%28%29" target="_self">hashCode</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#equals%28Any%29" target="_self">equals</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#clone%28%29" target="_self">clone</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#toString%28%29" target="_self">toString</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#notify%28%29" target="_self">notify</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#notifyAll%28%29" target="_self">notifyAll</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28Long%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28Long%2CInt%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#finalize%28%29" target="_self">finalize</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#%3D%3D%28AnyRef%29" target="_self">==</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#%21%3D%28AnyRef%29" target="_self">!=</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#eq%28AnyRef%29" target="_self">eq</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#ne%28AnyRef%29" target="_self">ne</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#synchronized%28T0%29" target="_self">synchronized</a>
+        </td></tr>
+      </table><table summary="" cellpadding="3" class="inherited">
+        <tr><td class="title" colspan="2">
+          Methods inherited from <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" target="_self">Any</a>
+        </td></tr>
+        <tr><td class="signature" colspan="2">
+          <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#%3D%3D%28Any%29" target="_self">==</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#%21%3D%28Any%29" target="_self">!=</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#isInstanceOf" target="_self">isInstanceOf</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#asInstanceOf" target="_self">asInstanceOf</a>
+        </td></tr>
+      </table>
+<table summary="" cellpadding="3" class="member">
+      <tr><td class="title" colspan="2">Class Summary</td></tr>
+      <tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Base.InvalidPathException.html" target="_self">InvalidPathException</a></em>
+        (<em>reason</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>)<code> extends </code><a href="" target="contentFrame" class="java/lang/IllegalArgumentException">java.lang.IllegalArgumentException</a><code> with </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Base.StandardSlice.html" target="_self">StandardSlice</a></em>
+        (<code>val </code><em>columns</em> : <a href="" target="contentFrame" class="scala/Iterable">scala.Iterable</a>[<a href="../../../../com/nodeta/scalandra/client/Base.html#B" target="_self">B</a>], <code>val </code><em>range</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="../../../../com/nodeta/scalandra/Range.html" target="_self">Range</a>[<a href="../../../../com/nodeta/scalandra/client/Base.html#B" target="_self">B</a>]])<code> extends </code><a href="../../../../com/nodeta/scalandra/SlicePredicate.html" target="_self">SlicePredicate</a>[<a href="../../../../com/nodeta/scalandra/client/Base.html#B" target="_self">B</a>]<code> with </code><a href="" target="contentFrame" class="scala/Product">scala.Product</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Base.SuperSlice.html" target="_self">SuperSlice</a></em>
+        (<code>val </code><em>columns</em> : <a href="" target="contentFrame" class="scala/Iterable">scala.Iterable</a>[<a href="../../../../com/nodeta/scalandra/client/Base.html#A" target="_self">A</a>], <code>val </code><em>range</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="../../../../com/nodeta/scalandra/Range.html" target="_self">Range</a>[<a href="../../../../com/nodeta/scalandra/client/Base.html#A" target="_self">A</a>]])<code> extends </code><a href="../../../../com/nodeta/scalandra/SlicePredicate.html" target="_self">SlicePredicate</a>[<a href="../../../../com/nodeta/scalandra/client/Base.html#A" target="_self">A</a>]<code> with </code><a href="" target="contentFrame" class="scala/Product">scala.Product</a>
+        
+        
+      </td>
+    </tr>
+      </table>
+<table summary="" cellpadding="3" class="member">
+      <tr><td class="title" colspan="2">Object Summary</td></tr>
+      <tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Base.StandardSlice$object.html" target="_self">StandardSlice</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Base.SuperSlice$object.html" target="_self">SuperSlice</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+      </table>
+      
+
+<table summary="" cellpadding="3" class="member-detail">
+          <tr><td class="title">Value Details</td></tr>
+        </table><div><a name="cassandra"></a><dl>
+      <dt>
+        
+        <code>protected abstract</code>
+        <code>val</code>
+        <em>cassandra</em> : <a href="" target="contentFrame" class="org/apache/cassandra/service/Cassandra/Client">org.apache.cassandra.service.Cassandra.Client</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="keyspace"></a><dl>
+      <dt>
+        
+        <code>protected abstract</code>
+        <code>val</code>
+        <em>keyspace</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="serializer"></a><dl>
+      <dt>
+        
+        <code>protected abstract</code>
+        <code>val</code>
+        <em>serializer</em> : <a href="../../../../com/nodeta/scalandra/Serialization.html" target="_self">Serialization</a>[<a href="../../../../com/nodeta/scalandra/client/Base.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Base.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Base.html#C" target="_self">C</a>]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr></div>
+<table summary="" cellpadding="3" class="member-detail">
+          <tr><td class="title">Method Details</td></tr>
+        </table><div><a name="consistency"></a><dl>
+      <dt>
+        
+        <code>abstract</code>
+        <code>def</code>
+        <em>consistency</em> : <a href="../../../../com/nodeta/scalandra/ConsistencyLevels.html" target="_self">ConsistencyLevels</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr></div>
+
+
+    <hr></hr>
+        <table summary="" class="navigation">
+        <tr>
+          <td class="navigation-links" valign="top">
+            <!-- <table><tr></tr></table> -->
+          </td>
+          <td align="right" valign="top" style="white-space:nowrap;" rowspan="2">
+            <div class="doctitle-larger">scalandra 0.2.0 API</div>
+          </td>
+        </tr>
+        <tr><td></td></tr>
+      </table>
+      </body>
+      </html>

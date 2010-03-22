@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+        <head><title>All classes and objects in com.nodeta.scalandra.serializer</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF8"></meta><meta content="scaladoc (version 2.7.7.final)" name="generator"></meta><link href="../../../style.css" type="text/css" rel="stylesheet"></link><script type="text/javascript" src="../../../script.js"></script>
+        </head>
+        <body onload="init()"><div class="page-title"><div>scalandra 0.2.0 API</div></div><p><div>This document is the API specification for scalandra 0.2.0 API</div></p><table summary="" cellpadding="3" class="member">
+        <tr><td class="title" colspan="2">Class Summary</td></tr>
+        <tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/serializer/Serializer.html" target="_self">Serializer</a></em>
+        [<em>T</em>]<code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>Interface for serializers.
+
+ These are used to serialize and deserialize data going to and coming from
+ cassandra.</div>
+      </td>
+    </tr>        
+        </table>
+<table summary="" cellpadding="3" class="member">
+        <tr><td class="title" colspan="2">Object Summary</td></tr>
+        <tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/serializer/LongSerializer$object.html" target="_self">LongSerializer</a></em>
+        <code> extends </code><a href="../../../com/nodeta/scalandra/serializer/Serializer.html" target="_self">Serializer</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Long.html" target="_self">Long</a>]
+        
+        <div>This serializer serializes 64-bit integers (Long) to byte arrays in
+ Big-Endian order.</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/serializer/NonSerializer$object.html" target="_self">NonSerializer</a></em>
+        <code> extends </code><a href="../../../com/nodeta/scalandra/serializer/Serializer.html" target="_self">Serializer</a>[<a href="" target="contentFrame" class="scala/Array">scala.Array</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Byte.html" target="_self">Byte</a>]]
+        
+        <div>This serializer is used when raw data is handled. It does nothing to data.</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/serializer/StringSerializer$object.html" target="_self">StringSerializer</a></em>
+        <code> extends </code><a href="../../../com/nodeta/scalandra/serializer/Serializer.html" target="_self">Serializer</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>]
+        
+        <div>This serializer handles UTF-8 encoded strings</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/serializer/UUIDSerializer$object.html" target="_self">UUIDSerializer</a></em>
+        <code> extends </code><a href="../../../com/nodeta/scalandra/serializer/Serializer.html" target="_self">Serializer</a>[<a href="" target="contentFrame" class="java/util/UUID">java.util.UUID</a>]
+        
+        <div>This serializer serializes A UUID to byte arrays in
+ Big-Endian order.</div>
+      </td>
+    </tr>        
+        </table></body>
+      </html>

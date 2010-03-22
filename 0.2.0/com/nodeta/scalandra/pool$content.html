@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+        <head><title>All classes and objects in com.nodeta.scalandra.pool</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF8"></meta><meta content="scaladoc (version 2.7.7.final)" name="generator"></meta><link href="../../../style.css" type="text/css" rel="stylesheet"></link><script type="text/javascript" src="../../../script.js"></script>
+        </head>
+        <body onload="init()"><div class="page-title"><div>scalandra 0.2.0 API</div></div><p><div>This document is the API specification for scalandra 0.2.0 API</div></p><table summary="" cellpadding="3" class="member">
+        <tr><td class="title" colspan="2">Class Summary</td></tr>
+        <tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/pool/Factory.html" target="_self">Factory</a></em>
+        [<em>T</em>]<code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>A type-safe interface for object factories.</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/pool/Pool.html" target="_self">Pool</a></em>
+        [<em>T</em>]<code> extends </code><a href="" target="contentFrame" class="java/io/Closeable">java.io.Closeable</a><code> with </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>A type-safe interface used for pool implementations.</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/pool/PoolFactoryWrapper.html" target="_self">PoolFactoryWrapper</a></em>
+        [<em>T</em>](<code>val </code><em>factory</em> : <a href="../../../com/nodeta/scalandra/pool/Factory.html" target="_self">Factory</a>[<a href="../../../com/nodeta/scalandra/pool/PoolFactoryWrapper.html#T" target="_self">T</a>])<code> extends </code><a href="" target="contentFrame" class="org/apache/commons/pool/PoolableObjectFactory">org.apache.commons.pool.PoolableObjectFactory</a><code> with </code><a href="" target="contentFrame" class="scala/Product">scala.Product</a>
+        
+        <div>This class wraps scala based interface to apache's PoolableObjectFactory.
+ It is used when instantiating Apache pools.</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/pool/PoolWrapper.html" target="_self">PoolWrapper</a></em>
+        [<em>T</em>](<em>pool</em> : <a href="" target="contentFrame" class="org/apache/commons/pool/ObjectPool">org.apache.commons.pool.ObjectPool</a>)<code> extends </code><a href="../../../com/nodeta/scalandra/pool/Pool.html" target="_self">Pool</a>[<a href="../../../com/nodeta/scalandra/pool/PoolWrapper.html#T" target="_self">T</a>]
+        
+        <div>This class wraps Apache ObjectPool to a type-safe scala interface</div>
+      </td>
+    </tr>        
+        </table>
+<table summary="" cellpadding="3" class="member">
+        <tr><td class="title" colspan="2">Object Summary</td></tr>
+        <tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/pool/PoolFactoryWrapper$object.html" target="_self">PoolFactoryWrapper</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/pool/SoftReferencePool$object.html" target="_self">SoftReferencePool</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>Pool factory. Uses a soft reference based pool implementation</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/pool/StackPool$object.html" target="_self">StackPool</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>Pool factory. Uses a stack based implementation</div>
+      </td>
+    </tr>        
+        </table></body>
+      </html>

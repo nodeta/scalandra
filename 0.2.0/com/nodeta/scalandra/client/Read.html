@@ -1,0 +1,422 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+        <head><title>trait Read in com.nodeta.scalandra.client</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF8"></meta><meta content="scaladoc (version 2.7.7.final)" name="generator"></meta><link href="../../../../style.css" type="text/css" rel="stylesheet"></link><script type="text/javascript" src="../../../../script.js"></script>
+        </head>
+        <body onload="init()">
+        <table summary="" class="navigation">
+        <tr>
+          <td class="navigation-links" valign="top">
+            <!-- <table><tr></tr></table> -->
+          </td>
+          <td align="right" valign="top" style="white-space:nowrap;" rowspan="2">
+            <div class="doctitle-larger">scalandra 0.2.0 API</div>
+          </td>
+        </tr>
+        <tr><td></td></tr>
+      </table>
+        
+      <div class="entity">
+        <a href="../../../../com/nodeta/scalandra/client$package.html" target="_self">com.nodeta.scalandra.client</a>
+        <br></br>
+        <span class="entity">trait  Read</span>
+      </div><hr></hr>
+      <div class="source">
+        [source: <a href="" class="com/nodeta/scalandra/client/Read"><code>com/nodeta/scalandra/client/Read.scala</code></a>]
+      </div><hr></hr>
+      <a name="Read"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>trait</code>
+        <em>Read</em>[<em>A</em>, <em>B</em>, <em>C</em>]
+      </dt>
+      <dd><code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a></dd>
+    </dl>
+      <dl><dd>This mixin contains all read-only actions</dd></dl>
+      <dl><dt style="margin:10px 0 0 20px;">
+        <b>Author</b></dt><dd>Ville Lautanala</dd></dl>
+    <dl>
+      <dt style="margin:10px 0 0 20px;"><b>Direct Known Subclasses:</b></dt>
+      <dd><a href="../../../../com/nodeta/scalandra/Client.html" target="_self">Client</a></dd>
+      </dl><hr></hr>
+      
+
+
+<table summary="" cellpadding="3" class="member">
+      <tr><td class="title" colspan="2">Method Summary</td></tr>
+      <tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#apply%28String%2Ccom.nodeta.scalandra.ColumnPath%5BA%2CB%5D%29" target="_self">apply</a></em>
+        (<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnPath.html" target="_self">ColumnPath</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#apply%28String%2Ccom.nodeta.scalandra.ColumnParent%5BA%2CB%5D%29" target="_self">apply</a></em>
+        (<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnParent.html" target="_self">ColumnParent</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#count%28String%2Ccom.nodeta.scalandra.ColumnParent%5BA%2CB%5D%29" target="_self">count</a></em>
+        (<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnParent.html" target="_self">ColumnParent</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>
+        
+        <div>Number of columns with specified column path</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#describe%28%29" target="_self">describe</a></em>
+         : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>]]
+        
+        <div>Get description of keyspace columnfamilies</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#get%28String%2Ccom.nodeta.scalandra.Path%5BA%2CB%5D%2CRead.this.StandardSlice%29" target="_self">get</a></em>
+        (<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>], <em>predicate</em> : <a href="../../../../com/nodeta/scalandra/client/Base.StandardSlice.html" target="_self">StandardSlice</a>) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]
+        
+        <div>Slice columns</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#get%28Iterable%5BString%5D%2Ccom.nodeta.scalandra.Path%5BA%2CB%5D%2CRead.this.StandardSlice%29" target="_self">get</a></em>
+        (<em>keys</em> : <a href="" target="contentFrame" class="scala/Iterable">scala.Iterable</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>path</em> : <a href="../../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>], <em>predicate</em> : <a href="../../../../com/nodeta/scalandra/client/Base.StandardSlice.html" target="_self">StandardSlice</a>) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]
+        
+        <div>Slice multiple standard column family records</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#get%28Iterable%5BString%5D%2Ccom.nodeta.scalandra.Path%5BA%2CB%5D%2CRead.this.SuperSlice%29" target="_self">get</a></em>
+        (<em>keys</em> : <a href="" target="contentFrame" class="scala/Iterable">scala.Iterable</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>path</em> : <a href="../../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>], <em>predicate</em> : <a href="../../../../com/nodeta/scalandra/client/Base.SuperSlice.html" target="_self">SuperSlice</a>) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]]
+        
+        <div>Slice multiple super column family records</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#get%28String%2Ccom.nodeta.scalandra.Path%5BA%2CB%5D%2CRead.this.SuperSlice%29" target="_self">get</a></em>
+        (<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>], <em>predicate</em> : <a href="../../../../com/nodeta/scalandra/client/Base.SuperSlice.html" target="_self">SuperSlice</a>) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]
+        
+        <div>Slice super columns</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#get%28com.nodeta.scalandra.Path%5BA%2CB%5D%2CRead.this.StandardSlice%2COption%5BString%5D%2COption%5BString%5D%2CInt%29" target="_self">get</a></em>
+        (<em>path</em> : <a href="../../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>], <em>predicate</em> : <a href="../../../../com/nodeta/scalandra/client/Base.StandardSlice.html" target="_self">StandardSlice</a>, <em>start</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>finish</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>count</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]
+        
+        <div>Get slice range for standard column family</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#get%28String%2Ccom.nodeta.scalandra.ColumnParent%5BA%2CB%5D%29" target="_self">get</a></em>
+        (<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnParent.html" target="_self">ColumnParent</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]
+        
+        <div>Get supercolumn</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#get%28com.nodeta.scalandra.Path%5BA%2CB%5D%2CRead.this.SuperSlice%2COption%5BString%5D%2COption%5BString%5D%2CInt%29" target="_self">get</a></em>
+        (<em>path</em> : <a href="../../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>], <em>predicate</em> : <a href="../../../../com/nodeta/scalandra/client/Base.SuperSlice.html" target="_self">SuperSlice</a>, <em>start</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>finish</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>count</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]]
+        
+        <div>Get slice range for super column family</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#get%28Iterable%5BString%5D%2Ccom.nodeta.scalandra.ColumnParent%5BA%2CB%5D%29" target="_self">get</a></em>
+        (<em>keys</em> : <a href="" target="contentFrame" class="scala/Iterable">scala.Iterable</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnParent.html" target="_self">ColumnParent</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[(<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>])]]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#get%28Iterable%5BString%5D%2Ccom.nodeta.scalandra.ColumnPath%5BA%2CB%5D%29" target="_self">get</a></em>
+        (<em>keys</em> : <a href="" target="contentFrame" class="scala/Iterable">scala.Iterable</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnPath.html" target="_self">ColumnPath</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[(<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>)]]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#get%28String%2Ccom.nodeta.scalandra.ColumnPath%5BA%2CB%5D%29" target="_self">get</a></em>
+        (<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnPath.html" target="_self">ColumnPath</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]
+        
+        <div>Get single column</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../../com/nodeta/scalandra/client/Read.html#keys%28String%2COption%5BString%5D%2COption%5BString%5D%2CInt%29" target="_self">keys</a></em>
+        (<em>columnFamily</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>start</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>finish</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>count</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>) : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>]
+        
+        <div>List keys in single keyspace/columnfamily pair</div>
+      </td>
+    </tr>
+      </table><table summary="" cellpadding="3" class="inherited">
+        <tr><td class="title" colspan="2">
+          Methods inherited from <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        </td></tr>
+        <tr><td class="signature" colspan="2">
+          <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#getClass%28%29" target="_self">getClass</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#hashCode%28%29" target="_self">hashCode</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#equals%28Any%29" target="_self">equals</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#clone%28%29" target="_self">clone</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#toString%28%29" target="_self">toString</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#notify%28%29" target="_self">notify</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#notifyAll%28%29" target="_self">notifyAll</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28Long%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28Long%2CInt%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#finalize%28%29" target="_self">finalize</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#%3D%3D%28AnyRef%29" target="_self">==</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#%21%3D%28AnyRef%29" target="_self">!=</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#eq%28AnyRef%29" target="_self">eq</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#ne%28AnyRef%29" target="_self">ne</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#synchronized%28T0%29" target="_self">synchronized</a>
+        </td></tr>
+      </table><table summary="" cellpadding="3" class="inherited">
+        <tr><td class="title" colspan="2">
+          Methods inherited from <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" target="_self">Any</a>
+        </td></tr>
+        <tr><td class="signature" colspan="2">
+          <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#%3D%3D%28Any%29" target="_self">==</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#%21%3D%28Any%29" target="_self">!=</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#isInstanceOf" target="_self">isInstanceOf</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#asInstanceOf" target="_self">asInstanceOf</a>
+        </td></tr>
+      </table>
+
+
+      
+
+
+<table summary="" cellpadding="3" class="member-detail">
+          <tr><td class="title">Method Details</td></tr>
+        </table><div><a name="count%28String%2Ccom.nodeta.scalandra.ColumnParent%5BA%2CB%5D%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>count</em>(<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnParent.html" target="_self">ColumnParent</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Number of columns with specified column path</dd></dl>
+      <dl></dl>
+    <hr></hr>
+<a name="describe%28%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>describe</em> : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>]]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Get description of keyspace columnfamilies</dd></dl>
+      <dl></dl>
+    <hr></hr>
+<a name="apply%28String%2Ccom.nodeta.scalandra.ColumnPath%5BA%2CB%5D%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>apply</em>(<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnPath.html" target="_self">ColumnPath</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="apply%28String%2Ccom.nodeta.scalandra.ColumnParent%5BA%2CB%5D%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>apply</em>(<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnParent.html" target="_self">ColumnParent</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="get%28Iterable%5BString%5D%2Ccom.nodeta.scalandra.ColumnPath%5BA%2CB%5D%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>get</em>(<em>keys</em> : <a href="" target="contentFrame" class="scala/Iterable">scala.Iterable</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnPath.html" target="_self">ColumnPath</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[(<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>)]]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="get%28Iterable%5BString%5D%2Ccom.nodeta.scalandra.ColumnParent%5BA%2CB%5D%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>get</em>(<em>keys</em> : <a href="" target="contentFrame" class="scala/Iterable">scala.Iterable</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnParent.html" target="_self">ColumnParent</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[(<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>])]]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="get%28String%2Ccom.nodeta.scalandra.ColumnPath%5BA%2CB%5D%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>get</em>(<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnPath.html" target="_self">ColumnPath</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Get single column</dd></dl>
+      <dl><dt style="margin:10px 0 0 20px;">
+        <b>Parameters</b></dt><dd><code>key - </code>Row key</dd><dd><code>path - </code>Path to column</dd></dl>
+    <hr></hr>
+<a name="get%28String%2Ccom.nodeta.scalandra.ColumnParent%5BA%2CB%5D%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>get</em>(<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/ColumnParent.html" target="_self">ColumnParent</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>]) : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Get supercolumn</dd></dl>
+      <dl><dt style="margin:10px 0 0 20px;">
+        <b>Parameters</b></dt><dd><code>key - </code>Row key</dd><dd><code>path - </code>Path to super column</dd></dl>
+    <hr></hr>
+<a name="get%28String%2Ccom.nodeta.scalandra.Path%5BA%2CB%5D%2CRead.this.StandardSlice%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>get</em>(<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>], <em>predicate</em> : <a href="../../../../com/nodeta/scalandra/client/Base.StandardSlice.html" target="_self">StandardSlice</a>) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Slice columns</dd></dl>
+      <dl><dt style="margin:10px 0 0 20px;">
+        <b>Parameters</b></dt><dd><code>path - </code>Path to record or super column</dd><dd><code>predicate - </code>Search conditions and limits</dd></dl>
+    <hr></hr>
+<a name="get%28String%2Ccom.nodeta.scalandra.Path%5BA%2CB%5D%2CRead.this.SuperSlice%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>get</em>(<em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>path</em> : <a href="../../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>], <em>predicate</em> : <a href="../../../../com/nodeta/scalandra/client/Base.SuperSlice.html" target="_self">SuperSlice</a>) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Slice super columns</dd></dl>
+      <dl><dt style="margin:10px 0 0 20px;">
+        <b>Parameters</b></dt><dd><code>path - </code>Path to record</dd><dd><code>predicate - </code>Search conditions and limits</dd></dl>
+    <hr></hr>
+<a name="get%28Iterable%5BString%5D%2Ccom.nodeta.scalandra.Path%5BA%2CB%5D%2CRead.this.StandardSlice%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>get</em>(<em>keys</em> : <a href="" target="contentFrame" class="scala/Iterable">scala.Iterable</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>path</em> : <a href="../../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>], <em>predicate</em> : <a href="../../../../com/nodeta/scalandra/client/Base.StandardSlice.html" target="_self">StandardSlice</a>) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Slice multiple standard column family records</dd></dl>
+      <dl></dl>
+    <hr></hr>
+<a name="get%28Iterable%5BString%5D%2Ccom.nodeta.scalandra.Path%5BA%2CB%5D%2CRead.this.SuperSlice%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>get</em>(<em>keys</em> : <a href="" target="contentFrame" class="scala/Iterable">scala.Iterable</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>path</em> : <a href="../../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>], <em>predicate</em> : <a href="../../../../com/nodeta/scalandra/client/Base.SuperSlice.html" target="_self">SuperSlice</a>) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Slice multiple super column family records</dd></dl>
+      <dl></dl>
+    <hr></hr>
+<a name="keys%28String%2COption%5BString%5D%2COption%5BString%5D%2CInt%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>keys</em>(<em>columnFamily</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <em>start</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>finish</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>count</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>) : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>List keys in single keyspace/columnfamily pair</dd></dl>
+      <dl></dl>
+    <hr></hr>
+<a name="get%28com.nodeta.scalandra.Path%5BA%2CB%5D%2CRead.this.SuperSlice%2COption%5BString%5D%2COption%5BString%5D%2CInt%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>get</em>(<em>path</em> : <a href="../../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>], <em>predicate</em> : <a href="../../../../com/nodeta/scalandra/client/Base.SuperSlice.html" target="_self">SuperSlice</a>, <em>start</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>finish</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>count</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Get slice range for super column family</dd></dl>
+      <dl></dl>
+    <hr></hr>
+<a name="get%28com.nodeta.scalandra.Path%5BA%2CB%5D%2CRead.this.StandardSlice%2COption%5BString%5D%2COption%5BString%5D%2CInt%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>get</em>(<em>path</em> : <a href="../../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#A" target="_self">A</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>], <em>predicate</em> : <a href="../../../../com/nodeta/scalandra/client/Base.StandardSlice.html" target="_self">StandardSlice</a>, <em>start</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>finish</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>], <em>count</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>) : <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="" target="contentFrame" class="scala/collection/immutable/Map">scala.collection.immutable.Map</a>[<a href="../../../../com/nodeta/scalandra/client/Read.html#B" target="_self">B</a>, <a href="../../../../com/nodeta/scalandra/client/Read.html#C" target="_self">C</a>]]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Get slice range for standard column family</dd></dl>
+      <dl></dl>
+    <hr></hr></div>
+
+
+    <hr></hr>
+        <table summary="" class="navigation">
+        <tr>
+          <td class="navigation-links" valign="top">
+            <!-- <table><tr></tr></table> -->
+          </td>
+          <td align="right" valign="top" style="white-space:nowrap;" rowspan="2">
+            <div class="doctitle-larger">scalandra 0.2.0 API</div>
+          </td>
+        </tr>
+        <tr><td></td></tr>
+      </table>
+      </body>
+      </html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+        <head><title>All classes and objects in com.nodeta.scalandra.map</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF8"></meta><meta content="scaladoc (version 2.7.7.final)" name="generator"></meta><link href="../../../style.css" type="text/css" rel="stylesheet"></link><script type="text/javascript" src="../../../script.js"></script>
+        </head>
+        <body onload="init()"><div class="page-title"><div>scalandra 0.2.0 API</div></div><p><div>This document is the API specification for scalandra 0.2.0 API</div></p><table summary="" cellpadding="3" class="member">
+        <tr><td class="title" colspan="2">Class Summary</td></tr>
+        <tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/map/Base.html" target="_self">Base</a></em>
+        [<em>A</em>, <em>B</em>, <em>C</em>]<code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/map/CassandraMap.html" target="_self">CassandraMap</a></em>
+        [<em>A</em>, <em>B</em>]<code> extends </code><a href="" target="contentFrame" class="scala/collection/Map">scala.collection.Map</a>[<a href="../../../com/nodeta/scalandra/map/CassandraMap.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/CassandraMap.html#B" target="_self">B</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/map/ColumnFamily.html" target="_self">ColumnFamily</a></em>
+        [<em>A</em>]<code> extends </code><a href="../../../com/nodeta/scalandra/map/CassandraMap.html" target="_self">CassandraMap</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="../../../com/nodeta/scalandra/map/ColumnFamily.html#A" target="_self">A</a>]<code> with </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/map/Keyspace.html" target="_self">Keyspace</a></em>
+        [<em>A</em>, <em>B</em>, <em>C</em>]<code> extends </code><a href="" target="contentFrame" class="scala/collection/Map">scala.collection.Map</a>[<a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <a href="../../../com/nodeta/scalandra/map/ColumnFamily.html" target="_self">ColumnFamily</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" target="_self">Any</a>]]<code> with </code><a href="../../../com/nodeta/scalandra/map/Base.html" target="_self">Base</a>[<a href="../../../com/nodeta/scalandra/map/Keyspace.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/Keyspace.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/Keyspace.html#C" target="_self">C</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/map/Record.html" target="_self">Record</a></em>
+        [<em>A</em>, <em>B</em>]<code> extends </code><a href="../../../com/nodeta/scalandra/map/CassandraMap.html" target="_self">CassandraMap</a>[<a href="../../../com/nodeta/scalandra/map/Record.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/Record.html#B" target="_self">B</a>]<code> with </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/map/StandardColumnFamily.html" target="_self">StandardColumnFamily</a></em>
+        [<em>A</em>, <em>B</em>, <em>C</em>](<code>protected val </code><em>path</em> : <a href="../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../com/nodeta/scalandra/map/StandardColumnFamily.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/StandardColumnFamily.html#B" target="_self">B</a>], <code>protected val </code><em>client</em> : <a href="../../../com/nodeta/scalandra/Client.html" target="_self">Client</a>[<a href="../../../com/nodeta/scalandra/map/StandardColumnFamily.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/StandardColumnFamily.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/StandardColumnFamily.html#C" target="_self">C</a>])<code> extends </code><a href="../../../com/nodeta/scalandra/map/ColumnFamily.html" target="_self">ColumnFamily</a>[<a href="../../../com/nodeta/scalandra/map/StandardRecord.html" target="_self">StandardRecord</a>[<a href="../../../com/nodeta/scalandra/map/StandardColumnFamily.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/StandardColumnFamily.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/StandardColumnFamily.html#C" target="_self">C</a>]]<code> with </code><a href="../../../com/nodeta/scalandra/map/Base.html" target="_self">Base</a>[<a href="../../../com/nodeta/scalandra/map/StandardColumnFamily.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/StandardColumnFamily.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/StandardColumnFamily.html#C" target="_self">C</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/map/StandardRecord.html" target="_self">StandardRecord</a></em>
+        [<em>A</em>, <em>B</em>, <em>C</em>](<code>val </code><em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <code>val </code><em>path</em> : <a href="../../../com/nodeta/scalandra/ColumnParent.html" target="_self">ColumnParent</a>[<a href="../../../com/nodeta/scalandra/map/StandardRecord.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/StandardRecord.html#B" target="_self">B</a>], <code>protected val </code><em>client</em> : <a href="../../../com/nodeta/scalandra/Client.html" target="_self">Client</a>[<a href="../../../com/nodeta/scalandra/map/StandardRecord.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/StandardRecord.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/StandardRecord.html#C" target="_self">C</a>])<code> extends </code><a href="../../../com/nodeta/scalandra/map/Record.html" target="_self">Record</a>[<a href="../../../com/nodeta/scalandra/map/StandardRecord.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/StandardRecord.html#C" target="_self">C</a>]<code> with </code><a href="../../../com/nodeta/scalandra/map/Base.html" target="_self">Base</a>[<a href="../../../com/nodeta/scalandra/map/StandardRecord.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/StandardRecord.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/StandardRecord.html#C" target="_self">C</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/map/SuperColumnFamily.html" target="_self">SuperColumnFamily</a></em>
+        [<em>A</em>, <em>B</em>, <em>C</em>](<code>protected val </code><em>path</em> : <a href="../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../com/nodeta/scalandra/map/SuperColumnFamily.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/SuperColumnFamily.html#B" target="_self">B</a>], <code>protected val </code><em>client</em> : <a href="../../../com/nodeta/scalandra/Client.html" target="_self">Client</a>[<a href="../../../com/nodeta/scalandra/map/SuperColumnFamily.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/SuperColumnFamily.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/SuperColumnFamily.html#C" target="_self">C</a>])<code> extends </code><a href="../../../com/nodeta/scalandra/map/ColumnFamily.html" target="_self">ColumnFamily</a>[<a href="../../../com/nodeta/scalandra/map/SuperRecord.html" target="_self">SuperRecord</a>[<a href="../../../com/nodeta/scalandra/map/SuperColumnFamily.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/SuperColumnFamily.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/SuperColumnFamily.html#C" target="_self">C</a>]]<code> with </code><a href="../../../com/nodeta/scalandra/map/Base.html" target="_self">Base</a>[<a href="../../../com/nodeta/scalandra/map/SuperColumnFamily.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/SuperColumnFamily.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/SuperColumnFamily.html#C" target="_self">C</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/map/SuperRecord.html" target="_self">SuperRecord</a></em>
+        [<em>A</em>, <em>B</em>, <em>C</em>](<code>val </code><em>key</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>, <code>val </code><em>path</em> : <a href="../../../com/nodeta/scalandra/Path.html" target="_self">Path</a>[<a href="../../../com/nodeta/scalandra/map/SuperRecord.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/SuperRecord.html#B" target="_self">B</a>], <code>protected val </code><em>client</em> : <a href="../../../com/nodeta/scalandra/Client.html" target="_self">Client</a>[<a href="../../../com/nodeta/scalandra/map/SuperRecord.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/SuperRecord.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/SuperRecord.html#C" target="_self">C</a>])<code> extends </code><a href="../../../com/nodeta/scalandra/map/Record.html" target="_self">Record</a>[<a href="../../../com/nodeta/scalandra/map/SuperRecord.html#A" target="_self">A</a>, <a href="" target="contentFrame" class="scala/collection/Map">scala.collection.Map</a>[<a href="../../../com/nodeta/scalandra/map/SuperRecord.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/SuperRecord.html#C" target="_self">C</a>]]<code> with </code><a href="../../../com/nodeta/scalandra/map/Base.html" target="_self">Base</a>[<a href="../../../com/nodeta/scalandra/map/SuperRecord.html#A" target="_self">A</a>, <a href="../../../com/nodeta/scalandra/map/SuperRecord.html#B" target="_self">B</a>, <a href="../../../com/nodeta/scalandra/map/SuperRecord.html#C" target="_self">C</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../com/nodeta/scalandra/map/UnsupportedActionException.html" target="_self">UnsupportedActionException</a></em>
+        (<em>s</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>)<code> extends </code><a href="" target="contentFrame" class="java/lang/Exception">java.lang.Exception</a><code> with </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>        
+        </table>
+</body>
+      </html>
