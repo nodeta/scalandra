@@ -4,9 +4,9 @@ import org.specs._
 import com.nodeta.scalandra.ConnectionProvider
 import com.nodeta.scalandra.pool.StackPool
 
-object PoolTest extends Specification {  
+class PoolTest extends Specification {  
   "Connection pool" should {
-    val pool = StackPool(ConnectionProvider("localhost", 9160))
+    val pool = StackPool(ConnectionProvider("localhost", 9162))
     "expose connections to blocks of code" in {
       pool { connection =>
         connection.isOpen must equalTo(true)

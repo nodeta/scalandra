@@ -1,6 +1,6 @@
 package com.nodeta.scalandra.client
 
-import org.apache.cassandra.{service => cassandra}
+import org.apache.cassandra.service
 import java.util.{List => JavaList}
 import scala.collection.jcl.{ArrayList, LinkedHashMap}
 
@@ -13,113 +13,77 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
   /**
    * Consistency level used for writes
    */
-  protected val writeConsistency = cassandra.ConsistencyLevel.ZERO
+  val writeConsistency = service.ConsistencyLevel.ZERO
 
   /**
    * Insert or update value of single column
    */
-  def update(path : ColumnPath[A, B], value : C) {
-    client.insert(keyspace, path.key, new cassandra.ColumnPath(
-      path.columnFamily,
-      path.superColumn.map(superColumn.serialize(_)).getOrElse(null),
-      column.serialize(path.column)
-    ), this.value.serialize(value), System.currentTimeMillis, writeConsistency)
+  def update(key : String, path : ColumnPath[A, B], value : C) {
+    cassandra.insert(keyspace,key, path.toColumnPath, this.serializer.value.serialize(value), System.currentTimeMillis, writeConsistency)
   }
 
-  def update(path : ColumnParent[A], value : Iterable[Pair[B, C]]) {
+  def update(key : String, path : ColumnParent[A, B], value : Iterable[Pair[B, C]]) {
     path.superColumn match {
-      case Some(sc) => insertSuper(path--, Map(sc -> value))
-      case None => insertNormal(path, value)
+      case Some(sc) => insertSuper(key, path / None, Map(sc -> value))
+      case None => insertNormal(key, path, value)
     }
   }
 
-  def update(path : Path, data : Iterable[Pair[A, Iterable[Pair[B, C]]]]) {
-    insertSuper(path, data)
+  def update(key : String, path : Path[A, B], data : Iterable[Pair[A, Iterable[Pair[B, C]]]]) {
+    insertSuper(key, path, data)
   }
 
-  private def insert(path : Path, data : Iterable[cassandra.ColumnOrSuperColumn]) {
-    val mutation = new LinkedHashMap[String, JavaList[cassandra.ColumnOrSuperColumn]]
-    mutation(path.columnFamily) = (new ArrayList() ++ data).underlying
+  private def insert(key : String, path : Path[A, B], data : java.util.List[service.ColumnOrSuperColumn]) {
+    val mutation = new LinkedHashMap[String, JavaList[service.ColumnOrSuperColumn]]
+    mutation(path.columnFamily) = data
 
-    client.batch_insert(keyspace, path.key, mutation.underlying, writeConsistency)
+    cassandra.batch_insert(keyspace, key, mutation.underlying, writeConsistency)
   }
 
   /**
    * Insert collection of values in a standard column family/key pair
    */
-  def insertNormal(path : Path, data : Iterable[Pair[B, C]]) {
-    implicit def convert(data : Iterable[Pair[B, C]]) : List[cassandra.ColumnOrSuperColumn] = {
-      data.map { case(k, v) =>
-        new cassandra.ColumnOrSuperColumn(
-          buildColumn(k, v),
+  def insertNormal(key : String, path : Path[A, B], data : Iterable[Pair[B, C]]) {
+    def convert(data : Iterable[Pair[B, C]]) : java.util.List[service.ColumnOrSuperColumn] = {
+      (new ArrayList() ++ data.map { case(k, v) =>
+        new service.ColumnOrSuperColumn(
+          new service.Column(serializer.column.serialize(k), this.serializer.value.serialize(v), System.currentTimeMillis),
           null
         )
-      }.toList
+      }).underlying
     }
-    insert(path, data)
+    insert(key, path, convert(data))
   }
 
-  private def buildColumn(key : B, value : C) : cassandra.Column = {
-    new cassandra.Column(column.serialize(key), this.value(value), System.currentTimeMillis)
+  private def convertToColumnList(data : Iterable[Pair[B, C]]) : JavaList[service.Column] = {
+    (new ArrayList[service.Column] ++ data.map { case(k, v) =>
+      new service.Column(serializer.column.serialize(k), serializer.value.serialize(v), System.currentTimeMillis)
+    }).underlying
   }
+
 
   /**
    * Insert collection of values in a super column family/key pair
    */
-  def insertSuper(path : Path, data : Iterable[Pair[A, Iterable[Pair[B, C]]]]) {
-    implicit def convertToColumnList(data : Iterable[Pair[B, C]]) : JavaList[cassandra.Column] = {
-      (new ArrayList[cassandra.Column] ++ data.map { case(k, v) =>
-        new cassandra.Column(column.serialize(k), value(v), System.currentTimeMillis)
-      }).underlying
-    }
+  def insertSuper(key : String, path : Path[A, B], data : Iterable[Pair[A, Iterable[Pair[B, C]]]]) {
+    val cfm = new LinkedHashMap[String, JavaList[service.ColumnOrSuperColumn]]
 
-    val cfm = new LinkedHashMap[String, JavaList[cassandra.ColumnOrSuperColumn]]
-
-    val list = data.map { case(key, value) =>
-      new cassandra.ColumnOrSuperColumn(
+    val list = (new ArrayList() ++ data.map { case(key, value) =>
+      new service.ColumnOrSuperColumn(
         null,
-        new cassandra.SuperColumn(superColumn.serialize(key), value)
+        new service.SuperColumn(serializer.superColumn.serialize(key), convertToColumnList(value))
       )
-    }.toList
+    }).underlying
 
-    insert(path, list)
-  }
-
-  private def remove(key : String, path : cassandra.ColumnPath) {
-    client.remove(keyspace, key, path, System.currentTimeMillis, writeConsistency)
+    insert(key, path, list)
   }
 
   /**
-   * Remove column parent and all its columns
+   * Remove all values from a path
    *
    * @param path Path to be removed
    */
-  def remove(path : ColumnParent[A]) {
-    def convertPath(c : ColumnParent[A]) : cassandra.ColumnPath = {
-      new cassandra.ColumnPath(
-        c.columnFamily,
-        c.superColumn.map(superColumn.serialize(_)).getOrElse(null),
-        null
-      )
-    }
-
-    remove(path.key, convertPath(path))
-  }
-
-  /**
-   * Remove a single column value
-   *
-   * @param path Path to column to be removed
-   */
-  def remove(path : ColumnPath[A, B]) {
-    def convertPath(c : ColumnPath[A, B]) : cassandra.ColumnPath = {
-      new cassandra.ColumnPath(
-        c.columnFamily,
-        c.superColumn.map(superColumn.serialize(_)).getOrElse(null),
-        column.serialize(c.column)
-      )
-    }
-
-    remove(path.key, convertPath(path))
+  def remove(key : String, path : Path[A, B]) {
+    cassandra.remove(keyspace, key, path.toColumnPath, System.currentTimeMillis, writeConsistency)
   }
 }

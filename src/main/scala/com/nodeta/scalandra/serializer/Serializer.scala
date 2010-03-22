@@ -28,7 +28,7 @@ trait Serializer[T] {
    * @return Empty byte array or a value representing smallest
    * possible value
    */
-  def empty() : Array[Byte] = "".getBytes
+  val empty : Array[Byte] = new Array[Byte](0)
 
   def << (t : T) : Array[Byte] = serialize(t)
   def >> (t : Array[Byte]) : T = deserialize(t)

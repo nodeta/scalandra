@@ -1,9 +1,8 @@
 package com.nodeta.scalandra.client
 
-import org.apache.cassandra.{service => cassandra}
 import org.apache.cassandra.service.Cassandra
 import java.lang.IllegalArgumentException
-import serializer.Serializer
+import com.nodeta.scalandra.serializer.Serializer
 
 /**
  * Base interface for all client actions.
@@ -11,31 +10,33 @@ import serializer.Serializer
  * @author Ville Lautanala
  */
 trait Base[A, B, C] {
-  protected val client : Cassandra.Client
+  private val self = this
+  protected val cassandra : Cassandra.Client
   protected val keyspace : String
+  def consistency : ConsistencyLevels
 
-  protected val maximumCount = 2147483647 // 2^31 -1
-  protected val consistency : Int = cassandra.ConsistencyLevel.ONE
-
-  protected val superColumn : Serializer[A]
-  protected val column : Serializer[B]
-  protected val value : Serializer[C]
+  protected val serializer : Serialization[A, B, C]
 
   class InvalidPathException(reason : String) extends IllegalArgumentException(reason) {}
 
-  protected def getColumnParent(path : ColumnParent[A]) : cassandra.ColumnParent = {
-    new cassandra.ColumnParent(path.columnFamily, path.superColumn.map(superColumn.serialize(_)).getOrElse(null))
+  case class StandardSlice(columns : Iterable[B], range : Option[Range[B]]) extends SlicePredicate[B] {
+    def this(columns : Iterable[B]) = this(columns, None)
+    def this(range : Range[B]) = this(Nil, Some(range))
+  }
+  
+  object StandardSlice {
+    def apply(columns : Iterable[B]) : StandardSlice = apply(columns, None)
+    def apply(range : Range[B]) : StandardSlice = apply(Nil, Some(range))
   }
 
-  protected def getColumnPath(path : ColumnPath[A, B]) : cassandra.ColumnPath = {
-    new cassandra.ColumnPath(path.columnFamily, path.superColumn.map(superColumn.serialize(_)).getOrElse(null), column.serialize(path.column))
+  case class SuperSlice(columns : Iterable[A], range : Option[Range[A]]) extends SlicePredicate[A] {
+    def this(columns : Iterable[A]) = this(columns, None)
+    def this(range : Range[A]) = this(Nil, Some(range))
+  }
+  
+  object SuperSlice {
+    def apply(columns : Iterable[A]) : SuperSlice = apply(columns, None)
+    def apply(range : Range[A]) : SuperSlice = apply(Nil, Some(range))
   }
 
-  protected def getColumnPath(path : ColumnParent[A]) : cassandra.ColumnPath = {
-    // SuperColumn must be found
-    val s = path.superColumn.map(superColumn.serialize(_)).getOrElse({
-      throw new InvalidPathException("Super Column is not defined")
-    })
-    new cassandra.ColumnPath(path.columnFamily, s, null)
-  }
 }

@@ -1,10 +1,19 @@
 package com.nodeta.scalandra.map
 
-import scala.collection.jcl.Conversions
+import map.{ColumnFamily => CF, SuperColumnFamily => SCF}
 
-trait Keyspace[A, B, C] extends scala.collection.Map[String, ColumnFamily[_]] with SuperBase[A, B, C] {
+
+trait Keyspace[A, B, C] extends scala.collection.Map[String, ColumnFamily[_]] with Base[A, B, C] {
+  /**
+   * ColumnFamily map instantiated using client instance
+   */
+  case class ColumnFamily(columnFamily : String) extends StandardColumnFamily[A, B, C](client.Path(columnFamily), client) {}
+
+  /**
+   * SuperColumnFamily map instantiated using client instance
+   */
+  case class SuperColumnFamily(columnFamily : String) extends SCF[A, B, C](client.Path(columnFamily), client) {}
   val keyspace : String
-  protected val connection : Connection
 
   lazy private val schema = { client.describe }
   lazy private val columnFamilies = {
@@ -13,50 +22,27 @@ trait Keyspace[A, B, C] extends scala.collection.Map[String, ColumnFamily[_]] wi
     }
   }
 
-  def get(columnFamily : String) : Option[ColumnFamily[_]] = {
+  def get(columnFamily : String) : Option[CF[_]] = {
     schema.get(columnFamily) match {
       case None => None
       case Some(cF) => Some(buildColumnFamily(columnFamily))
     }
   }
 
-  def elements() = {
-    columnFamilies.elements
+  def elements = columnFamilies.elements
+
+  def size = schema.size
+
+  private def buildColumnFamily(columnFamily : String) : CF[_] = {
+    schema(columnFamily)("Type") match {
+      case "Super" => SuperColumnFamily(columnFamily)
+      case "Standard" => ColumnFamily(columnFamily)
+    }
   }
 
-
-  def size() = {
-    schema.size
-  }
-
-  private def buildColumnFamily(_columnFamily : String) : ColumnFamily[_] = {
-    val parent = this
-    def buildSuper() : SuperColumnFamily[A, B, C] = {
-      new SuperColumnFamily[A, B, C] {
-        protected val columnSerializer = parent.columnSerializer
-        protected val superColumnSerializer = parent.superColumnSerializer
-        protected val valueSerializer = parent.valueSerializer
-
-        protected val keyspace = parent.keyspace
-        protected val columnFamily = _columnFamily
-        protected val connection = parent.connection
-      }
-    }
-
-    def buildStandard() : StandardColumnFamily[B, C] = {
-      new StandardColumnFamily[B, C] {
-        protected val columnSerializer = parent.columnSerializer
-        protected val valueSerializer = parent.valueSerializer
-
-        protected val keyspace = parent.keyspace
-        protected val columnFamily = _columnFamily
-        protected val connection = parent.connection
-      }
-    }
-
-    schema(_columnFamily)("Type") match {
-      case "Super" => buildSuper()
-      case "Standard" => buildStandard()
-    }
+  override def toString() = {
+    "Keyspace(" + columnFamilies.map { case (name, instance) =>
+      name + " -> " + instance.getClass.getSimpleName
+    }.mkString(",") + ")"
   }
 }

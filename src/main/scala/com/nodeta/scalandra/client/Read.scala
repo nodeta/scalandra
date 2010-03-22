@@ -1,13 +1,15 @@
 package com.nodeta.scalandra.client
 
-import com.nodeta.scalandra.serializer.Serializer
+import com.nodeta.scalandra.serializer.{Serializer, NonSerializer}
 
-import org.apache.cassandra.{service => cassandra}
+import org.apache.cassandra.service
 import org.apache.cassandra.service.NotFoundException
 
 import java.util.{List => JavaList}
 import scala.collection.jcl.{ArrayList, Conversions, Map => JavaMap}
 import scala.collection.immutable.ListMap
+
+import scalandra.{ColumnPath, ColumnParent}
 
 /**
  * This mixin contains all read-only actions
@@ -15,265 +17,217 @@ import scala.collection.immutable.ListMap
  * @author Ville Lautanala
  */
 trait Read[A, B, C] { this : Base[A, B, C] =>
-  private class SlicePredicate[T](serializer : Serializer[T]) {
-    def apply(items : Collection[T]) : cassandra.SlicePredicate = {
-      new cassandra.SlicePredicate(items.map(item => serializer(item)).toList, null)
+  private def convert[T](predicate : SlicePredicate[T], serializer : Serializer[T]) : service.SlicePredicate = {
+    val items = predicate.columns match {
+      case Nil =>
+        if (predicate.range.isDefined) null else Nil
+      case columns => columns.map(serializer.serialize(_))
     }
-
-    def apply(start : Option[T], finish : Option[T], order : Order, count : Int) : cassandra.SlicePredicate = {
-      implicit def serialize(o : Option[T]) : Array[Byte] = {
-        o.map(serializer(_)).getOrElse(serializer.empty)
-      }
-
-      new cassandra.SlicePredicate(
-        null,
-        new cassandra.SliceRange(start, finish, order.toBoolean, count)
-      )
+    
+    val range = predicate.range match {
+      case None => null
+      case Some(r) =>
+        new service.SliceRange(
+          r.start.map(serializer.serialize(_)).getOrElse(serializer.empty),
+          r.finish.map(serializer.serialize(_)).getOrElse(serializer.empty),
+          r.order.toBoolean,
+          r.count
+        )
     }
+    
+    new service.SlicePredicate(items, range)
+  }
+  
+  private def convert(s : StandardSlice) : service.SlicePredicate = {
+    convert(s, serializer.column)
   }
 
-  private object SuperSlice extends SlicePredicate[A](superColumn) {}
-  private object StandardSlice extends SlicePredicate[B](column) {}
+  private def convert(s : SuperSlice) : service.SlicePredicate = {
+    convert(s, serializer.superColumn)
+  }
 
   /**
   * Number of columns with specified column path
   */
-  def count(path : ColumnParent[A]) : Int = {
-    client.get_count(keyspace, path.key, getColumnParent(path), consistency)
+  def count(key : String, path : ColumnParent[A, B]) : Int = {
+    cassandra.get_count(keyspace, key, path.toColumnParent, consistency.read)
   }
 
   /**
   * Get description of keyspace columnfamilies
   */
   def describe() : Map[String, Map[String, String]] = {
-    implicit def convertMap[T](m : java.util.Map[T, java.util.Map[T, T]]) : Map[T, Map[T, T]] = {
+    def convertMap[T](m : java.util.Map[T, java.util.Map[T, T]]) : Map[T, Map[T, T]] = {
       Map.empty ++ Conversions.convertMap(m).map { case(columnFamily, description) =>
         (columnFamily -> (Map.empty ++ Conversions.convertMap(description)))
       }
     }
 
-    client.describe_keyspace(keyspace)
+    convertMap(cassandra.describe_keyspace(keyspace))
   }
   
-  def apply(path : ColumnPath[A, B]) = get(path)
-  def apply(path : ColumnParent[A]) = get(path)
+  def apply(key : String, path : ColumnPath[A, B]) = get(key, path)
+  def apply(key : String, path : ColumnParent[A, B]) = get(key, path)
   
   /* Get multiple columns from StandardColumnFamily */
-  def multiget(path : MultiPath[A, B]) : Map[String, Option[(B, C)]] = {
-    (ListMap() ++ multigetAny(path).map { case(k, v) =>
+  def get(keys : Iterable[String], path : ColumnPath[A, B]) : Map[String, Option[(B, C)]] = {
+    (ListMap() ++ multigetAny(keys, path).map { case(k, v) =>
       (k, getColumn(v))
     })
   }
   
   /* Get multiple super columns from SuperColumnFamily */
-  def multigetSuper(path : MultiPath[A, B]) : Map[String, Option[(A , Map[B, C])]] = {
-    (ListMap() ++ multigetAny(path).map { case(k, v) =>
+  def get(keys : Iterable[String], path : ColumnParent[A, B]) : Map[String, Option[(A , Map[B, C])]] = {
+    (ListMap() ++ multigetAny(keys, path).map { case(k, v) =>
       (k, getSuperColumn(v))
     })
   }
   
-  private def multigetAny(path : MultiPath[A, B]) : JavaMap[String, cassandra.ColumnOrSuperColumn]= {
-    val p = new cassandra.ColumnPath(
-      path.columnFamily,
-      path.superColumn.map(superColumn.serialize(_)).getOrElse(null),
-      path.column.map(column.serialize(_)).getOrElse(null)
-    )
-    JavaMap(client.multiget(keyspace, path.keys, p, consistency))
-  }
-  
-  /* Get multiple records from StandardColumnFamily */
-  def getAll(path : MultiPath[A, B]) : Map[String, Map[B, C]] = {
-    ListMap() ++ getAllAny(path).map { case(k, v) =>
-      (k, ListMap(v.map(getColumn(_).get) : _*))
-    }
-  }
-  
-  /* Get multiple records from SuperColumnFamily */
-  def getAllSuper(path : MultiPath[A, B]) : Map[String, Map[A , Map[B, C]]] = {
-    ListMap() ++ getAllAny(path).map { case(k, v) =>
-      (k, ListMap(v.map(getSuperColumn(_).get) : _*))
-    }
-  }
-  
-  private def getAllAny(path : MultiPath[A, B]) : JavaMap[String, JavaList[cassandra.ColumnOrSuperColumn]]= {
-    val p = new cassandra.ColumnParent(
-      path.columnFamily,
-      path.superColumn.map(superColumn.serialize(_)).getOrElse(null)
-    )
-    JavaMap(
-      client.multiget_slice(
-        keyspace,
-        path.keys,
-        p,
-        new SlicePredicate(serializer.NonSerializer)(
-          None, None, Ascending, maximumCount),
-        consistency
-      )
-    )
+  private def multigetAny(keys : Iterable[String], path : Path[A, B]) : JavaMap[String, service.ColumnOrSuperColumn]= {
+    JavaMap(cassandra.multiget(keyspace, keys, path.toColumnPath, consistency.read))
   }
 
   /**
    * Get single column
+   * @param key Row key
    * @param path Path to column
    */
-   def get(path : ColumnPath[A, B]) : Option[C] = {
-     try {
-       client.get(
-         keyspace,
-         path.key,
-         getColumnPath(path),
-         consistency
-       ).column match {
-         case null => None
-         case x : cassandra.Column => Some(value.deserialize(x.value))
-       }
-     } catch {
-       case e : NotFoundException => None
-     }
-   }
+  def get(key : String, path : ColumnPath[A, B]) : Option[C] = {
+    try {
+      cassandra.get(
+        keyspace,
+        key,
+        path.toColumnPath,
+        consistency.read
+      ).column match {
+        case null => None
+        case x : service.Column => Some(serializer.value.deserialize(x.value))
+      }
+    } catch {
+      case e : NotFoundException => None
+    }
+  }
 
   /**
    * Get supercolumn
+   * @param key Row key
    * @param path Path to super column
    */
-   def get(path : ColumnParent[A]) : Option[Map[B, C]] = {
-     val s = path.superColumn.get
-     sliceSuper(path--, List(s)).get(s)
-   }
-
+  def get(key : String, path : ColumnParent[A, B]) : Option[Map[B, C]] = {
+    try {
+      getSuperColumn(cassandra.get(keyspace, key, path.toColumnPath, consistency.read)).map(_._2)
+    } catch {
+      case e : NotFoundException => None
+    }
+  }
+   
   /**
-   * Slice columns by name
-   *
-   * @param path Path to super column or row
-   * @param columns Collection of columns which are retrieved
-   */
-   def slice(path : ColumnParent[A], columns : Collection[B]) : Map[B, C] = {
-     ListMap[B, C](client.get_slice(
-       keyspace,
-       path.key,
-       getColumnParent(path),
-       StandardSlice(columns),
-       consistency
-     ).map(getColumn(_).getOrElse({
-       throw new NotFoundException()
-     })) : _*)
-   }
-
-
-  /**
-   * Alias for <code>slice</code>
-   */
-   def slice(path : ColumnParent[A], start : Option[B], finish : Option[B], order : Order) : Map[B, C] = {
-     slice(path, start, finish, order, maximumCount)
-   }
-
-   /**
-    * Slice columns by start and finish
-    *
-    * @param path Path to super column or row
-    * @param start First value of key range
-    * @param finish Last value of key range
-    * @param order Ordering of results
-    * @param count Number of results to return starting from first result
-    */
-   def slice(path : ColumnParent[A], start : Option[B], finish : Option[B], order : Order, count : Int) : Map[B, C] = {
-     ListMap(client.get_slice(
-       keyspace,
-       path.key,
-       getColumnParent(path),
-       StandardSlice(start, finish, order, count),
-       consistency
-     ).map(getColumn(_).getOrElse({
-       throw new NotFoundException()
-     })) : _*)
-   }
-
-
-   /**
-    * Slice super columns by name
-    * 
-    * @param path Path to row
-    * @param columns Collection of super column keys which are retrieved
-    */
-   def sliceSuper(path : ColumnParent[A], columns : Collection[A]) : Map[A, Map[B, C]] = {
-     ListMap(client.get_slice(
-       keyspace,
-       path.key,
-       getColumnParent(path),
-       SuperSlice(columns),
-       consistency
-     ).map(getSuperColumn(_).get) : _*)
-   }
-
-   /**
-    * Slice columns by start and finish
-    *
-    * @param path Path to row
-    * @param start First value of key range
-    * @param finish Last value of key range
-    * @param order Ordering of results
-    * @param count Number of results to return starting from first result
-    */
-   def sliceSuper(path : ColumnParent[A], start : Option[A], finish : Option[A], order : Order) : Map[A, Map[B, C]] = {
-     sliceSuper(path, start, finish, order, maximumCount)
-   }
-
-   /**
-    * Slice columns by start and finish with count parameter
-    */
-   def sliceSuper(path : ColumnParent[A], start : Option[A], finish : Option[A], order : Order, count : Int) : Map[A, Map[B, C]] = {
-     ListMap(client.get_slice(
-       keyspace,
-       path.key,
-       getColumnParent(path),
-       SuperSlice(start, finish, order, count),
-       consistency
-     ).map(getSuperColumn(_).get) : _*)
-   }
-
-  /**
-  * Shorthand for <code>keys</code> without count parameter
+   * Slice columns
+   * @param path Path to record or super column
+   * @param predicate Search conditions and limits
   */
-  def keys(columnFamily : String, start : Option[String], finish : Option[String]) : List[String] = {
-    keys(columnFamily, start, finish, maximumCount)
+  def get(key : String, path : Path[A, B], predicate : StandardSlice) : Map[B, C] = {
+    ListMap[B, C](cassandra.get_slice(
+      keyspace,
+      key,
+      path.toColumnParent,
+      convert(predicate),
+      consistency.read
+    ).map(getColumn(_).getOrElse({
+      throw new NotFoundException()
+    })) : _*)
+  }
+   
+  /**
+   * Slice super columns
+   * @param path Path to record
+   * @param predicate Search conditions and limits
+   */
+  def get(key : String, path : Path[A, B], predicate : SuperSlice) : Map[A, Map[B, C]] = {
+    ListMap(cassandra.get_slice(
+      keyspace,
+      key,
+      path.toColumnParent,
+      convert(predicate),
+      consistency.read
+    ).map(getSuperColumn(_).get) : _*)
+  }
+  
+  /**
+   * Slice multiple standard column family records
+   */
+  def get(keys : Iterable[String], path : Path[A, B], predicate : StandardSlice) : Map[String, Map[B, C]] = {
+    val result = cassandra.multiget_slice(keyspace, keys, path.toColumnParent, convert(predicate), consistency.read)
+    ListMap() ++ Conversions.convertMap(result).map { case(key, value) =>
+      key -> (ListMap() ++ value.map(getColumn(_).get))
+    }
+  }
+  
+  /**
+   * Slice multiple super column family records
+   */
+  def get(keys : Iterable[String], path : Path[A, B], predicate : SuperSlice) : Map[String, Map[A, Map[B, C]]] = {
+    val result = cassandra.multiget_slice(keyspace, keys, path.toColumnParent, convert(predicate), consistency.read)
+    ListMap() ++ Conversions.convertMap(result).map { case(key, value) =>
+      key -> (ListMap() ++ value.map(getSuperColumn(_).get))
+    }
   }
 
   /**
   * List keys in single keyspace/columnfamily pair
   */
   def keys(columnFamily : String, start : Option[String], finish : Option[String], count : Int) : List[String] = {
-    def optionalString(option : Option[String]) : String = {
-      option match {
-        case Some(s) => s
-        case None => ""
-      }
-    }
+    val slice = new service.SlicePredicate(
+      null,
+      new service.SliceRange(serializer.value.empty, serializer.value.empty, true, 1)
+    )
+    
+    val parent = new service.ColumnParent(columnFamily, null)
 
-    client.get_key_range(keyspace, columnFamily, optionalString(start), optionalString(finish), count, consistency)
+    cassandra.get_range_slice(keyspace, parent, slice, start.getOrElse(""), finish.getOrElse(""), count, consistency.read).map(_.key)
+  }
+  
+  /**
+   * Get slice range for super column family
+   */
+  def get(path : Path[A, B], predicate : SuperSlice, start : Option[String], finish : Option[String], count : Int) : Map[String, Map[A, Map[B, C]]] = {
+    val result = cassandra.get_range_slice(keyspace, path.toColumnParent, convert(predicate), start.getOrElse(""), finish.getOrElse(""), count, consistency.read)
+    ListMap(result.map { keySlice =>
+      (keySlice.key -> ListMap(keySlice.columns.map(getSuperColumn(_).get) : _*))
+    } : _*)
+  }
+  
+  /**
+   * Get slice range for standard column family
+   */
+  def get(path : Path[A, B], predicate : StandardSlice, start : Option[String], finish : Option[String], count : Int) : Map[String, Map[B, C]] = {
+    val result = cassandra.get_range_slice(keyspace, path.toColumnParent, convert(predicate), start.getOrElse(""), finish.getOrElse(""), count, consistency.read)
+    ListMap(result.map { keySlice =>
+      (keySlice.key -> ListMap(keySlice.columns.map(getColumn(_).get) : _*))
+    } : _*)
   }
 
-
-  implicit private def resultMap(results : JavaList[cassandra.Column]) : Map[B, C] = {
-    val r : List[cassandra.Column] = results // Implicit conversion
-    ListMap(r.map(c => (column.deserialize(c.name) -> value.deserialize(c.value))).toSeq : _*)
+  private def resultMap(results : JavaList[service.Column]) : Map[B, C] = {
+    val r : List[service.Column] = results // Implicit conversion
+    ListMap(r.map(c => (serializer.column.deserialize(c.name) -> serializer.value.deserialize(c.value))).toSeq : _*)
   }
 
-  implicit private def superResultMap(results : JavaList[cassandra.SuperColumn]) : Map[A, Map[B, C]] = {
-    val r : List[cassandra.SuperColumn] = results // Implicit conversion
-    ListMap(r.map(c => (superColumn.deserialize(c.name) -> resultMap(c.columns))).toSeq : _*)
+  private def superResultMap(results : JavaList[service.SuperColumn]) : Map[A, Map[B, C]] = {
+    val r : List[service.SuperColumn] = results // Implicit conversion
+    ListMap(r.map(c => (serializer.superColumn.deserialize(c.name) -> resultMap(c.columns))).toSeq : _*)
   }
 
-  implicit private def getSuperColumn(c : cassandra.ColumnOrSuperColumn) : Option[Pair[A, Map[B, C]]] = {
+  private def getSuperColumn(c : service.ColumnOrSuperColumn) : Option[Pair[A, Map[B, C]]] = {
     c.super_column match {
       case null => None
-      case x : cassandra.SuperColumn => Some(superColumn.deserialize(x.name) -> resultMap(x.columns))
+      case x : service.SuperColumn => Some(serializer.superColumn.deserialize(x.name) -> resultMap(x.columns))
     }
   }
 
-  implicit private def getColumn(c : cassandra.ColumnOrSuperColumn) : Option[Pair[B, C]] = {
+  private def getColumn(c : service.ColumnOrSuperColumn) : Option[Pair[B, C]] = {
     c.column match {
       case null => None
-      case x : cassandra.Column => Some(column.deserialize(x.name) -> value.deserialize(x.value))
+      case x : service.Column => Some(serializer.column.deserialize(x.name) -> serializer.value.deserialize(x.value))
     }
   }
 
@@ -282,6 +236,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   }
 
   implicit private def convertCollection[T](list : Iterable[T]) : JavaList[T] = {
+    if (list eq null) null else
     (new ArrayList() ++ list).underlying
   }
 }

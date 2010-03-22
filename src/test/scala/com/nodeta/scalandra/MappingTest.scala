@@ -4,233 +4,283 @@ import org.specs._
 import com.nodeta.scalandra.map._
 import com.nodeta.scalandra.serializer._
 
-object MappingTest extends Specification {
-  "Keyspace" should {
-    val _connection = Connection()
-    doLast { _connection.close() }
-
-    val keyspace = new Keyspace[String, String, String] {
-      protected val connection = Connection()
-      val keyspace = "Keyspace1"
-
-      protected val columnSerializer = StringSerializer
-      protected val superColumnSerializer = StringSerializer
-      protected val valueSerializer = StringSerializer
+class MappingTest extends Specification {
+  def client(c : Connection) : Client[String, String, String] = {
+    new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)
+  }
+  
+  def cassandraMap[A, B](map : CassandraMap[String, A], data : scala.collection.Map[String, B]) = {
+    val keys = map.keySet.toList.sort(_.compareTo(_) < 0)
+    "be able to slice by names" in {
+      val l = List(keys.first, keys.last)
+      map.slice(l).keySet must containAll(l)
     }
-    "be able to list its ColumnFamilies" in {
-      keyspace.keySet must containAll(List("Standard1", "Standard2"))
-    }
+    "be able to slice by range" in {
+      val l = keys.drop(1).dropRight(1)
 
+      val r = map.slice(Range(Some(l.first), Some(l.last), Ascending, l.size))
+      r.keySet must haveTheSameElementsAs(l)
+    }
+  }
+  
+  def record[A, B](map : CassandraMap[String, A], data : scala.collection.Map[String, B], lazyFetch : Boolean) = {
+    cassandraMap(map, data)
+    "be able to remove column" in {
+      val key = map.keySet.toList.last
+      map.slice(List(key)) must haveSize(1) // .get may be lazy, so slice is used instead
+      map.remove(key)
+      Thread.sleep(25)
+      map.slice(List(key)) must haveSize(0)
+    }
+    
+    "be able to list its columns" in {
+      map.keySet must haveSize(data.size)
+    }
+    
+    
+    "column access" in {
+      "existing column" in {
+        "get returns column in option" in {
+          map.get(data.keys.next) must beSomething
+        }
+
+        "apply returns column value" in {
+          val key = data.keys.next
+          map(key) must equalTo(data(key))
+        }
+      }
+      
+      if (!lazyFetch) {
+        "nonexisting column" in {
+          "get returns none" in {
+            map.get("zomg, doesn't exist") must beNone
+          }
+
+          "apply raises exception" in {
+            map("zomg, doesn't exist") must throwA[java.util.NoSuchElementException]
+          }
+        }
+      }
+    }
   }
 
 
-  "StandardColumnFamily" should {
-    val _connection = Connection()
-    val client = new Client(_connection, "Keyspace1", StringSerializer, StringSerializer, StringSerializer)
+  val connection = Connection(9162)
+  val cassandra = client(connection)
 
-    val cf = new StandardColumnFamily[String, String] {
+  doAfter {
+    connection.close()
+  }
+  
+  doLast {
+    val connection = Connection(9162)
+    val cassandra = client(connection)
+    0.until(20).foreach { i =>
+      cassandra.remove("row-" + i, cassandra.ColumnParent("Standard1", None))
+      cassandra.remove("row-" + i, cassandra.ColumnParent("Super1", None))
+    }
+  }
+
+  "Keyspace" should {
+    val keyspace = new Keyspace[String, String, String] {
+      protected val client = cassandra
       val keyspace = "Keyspace1"
-      val columnFamily = "Standard1"
-      val connection = _connection
-
-      val columnSerializer = StringSerializer
-      val valueSerializer = StringSerializer
     }
 
-    "be able to list all rows" in {
-      client.insertNormal(ColumnParent[String]("Standard1", "test-row"), Map("foo" -> "bar"))
-      cf.keySet must contain("test-row")
+    "be able to list its ColumnFamilies" in {
+      keyspace.keySet must containAll(List("Standard1", "Standard2"))
+    }
+  }
+
+  "ColumnFamily" should {
+    val data = insertStandardData()
+    
+    "list its rows" in {
+      cassandra.ColumnFamily("Standard1").keySet must containAll(data.keySet)
+    }
+  }
+
+  "StandardColumnFamily" should {
+    val data = insertStandardData()
+    val cf = new StandardColumnFamily("Standard1", cassandra)
+
+    "provide cassandra map functionality" in cassandraMap(cf, data)
+    
+    "multiget values" in {
+      val key = data.values.next.keys.next
+      cf.map(key) must notBeEmpty
+    }
+    
+    "row modification" in {
+      val key = Math.random.toString.substring(2)
+      
+      "insert new data" in {
+        cf(key) = Map("test" -> "value")
+        cassandra.get(key, cassandra.ColumnPath("Standard1", None, "test")) must beSomething
+        cassandra.remove(key, cassandra.Path("Standard1"))
+      }
+      
+      "remove data" in {
+        cassandra(key, cassandra.ColumnPath("Standard1", None, "test2")) = "lolz"
+        cf.remove(key)
+
+        Thread.sleep(25)
+        cassandra.get(key, cassandra.ColumnPath("Standard1", None, "test2")) must beNone
+      }
     }
 
-    "be able to create rows without any requests" in {
-      _connection.close() // Connection should not be needed
+    "be able to create row instances without any requests" in {
+      connection.close() // Connection should not be needed
       try {
-        val cf = new StandardColumnFamily[String, String] {
-          val keyspace = "Keyspace1"
-          val columnFamily = "Standard1"
-          val connection = _connection
-
-          val columnSerializer = StringSerializer
-          val valueSerializer = StringSerializer
-        }
+        val cf = new StandardColumnFamily("Standard1", cassandra)
 
         val r = cf("Row")
         cf.get("RowFooasoafso")
       } catch {
         case _ => fail("Thrift was called")
       }
-      _connection.isOpen must be(false)
+      connection.isOpen must be(false)
+    }
+  }
+  
+  "SuperColumnFamily" should {
+    val data = insertSuperData()
+    val cf = new SuperColumnFamily("Super1", cassandra)
+    
+    "provide cassandra map functionality" in cassandraMap(cf, data)
+    
+    "row modification" in {
+      val key = Math.random.toString.substring(2)
+      
+      "insert new data" in {
+        cf(key) = Map("lol" -> Map("test" -> "value"))
+        Thread.sleep(25)
+        cassandra.get(key, cassandra.ColumnPath("Super1", Some("lol"), "test")) must beSomething
+        cassandra.remove(key, cassandra.Path("Super1"))
+      }
+      
+      "remove data" in {
+        cassandra(key, cassandra.ColumnPath("Super1", Some("cat"), "test2")) = "lolz"
+        cf.remove(key)
+        
+        Thread.sleep(25)
+        cassandra.get(key, cassandra.ColumnPath("Super1", Some("cat"), "test2")) must beNone
+      }
     }
   }
 
   "StandardRecord" should {
-    val _connection = Connection()
-    val client = new Client(_connection, "Keyspace1", StringSerializer, StringSerializer, StringSerializer)
+    val Pair(key, data) = insertStandardData().elements.next
+    val row = new StandardRecord(key, cassandra.ColumnParent("Standard1", None), cassandra)
+    
+    "provide cassandra map functionality" in record(row, data, false)
 
-    def createRecord() : StandardRecord[String, String] = {
-      new StandardRecord[String, String] {
-        protected val keyspace = "Keyspace1"
-        protected val columnFamily = "Standard1"
-        protected val connection = _connection
-
-        protected val columnSerializer = StringSerializer
-        protected val valueSerializer = StringSerializer
-
-        protected val path = ColumnParent[Any]("Standard1", "row-test")
+    "load data lazily from cassandra" in {
+      connection.close()
+      "while creating new instance" in {
+        try {
+          new StandardRecord("row-test", cassandra.ColumnParent("Standard1", None), cassandra)
+        } catch {
+          case _ => fail("Request is made")
+        }
+        connection.isOpen must equalTo(false)
       }
-    }
-
-    val rowData = Map((0 until 20).map { i =>
-      val s = ('a' + i).toChar.toString
-      (s -> s)
-    } : _*)
-
-    client.insertNormal(ColumnParent[String]("Standard1", "row-test"), rowData)
-    val row = createRecord()
-
-    "provide slicing functionality by names" in {
-      val q = List("a", "b", "f")
-      val r = row.slice(q)
-      r.keySet must containAll(q)
-    }
-
-    "be able to slice columns by range" in {
-      val r = row.slice("e", "k")
-      r.keySet must containAll(List("e", "j", "k"))
-    }
-
-    "be able to list its columns" in {
-      row.keySet.size must be(20)
-    }
-
-    "be able to insert values to a record" in {
-      row("a") = "b"
-      row.slice(List("a"))("a") must equalTo("b")
-    }
-
-    "be able to remove values from a record" in {
-      row.slice(List("a")) must haveSize(1)
-      row -= "a"
-      row.slice(List("a")) must haveSize(0)
-    }
-
-    "not request anything when created" in {
-      _connection.close()
-      try {
-        createRecord()
-      } catch {
-        case _ => fail("Request is made")
-      }
-      _connection.isOpen must equalTo(false)
-    }
-   }
-
-  "SuperRecord" should {
-    val _connection = Connection()
-    val client = new Client(_connection, "Keyspace1", StringSerializer, StringSerializer, StringSerializer)
-
-    def createRecord() : SuperRecord[String, String, String] = {
-      new SuperRecord[String, String, String] {
-        protected val keyspace = "Keyspace1"
-        protected val columnFamily = "Standard1"
-        protected val connection = _connection
-
-        protected val columnSerializer = StringSerializer
-        protected val superColumnSerializer = StringSerializer
-        protected val valueSerializer = StringSerializer
-
-        protected val path = ColumnParent[String]("Super1", "superrow-test")
-      }
-    }
-
-    def buildMap(n : Int) : Map[String, String] = {
-      Map((0 until n).map { i =>
-        val s = ('a' + i).toChar.toString
-        (s -> s)
-      } : _*)
-    }
-
-    val rowData = List((0 until 20).map { i =>
-      val s = ('a' + i).toChar.toString
-      (s -> buildMap(i+1))
-    } : _*)
-
-    client.insertSuper(ColumnParent[String]("Super1", "superrow-test"), rowData)
-
-    val row = createRecord()
-
-    "provide slicing functionality by names" in {
-      val q = List("f", "g", "l")
-      val r = row.slice(q)
-      r.keySet must containAll(q)
-    }
-
-    "be able to slice columns by range" in {
-      val r = row.slice("a", "f")
-      r.keySet must containAll(List("a", "c", "f"))
-    }
-
-    "be able to list its columns" in {
-      row.keySet.size must be(20)
-    }
-
-    "be able to remove values from a record" in {
-      row.slice(List("a")) must haveSize(1)
-      row -= "a"
-      row.slice(List("a")) must haveSize(0)
     }
   }
 
   "SuperColumn" should {
-    val _connection = Connection()
-    val client = new Client(_connection, "Keyspace1", StringSerializer, StringSerializer, StringSerializer)
-    val columnPath = ColumnParent[String]("Super1", "superrow-test", "b")
+    val Pair(key, row) = insertSuperData().elements.next
+    val Pair(superColumn, data) = row.elements.next
 
+    val r = new StandardRecord(key, cassandra.ColumnParent("Super1", Some(superColumn)), cassandra)
+    
+    "provide cassandra map functionality" in record(r, data, false)
 
-    def createSuperColumn() : SuperColumn[String, String, String] = {
-      new SuperColumn[String, String, String] {
-        protected val keyspace = "Keyspace1"
-        protected val columnFamily = "Standard1"
-        protected val connection = _connection
-
-        protected val columnSerializer = StringSerializer
-        protected val superColumnSerializer = StringSerializer
-        protected val valueSerializer = StringSerializer
-
-        protected val path = columnPath
+    "load data lazily from cassandra" in {
+      connection.close()
+      "while creating new instance" in {
+        try {
+          new StandardRecord("row-test", cassandra.ColumnParent("Super1", Some(superColumn)), cassandra)
+        } catch {
+          case _ => fail("Request is made")
+        }
+        connection.isOpen must equalTo(false)
       }
     }
+  }
 
+
+  "SuperRecord" should {
+    val Pair(key, data) = insertSuperData().elements.next
+    val row = new SuperRecord(key, cassandra.Path("Super1"), cassandra)
+
+    "provide cassandra map functionality" in record(row, data, true)
+
+    "load data lazily from cassandra" in {
+      connection.close()
+      "while creating new instance" in {
+        try {
+          new SuperRecord("row-test", cassandra.ColumnParent("Super1", None), cassandra)
+        } catch {
+          case _ => fail("Request is made")
+        }
+        connection.isOpen must equalTo(false)
+      }
+      "while accessing sub column" in {
+        try {
+          new SuperRecord("row-test", cassandra.ColumnParent("Super1", None), cassandra).get("LOL")
+        } catch {
+          case _ => fail("Request is made")
+        }
+        connection.isOpen must equalTo(false)
+      }
+    }
+  }
+  
+  def insertStandardData() : Map[String, scala.collection.Map[String, String]] = {
+    val connection = Connection(9162)
+    val cassandra = client(connection)
+    
+    val row = Map((0 until 50).map { i =>
+      val s = ('a' + i).toChar.toString
+      (("column-" + s) -> s)
+    } : _*)
+    
+    try {
+      Map(0.until(20).map {
+        i => cassandra("row-" + i, cassandra.ColumnParent("Standard1", None)) = row
+        ("row-" + i -> row)
+      } : _*)
+    } finally {
+      Thread.sleep(50)
+      connection.close()
+    }
+  }
+  
+  def insertSuperData() : Map[String, scala.collection.Map[String, scala.collection.Map[String, String]]] = {
+    val connection = Connection(9162)
+    val cassandra = client(connection)
+    
     def buildMap(n : Int) : Map[String, String] = {
       Map((0 until n).map { i =>
         val s = ('a' + i).toChar.toString
-        (s -> s)
+        (("column-" + s) -> s)
       } : _*)
     }
 
-    client.insertSuper(columnPath--, Map("b" -> buildMap(20)))
-
-    val row = createSuperColumn()
-
-    "provide slicing functionality by names" in {
-      val q = List("f", "g", "l")
-      val r = row.slice(q)
-      r.keySet must containAll(q)
-    }
-
-    "be able to slice columns by range" in {
-      val r = row.slice("a", "f")
-      r.keySet must containAll(List("a", "c", "f"))
-    }
-
-    "be able to list its columns" in {
-      row.keySet.size must be(20)
-    }
-
-    "be able to remove values from a super column" in {
-      row.slice(List("a")) must haveSize(1)
-      row -= "a"
-      row.slice(List("a")) must haveSize(0)
+    val row = Map((0 until 50).map { i =>
+      val s = ('a' + i).toChar.toString
+      (("supercolumn-" + s) -> buildMap(i+1))
+    } : _*)
+    
+    try {
+      Map(0.until(20).map { i =>
+        cassandra("row-" + i, cassandra.Path("Super1")) = row
+        (("row-" + i) -> row)
+      } : _*)
+    } finally {
+      Thread.sleep(25)
+      connection.close()
     }
   }
 }
