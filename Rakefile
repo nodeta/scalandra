@@ -53,8 +53,13 @@ task :compile do
   Rake::Task["sbt"].execute("compile")
 end
 
+desc "Fetch dependencies"
+task :dependencies do
+  Rake::Task["sbt"].execute("update")
+end
+
 desc "Test scalandra"
-task :test do
+task :test => :dependencies do
   begin
     Rake::Task["cassandra:stop"].execute if cassandra_running?
     Rake::Task["cassandra:cleanup"].execute
