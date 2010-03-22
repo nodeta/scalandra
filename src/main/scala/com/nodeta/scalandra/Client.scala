@@ -13,9 +13,8 @@ import java.lang.IllegalArgumentException
  * @author Ville Lautanala
  * @param connection An open connection to cassandra
  * @param keyspace Keyspace in which all actions are performed
- * @param superColumn Serializer for super column keys
- * @param column Serializer for column keys
- * @param value Serializer for values in cassandra storage model
+ * @param serializer Serialization parameters
+ * @param consistnecy ConsistencyLevels to use
  * 
  * @see com.nodeta.scalandra.client.Read
  * @see com.nodeta.scalandra.client.Write
@@ -30,7 +29,7 @@ class Client[A, B, C](
     this(c, keyspace, serialization, ConsistencyLevels())
   }
   protected val client = this
-  protected val _client = connection.client
+  protected val cassandra = connection.client
 
   case class Path(columnFamily : String) extends scalandra.Path[A, B] {
     protected val serializer = client.serializer

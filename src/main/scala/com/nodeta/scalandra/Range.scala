@@ -1,7 +1,7 @@
 package com.nodeta.scalandra
 
 /**
- * Base interface for all client actions.
+ * Range class used in range based limiting
  *
  * @author Ville Lautanala
  */

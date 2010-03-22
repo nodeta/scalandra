@@ -1,7 +1,7 @@
 package com.nodeta.scalandra
 
 /**
- * Base interface for all client actions.
+ * Predicate used to restrict results.
  *
  * @author Ville Lautanala
  */

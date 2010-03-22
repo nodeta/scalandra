@@ -1,9 +1,8 @@
 package com.nodeta.scalandra.client
 
-import org.apache.cassandra.{service => cassandra}
 import org.apache.cassandra.service.Cassandra
 import java.lang.IllegalArgumentException
-import serializer.Serializer
+import com.nodeta.scalandra.serializer.Serializer
 
 /**
  * Base interface for all client actions.
@@ -12,10 +11,8 @@ import serializer.Serializer
  */
 trait Base[A, B, C] {
   private val self = this
-  protected val _client : Cassandra.Client
+  protected val cassandra : Cassandra.Client
   protected val keyspace : String
-
-  protected val maximumCount = 2147483647 // 2^31 -1
   def consistency : ConsistencyLevels
 
   protected val serializer : Serialization[A, B, C]
