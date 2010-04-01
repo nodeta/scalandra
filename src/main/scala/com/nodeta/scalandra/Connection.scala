@@ -2,7 +2,7 @@ package com.nodeta.scalandra
 
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TSocket
-import org.apache.cassandra.service.Cassandra
+import org.apache.cassandra.thrift.Cassandra
 
 import java.io.{Closeable, Flushable}
 

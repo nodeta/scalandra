@@ -9,14 +9,16 @@ end
 
 
 namespace :cassandra do
-  version = "0.5.0"
-  url = "http://www.nic.funet.fi/pub/mirrors/apache.org/incubator/cassandra/#{version}/apache-cassandra-incubating-#{version}-bin.tar.gz"
+  version = "0.6.0"
+  subversion = "-rc1"
+  url = "http://www.nic.funet.fi/pub/mirrors/apache.org/cassandra/#{version}/apache-cassandra-#{version}#{subversion}-bin.tar.gz"
 
   desc "Setup Cassandra"
   task :setup do
     raise "Cassandra is already installed" if File.exists?(Dir.pwd + "/cassandra")
+puts url
     sh "tar -zxf #{URI.parse(url).open.path}"
-    sh "mv apache-cassandra-incubating-#{version} cassandra"
+    sh "mv apache-cassandra-#{version}#{subversion} cassandra"
     sh "mv cassandra/conf cassandra/default_conf"
     sh "ln -nfs #{Dir.pwd}/config cassandra/conf"
   end

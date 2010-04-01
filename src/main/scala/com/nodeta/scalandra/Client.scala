@@ -3,7 +3,7 @@ package com.nodeta.scalandra
 import serializer.{Serializer, NonSerializer}
 import map.{ColumnFamily => Fam, StandardColumnFamily => CF, SuperColumnFamily => SCF}
 
-import org.apache.cassandra.{service => cassandra}
+import org.apache.cassandra.{thrift => cassandra}
 import java.lang.IllegalArgumentException
 
 /**

@@ -2,8 +2,8 @@ package com.nodeta.scalandra.client
 
 import com.nodeta.scalandra.serializer.{Serializer, NonSerializer}
 
-import org.apache.cassandra.service
-import org.apache.cassandra.service.NotFoundException
+import org.apache.cassandra.thrift
+import org.apache.cassandra.thrift.{NotFoundException, ThriftGlue}
 
 import java.util.{List => JavaList}
 import scala.collection.jcl.{ArrayList, Conversions, Map => JavaMap}
@@ -17,7 +17,7 @@ import scalandra.{ColumnPath, ColumnParent}
  * @author Ville Lautanala
  */
 trait Read[A, B, C] { this : Base[A, B, C] =>
-  private def convert[T](predicate : SlicePredicate[T], serializer : Serializer[T]) : service.SlicePredicate = {
+  private def convert[T](predicate : SlicePredicate[T], serializer : Serializer[T]) : thrift.SlicePredicate = {
     val items = predicate.columns match {
       case Nil =>
         if (predicate.range.isDefined) null else Nil
@@ -27,7 +27,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     val range = predicate.range match {
       case None => null
       case Some(r) =>
-        new service.SliceRange(
+        new thrift.SliceRange(
           r.start.map(serializer.serialize(_)).getOrElse(serializer.empty),
           r.finish.map(serializer.serialize(_)).getOrElse(serializer.empty),
           r.order.toBoolean,
@@ -35,14 +35,14 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
         )
     }
     
-    new service.SlicePredicate(items, range)
+    ThriftGlue.createSlicePredicate(items, range)
   }
   
-  private def convert(s : StandardSlice) : service.SlicePredicate = {
+  private def convert(s : StandardSlice) : thrift.SlicePredicate = {
     convert(s, serializer.column)
   }
 
-  private def convert(s : SuperSlice) : service.SlicePredicate = {
+  private def convert(s : SuperSlice) : thrift.SlicePredicate = {
     convert(s, serializer.superColumn)
   }
 
@@ -83,7 +83,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     })
   }
   
-  private def multigetAny(keys : Iterable[String], path : Path[A, B]) : JavaMap[String, service.ColumnOrSuperColumn]= {
+  private def multigetAny(keys : Iterable[String], path : Path[A, B]) : JavaMap[String, thrift.ColumnOrSuperColumn]= {
     JavaMap(cassandra.multiget(keyspace, keys, path.toColumnPath, consistency.read))
   }
 
@@ -101,7 +101,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
         consistency.read
       ).column match {
         case null => None
-        case x : service.Column => Some(serializer.value.deserialize(x.value))
+        case x : thrift.Column => Some(serializer.value.deserialize(x.value))
       }
     } catch {
       case e : NotFoundException => None
@@ -177,12 +177,12 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   * List keys in single keyspace/columnfamily pair
   */
   def keys(columnFamily : String, start : Option[String], finish : Option[String], count : Int) : List[String] = {
-    val slice = new service.SlicePredicate(
+    val slice = ThriftGlue.createSlicePredicate(
       null,
-      new service.SliceRange(serializer.value.empty, serializer.value.empty, true, 1)
+      new thrift.SliceRange(serializer.value.empty, serializer.value.empty, true, 1)
     )
     
-    val parent = new service.ColumnParent(columnFamily, null)
+    val parent = ThriftGlue.createColumnParent(columnFamily, null)
 
     cassandra.get_range_slice(keyspace, parent, slice, start.getOrElse(""), finish.getOrElse(""), count, consistency.read).map(_.key)
   }
@@ -207,27 +207,27 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     } : _*)
   }
 
-  private def resultMap(results : JavaList[service.Column]) : Map[B, C] = {
-    val r : List[service.Column] = results // Implicit conversion
+  private def resultMap(results : JavaList[thrift.Column]) : Map[B, C] = {
+    val r : List[thrift.Column] = results // Implicit conversion
     ListMap(r.map(c => (serializer.column.deserialize(c.name) -> serializer.value.deserialize(c.value))).toSeq : _*)
   }
 
-  private def superResultMap(results : JavaList[service.SuperColumn]) : Map[A, Map[B, C]] = {
-    val r : List[service.SuperColumn] = results // Implicit conversion
+  private def superResultMap(results : JavaList[thrift.SuperColumn]) : Map[A, Map[B, C]] = {
+    val r : List[thrift.SuperColumn] = results // Implicit conversion
     ListMap(r.map(c => (serializer.superColumn.deserialize(c.name) -> resultMap(c.columns))).toSeq : _*)
   }
 
-  private def getSuperColumn(c : service.ColumnOrSuperColumn) : Option[Pair[A, Map[B, C]]] = {
+  private def getSuperColumn(c : thrift.ColumnOrSuperColumn) : Option[Pair[A, Map[B, C]]] = {
     c.super_column match {
       case null => None
-      case x : service.SuperColumn => Some(serializer.superColumn.deserialize(x.name) -> resultMap(x.columns))
+      case x : thrift.SuperColumn => Some(serializer.superColumn.deserialize(x.name) -> resultMap(x.columns))
     }
   }
 
-  private def getColumn(c : service.ColumnOrSuperColumn) : Option[Pair[B, C]] = {
+  private def getColumn(c : thrift.ColumnOrSuperColumn) : Option[Pair[B, C]] = {
     c.column match {
       case null => None
-      case x : service.Column => Some(serializer.column.deserialize(x.name) -> serializer.value.deserialize(x.value))
+      case x : thrift.Column => Some(serializer.column.deserialize(x.name) -> serializer.value.deserialize(x.value))
     }
   }
 

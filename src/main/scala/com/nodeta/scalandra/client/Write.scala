@@ -1,6 +1,7 @@
 package com.nodeta.scalandra.client
 
-import org.apache.cassandra.service
+import org.apache.cassandra.thrift
+import org.apache.cassandra.thrift.ThriftGlue
 import java.util.{List => JavaList}
 import scala.collection.jcl.{ArrayList, LinkedHashMap}
 
@@ -13,7 +14,7 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
   /**
    * Consistency level used for writes
    */
-  val writeConsistency = service.ConsistencyLevel.ZERO
+  val writeConsistency = thrift.ConsistencyLevel.ZERO
 
   /**
    * Insert or update value of single column
@@ -33,8 +34,8 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
     insertSuper(key, path, data)
   }
 
-  private def insert(key : String, path : Path[A, B], data : java.util.List[service.ColumnOrSuperColumn]) {
-    val mutation = new LinkedHashMap[String, JavaList[service.ColumnOrSuperColumn]]
+  private def insert(key : String, path : Path[A, B], data : java.util.List[thrift.ColumnOrSuperColumn]) {
+    val mutation = new LinkedHashMap[String, JavaList[thrift.ColumnOrSuperColumn]]
     mutation(path.columnFamily) = data
 
     cassandra.batch_insert(keyspace, key, mutation.underlying, writeConsistency)
@@ -44,20 +45,18 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
    * Insert collection of values in a standard column family/key pair
    */
   def insertNormal(key : String, path : Path[A, B], data : Iterable[Pair[B, C]]) {
-    def convert(data : Iterable[Pair[B, C]]) : java.util.List[service.ColumnOrSuperColumn] = {
+    def convert(data : Iterable[Pair[B, C]]) : java.util.List[thrift.ColumnOrSuperColumn] = {
       (new ArrayList() ++ data.map { case(k, v) =>
-        new service.ColumnOrSuperColumn(
-          new service.Column(serializer.column.serialize(k), this.serializer.value.serialize(v), System.currentTimeMillis),
-          null
-        )
+        ThriftGlue.createColumnOrSuperColumn_Column(
+          new thrift.Column(serializer.column.serialize(k), this.serializer.value.serialize(v), System.currentTimeMillis))
       }).underlying
     }
     insert(key, path, convert(data))
   }
 
-  private def convertToColumnList(data : Iterable[Pair[B, C]]) : JavaList[service.Column] = {
-    (new ArrayList[service.Column] ++ data.map { case(k, v) =>
-      new service.Column(serializer.column.serialize(k), serializer.value.serialize(v), System.currentTimeMillis)
+  private def convertToColumnList(data : Iterable[Pair[B, C]]) : JavaList[thrift.Column] = {
+    (new ArrayList[thrift.Column] ++ data.map { case(k, v) =>
+      new thrift.Column(serializer.column.serialize(k), serializer.value.serialize(v), System.currentTimeMillis)
     }).underlying
   }
 
@@ -66,12 +65,11 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
    * Insert collection of values in a super column family/key pair
    */
   def insertSuper(key : String, path : Path[A, B], data : Iterable[Pair[A, Iterable[Pair[B, C]]]]) {
-    val cfm = new LinkedHashMap[String, JavaList[service.ColumnOrSuperColumn]]
+    val cfm = new LinkedHashMap[String, JavaList[thrift.ColumnOrSuperColumn]]
 
     val list = (new ArrayList() ++ data.map { case(key, value) =>
-      new service.ColumnOrSuperColumn(
-        null,
-        new service.SuperColumn(serializer.superColumn.serialize(key), convertToColumnList(value))
+      ThriftGlue.createColumnOrSuperColumn_SuperColumn(
+        new thrift.SuperColumn(serializer.superColumn.serialize(key), convertToColumnList(value))
       )
     }).underlying
 

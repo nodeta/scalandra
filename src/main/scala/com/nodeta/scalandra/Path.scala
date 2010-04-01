@@ -1,6 +1,7 @@
 package com.nodeta.scalandra
 
-import org.apache.cassandra.{service => cassandra}
+import org.apache.cassandra.{thrift => cassandra}
+import org.apache.cassandra.thrift.ThriftGlue
 
 trait Path[A, B] {
   protected def serializer : Serialization[A, B, _]
@@ -25,11 +26,11 @@ trait Path[A, B] {
   }
   
   def toColumnParent : cassandra.ColumnParent = {
-    new cassandra.ColumnParent(columnFamily, null)
+    ThriftGlue.createColumnParent(columnFamily, null)
   }
   
   def toColumnPath : cassandra.ColumnPath = {
-    new cassandra.ColumnPath(columnFamily, null, null)
+    ThriftGlue.createColumnPath(columnFamily, null, null)
   }
   override def toString = {
     "Path(" + columnFamily + ")"
@@ -54,11 +55,11 @@ trait ColumnParent[A, B] extends Path[A, B] {
   }
   
   override def toColumnParent : cassandra.ColumnParent = {
-    new cassandra.ColumnParent(columnFamily, _superColumn)
+    ThriftGlue.createColumnParent(columnFamily, _superColumn)
   }
   
   override def toColumnPath : cassandra.ColumnPath = {
-    new cassandra.ColumnPath(columnFamily, _superColumn, null)
+    ThriftGlue.createColumnPath(columnFamily, _superColumn, null)
   }
   
   override def toString = {
@@ -74,7 +75,7 @@ trait ColumnPath[A, B] extends ColumnParent[A, B] {
   }
   
   override def toColumnPath : cassandra.ColumnPath = {
-    new cassandra.ColumnPath(columnFamily, _superColumn, _column)
+    ThriftGlue.createColumnPath(columnFamily, _superColumn, _column)
   }
   
   override def toString = {

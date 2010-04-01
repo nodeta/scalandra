@@ -1,8 +1,9 @@
 package com.nodeta.scalandra
 
-import org.apache.cassandra.service.ConsistencyLevel._
+import org.apache.cassandra.thrift.ConsistencyLevel
+import org.apache.cassandra.thrift.ConsistencyLevel._
 
-case class ConsistencyLevels(read : Int, write : Int) {}
+case class ConsistencyLevels(read : ConsistencyLevel, write : ConsistencyLevel) {}
 
 object ConsistencyLevels extends (() => ConsistencyLevels) {
   lazy val default = { ConsistencyLevels(ONE, ZERO) }

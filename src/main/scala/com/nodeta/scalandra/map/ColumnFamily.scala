@@ -1,6 +1,6 @@
 package com.nodeta.scalandra.map
 
-import org.apache.cassandra.service.InvalidRequestException
+import org.apache.cassandra.thrift.InvalidRequestException
 
 class UnsupportedActionException(s : String) extends Exception(s) {}
 
