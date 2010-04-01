@@ -12,15 +12,10 @@ import scala.collection.jcl.{ArrayList, LinkedHashMap}
  */
 trait Write[A, B, C] { this : Base[A, B, C] =>
   /**
-   * Consistency level used for writes
-   */
-  val writeConsistency = thrift.ConsistencyLevel.ZERO
-
-  /**
    * Insert or update value of single column
    */
   def update(key : String, path : ColumnPath[A, B], value : C) {
-    cassandra.insert(keyspace,key, path.toColumnPath, this.serializer.value.serialize(value), System.currentTimeMillis, writeConsistency)
+    cassandra.insert(keyspace,key, path.toColumnPath, this.serializer.value.serialize(value), System.currentTimeMillis, consistency.write)
   }
 
   def update(key : String, path : ColumnParent[A, B], value : Iterable[Pair[B, C]]) {
@@ -38,7 +33,7 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
     val mutation = new LinkedHashMap[String, JavaList[thrift.ColumnOrSuperColumn]]
     mutation(path.columnFamily) = data
 
-    cassandra.batch_insert(keyspace, key, mutation.underlying, writeConsistency)
+    cassandra.batch_insert(keyspace, key, mutation.underlying, consistency.write)
   }
 
   /**
@@ -82,6 +77,6 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
    * @param path Path to be removed
    */
   def remove(key : String, path : Path[A, B]) {
-    cassandra.remove(keyspace, key, path.toColumnPath, System.currentTimeMillis, writeConsistency)
+    cassandra.remove(keyspace, key, path.toColumnPath, System.currentTimeMillis, consistency.write)
   }
 }
