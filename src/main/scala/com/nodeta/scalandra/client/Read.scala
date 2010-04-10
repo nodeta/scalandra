@@ -7,7 +7,9 @@ import org.apache.cassandra.thrift
 import org.apache.cassandra.thrift.{NotFoundException, ThriftGlue}
 
 import java.util.{List => JavaList}
-import scala.collection.jcl.{ArrayList, Conversions, Map => JavaMap}
+
+import scala.collection.JavaConversions
+import scala.collection.Map // Todo: back to immutable maps?
 import scala.collection.immutable.ListMap
 
 import  com.nodeta.scalandra.{ColumnPath, ColumnParent}
@@ -59,8 +61,8 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
   */
   def describe() : Map[String, Map[String, String]] = {
     def convertMap[T](m : java.util.Map[T, java.util.Map[T, T]]) : Map[T, Map[T, T]] = {
-      Map.empty ++ Conversions.convertMap(m).map { case(columnFamily, description) =>
-        (columnFamily -> (Map.empty ++ Conversions.convertMap(description)))
+      JavaConversions.asMap(m).map { case(columnFamily, description) =>
+        (columnFamily -> JavaConversions.asMap(description))
       }
     }
 
@@ -84,8 +86,8 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     })
   }
   
-  private def multigetAny(keys : Iterable[String], path : Path[A, B]) : JavaMap[String, thrift.ColumnOrSuperColumn]= {
-    JavaMap(cassandra.multiget(keyspace, keys, path.toColumnPath, consistency.read))
+  private def multigetAny(keys : Iterable[String], path : Path[A, B]) : scala.collection.Map[String, thrift.ColumnOrSuperColumn]= {
+    JavaConversions.asMap(cassandra.multiget(keyspace, keys, path.toColumnPath, consistency.read))
   }
 
   /**
@@ -159,7 +161,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    */
   def get(keys : Iterable[String], path : Path[A, B], predicate : StandardSlice) : Map[String, Map[B, C]] = {
     val result = cassandra.multiget_slice(keyspace, keys, path.toColumnParent, convert(predicate), consistency.read)
-    ListMap() ++ Conversions.convertMap(result).map { case(key, value) =>
+    JavaConversions.asMap(result).map { case(key, value) =>
       key -> (ListMap() ++ value.map(getColumn(_).get))
     }
   }
@@ -169,7 +171,7 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
    */
   def get(keys : Iterable[String], path : Path[A, B], predicate : SuperSlice) : Map[String, Map[A, Map[B, C]]] = {
     val result = cassandra.multiget_slice(keyspace, keys, path.toColumnParent, convert(predicate), consistency.read)
-    ListMap() ++ Conversions.convertMap(result).map { case(key, value) =>
+    JavaConversions.asMap(result).map { case(key, value) =>
       key -> (ListMap() ++ value.map(getSuperColumn(_).get))
     }
   }
@@ -232,12 +234,12 @@ trait Read[A, B, C] { this : Base[A, B, C] =>
     }
   }
 
-  implicit private def convertList[T](list : JavaList[T]) : List[T] = {
-    List[T]() ++ Conversions.convertList[T](list)
+  implicit private def convertList[T](list : java.util.List[T]) : List[T] = {
+    List[T]() ++ JavaConversions.asBuffer[T](list)
   }
 
-  implicit private def convertCollection[T](list : Iterable[T]) : JavaList[T] = {
+  implicit private def convertCollection[T](list : Iterable[T]) : java.util.List[T] = {
     if (list eq null) null else
-    (new ArrayList() ++ list).underlying
+    JavaConversions.asList(scala.collection.mutable.Buffer(list.toSeq : _*))
   }
 }

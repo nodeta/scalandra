@@ -4,8 +4,8 @@ import com.nodeta.scalandra._
 import org.apache.cassandra.thrift
 import org.apache.cassandra.thrift.ThriftGlue
 import java.util.{List => JavaList}
-import scala.collection.jcl.{ArrayList, LinkedHashMap}
-
+import scala.collection.JavaConversions
+import scala.collection.mutable.{Buffer, Map => MutableMap}
 /**
  * This mixin contains all write-only actions
  *
@@ -31,10 +31,8 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
   }
 
   private def insert(key : String, path : Path[A, B], data : java.util.List[thrift.ColumnOrSuperColumn]) {
-    val mutation = new LinkedHashMap[String, JavaList[thrift.ColumnOrSuperColumn]]
-    mutation(path.columnFamily) = data
-
-    cassandra.batch_insert(keyspace, key, mutation.underlying, consistency.write)
+    val mutation = JavaConversions.asMap(MutableMap(path.columnFamily -> data))
+    cassandra.batch_insert(keyspace, key, mutation, consistency.write)
   }
 
   /**
@@ -42,18 +40,22 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
    */
   def insertNormal(key : String, path : Path[A, B], data : Iterable[Pair[B, C]]) {
     def convert(data : Iterable[Pair[B, C]]) : java.util.List[thrift.ColumnOrSuperColumn] = {
-      (new ArrayList() ++ data.map { case(k, v) =>
+      val buffer = Buffer[thrift.ColumnOrSuperColumn]()
+      buffer ++= data.map { case(k, v) =>
         ThriftGlue.createColumnOrSuperColumn_Column(
           new thrift.Column(serializer.column.serialize(k), this.serializer.value.serialize(v), System.currentTimeMillis))
-      }).underlying
+      }
+      JavaConversions.asList(buffer)
     }
     insert(key, path, convert(data))
   }
 
   private def convertToColumnList(data : Iterable[Pair[B, C]]) : JavaList[thrift.Column] = {
-    (new ArrayList[thrift.Column] ++ data.map { case(k, v) =>
+    val buffer = Buffer[thrift.Column]()
+    buffer ++= data.map { case(k, v) =>
       new thrift.Column(serializer.column.serialize(k), serializer.value.serialize(v), System.currentTimeMillis)
-    }).underlying
+    }
+    JavaConversions.asList(buffer)
   }
 
 
@@ -61,15 +63,14 @@ trait Write[A, B, C] { this : Base[A, B, C] =>
    * Insert collection of values in a super column family/key pair
    */
   def insertSuper(key : String, path : Path[A, B], data : Iterable[Pair[A, Iterable[Pair[B, C]]]]) {
-    val cfm = new LinkedHashMap[String, JavaList[thrift.ColumnOrSuperColumn]]
-
-    val list = (new ArrayList() ++ data.map { case(key, value) =>
+    val buffer = Buffer[thrift.ColumnOrSuperColumn]()
+    buffer ++= data.map { case(key, value) =>
       ThriftGlue.createColumnOrSuperColumn_SuperColumn(
         new thrift.SuperColumn(serializer.superColumn.serialize(key), convertToColumnList(value))
       )
-    }).underlying
+    }
 
-    insert(key, path, list)
+    insert(key, path, JavaConversions.asList(buffer))
   }
 
   /**
