@@ -1,6 +1,8 @@
 package com.nodeta.scalandra.tests
 
 import org.specs._
+import com.nodeta.scalandra
+import com.nodeta.scalandra._
 import com.nodeta.scalandra.serializer._
 
 class PathTest extends Specification {  
