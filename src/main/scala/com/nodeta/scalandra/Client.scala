@@ -1,7 +1,7 @@
 package com.nodeta.scalandra
 
-import serializer.{Serializer, NonSerializer}
-import map.{ColumnFamily => Fam, StandardColumnFamily => CF, SuperColumnFamily => SCF}
+import com.nodeta.scalandra.serializer.{Serializer, NonSerializer}
+import com.nodeta.scalandra.map.{ColumnFamily => Fam, StandardColumnFamily => CF, SuperColumnFamily => SCF}
 
 import org.apache.cassandra.{thrift => cassandra}
 import java.lang.IllegalArgumentException
@@ -31,15 +31,15 @@ class Client[A, B, C](
   protected val client = this
   protected val cassandra = connection.client
 
-  case class Path(columnFamily : String) extends scalandra.Path[A, B] {
+  case class Path(columnFamily : String) extends com.nodeta.scalandra.Path[A, B] {
     protected val serializer = client.serializer
   }
   
-  case class ColumnParent(columnFamily : String, superColumn : Option[A]) extends scalandra.ColumnParent[A, B] {
+  case class ColumnParent(columnFamily : String, superColumn : Option[A]) extends com.nodeta.scalandra.ColumnParent[A, B] {
     protected val serializer = client.serializer
   }
 
-  case class ColumnPath(columnFamily : String, superColumn : Option[A], column : B) extends scalandra.ColumnPath[A, B] {
+  case class ColumnPath(columnFamily : String, superColumn : Option[A], column : B) extends com.nodeta.scalandra.ColumnPath[A, B] {
     protected val serializer = client.serializer
   }
 }

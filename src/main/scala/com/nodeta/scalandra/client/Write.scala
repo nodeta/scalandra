@@ -1,5 +1,6 @@
 package com.nodeta.scalandra.client
 
+import com.nodeta.scalandra._
 import org.apache.cassandra.thrift
 import org.apache.cassandra.thrift.ThriftGlue
 import java.util.{List => JavaList}

@@ -1,6 +1,6 @@
 package com.nodeta.scalandra.map
 
-import map.{ColumnFamily => CF, SuperColumnFamily => SCF}
+import com.nodeta.scalandra.map.{ColumnFamily => CF, SuperColumnFamily => SCF}
 
 
 trait Keyspace[A, B, C] extends scala.collection.Map[String, ColumnFamily[_]] with Base[A, B, C] {

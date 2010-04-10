@@ -1,5 +1,7 @@
 package com.nodeta.scalandra.map
 
+import com.nodeta.scalandra.Range
+
 trait CassandraMap[A, B] extends scala.collection.Map[A, B] {
   def slice(r : Range[A]) : CassandraMap[A, B]
 

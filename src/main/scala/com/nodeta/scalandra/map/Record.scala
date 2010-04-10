@@ -1,5 +1,6 @@
 package com.nodeta.scalandra.map
 
+import com.nodeta.scalandra._
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.{Map => MMap}
 

@@ -1,5 +1,6 @@
 package com.nodeta.scalandra.client
 
+import com.nodeta.scalandra._
 import org.apache.cassandra.thrift.Cassandra
 import java.lang.IllegalArgumentException
 import com.nodeta.scalandra.serializer.Serializer

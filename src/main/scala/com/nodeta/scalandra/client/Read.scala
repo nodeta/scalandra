@@ -1,5 +1,6 @@
 package com.nodeta.scalandra.client
 
+import com.nodeta.scalandra._
 import com.nodeta.scalandra.serializer.{Serializer, NonSerializer}
 
 import org.apache.cassandra.thrift
@@ -9,7 +10,7 @@ import java.util.{List => JavaList}
 import scala.collection.jcl.{ArrayList, Conversions, Map => JavaMap}
 import scala.collection.immutable.ListMap
 
-import scalandra.{ColumnPath, ColumnParent}
+import  com.nodeta.scalandra.{ColumnPath, ColumnParent}
 
 /**
  * This mixin contains all read-only actions
