@@ -328,7 +328,7 @@ class ClientTest extends Specification {
 
       cassandra(key, superPath / None) =  Map("1" -> superData)
 
-      cassandra.get(key, superPath / Some("1")).get.keys.toList must eventually(containInOrder(superData.map(_._1).toList))
+      cassandra.get(key, superPath / Some("1")).get.keysIterator.toList must eventually(containInOrder(superData.map(_._1).toList))
     }
 
     "work on standard columns" in {
