@@ -15,12 +15,13 @@ import java.io.{Closeable, Flushable}
  * @param host Hostname or IP address of Cassandra server
  * @param port Port to connect
  */
-class Connection(host : String, port : Int) extends Closeable with Flushable {
-  def this() = this("127.0.0.1", 9160)
-  def this(host : String) = this(host, 9160)
-  def this(port : Int) = this("127.0.0.1", port)
+class Connection(host : String, port : Int, timeout : Int) extends Closeable with Flushable {
+  def this() = this("127.0.0.1", 9160, 0)
+  def this(host : String) = this(host, 9160, 0)
+  def this(port : Int) = this("127.0.0.1", port, 0)
+  def this(host : String, port : Int) = this(host, port, 0)
 
-  private val socket = new TSocket(host, port)
+  private val socket = new TSocket(host, port, timeout)
 
   /**
    * Unwrapped cassandra client
@@ -59,4 +60,5 @@ object Connection {
   def apply(host : String) : Connection = new Connection(host)
   def apply(port : Int) : Connection = new Connection(port)
   def apply(host : String, port : Int) : Connection = new Connection(host, port)
+  def apply(host : String, port : Int, timeout : Int) : Connection = new Connection(host, port, timeout)
 }
