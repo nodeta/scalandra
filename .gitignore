@@ -1,12 +1,7 @@
 .DS_Store
 target/*
-reports/*
-dist/*
-build/*
 lib_managed/*
 project/boot
 project/build/target
 *~
-data/*
-log/*
 tmp/*

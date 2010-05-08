@@ -190,9 +190,9 @@
    ~ disk.  Keep the data disks and the CommitLog disks separate for best
    ~ performance
   -->
-  <CommitLogDirectory>./data/commitlog</CommitLogDirectory>
+  <CommitLogDirectory>./tmp/commitlog</CommitLogDirectory>
   <DataFileDirectories>
-      <DataFileDirectory>./data/data</DataFileDirectory>
+      <DataFileDirectory>./tmp/data</DataFileDirectory>
   </DataFileDirectories>
 
 
