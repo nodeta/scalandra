@@ -5,7 +5,7 @@ import com.nodeta.scalandra._
 import com.nodeta.scalandra.serializer.StringSerializer
 
 
-class ClientTest extends Specification {
+class ClientTest extends CassandraSpecification {
   shareVariables()
   val connection = Connection(9162)
   val cassandra = new Client(connection, "Keyspace1", Serialization(StringSerializer, StringSerializer, StringSerializer), ConsistencyLevels.quorum)

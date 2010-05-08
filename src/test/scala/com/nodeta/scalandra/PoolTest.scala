@@ -4,7 +4,7 @@ import org.specs._
 import com.nodeta.scalandra.ConnectionProvider
 import com.nodeta.scalandra.pool.StackPool
 
-class PoolTest extends Specification {  
+class PoolTest extends CassandraSpecification {
   "Connection pool" should {
     val pool = StackPool(ConnectionProvider("localhost", 9162))
     "expose connections to blocks of code" in {
