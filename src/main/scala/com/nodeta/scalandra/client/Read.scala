@@ -12,7 +12,7 @@ import scala.collection.JavaConversions
 import scala.collection.Map // Todo: back to immutable maps?
 import scala.collection.immutable.ListMap
 
-import  com.nodeta.scalandra.{ColumnPath, ColumnParent}
+import com.nodeta.scalandra.{ColumnPath, ColumnParent}
 
 /**
  * This mixin contains all read-only actions

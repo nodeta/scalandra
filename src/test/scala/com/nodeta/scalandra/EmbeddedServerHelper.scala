@@ -29,7 +29,7 @@ object EmbeddedServerHelper {
     t.start()
 
     println("Cassandra started")
-      System.setProperty("cassandra.running", "true")
+    System.setProperty("cassandra.running", "true")
   }
 
   // Copy cassandra configuration to temporary directory
